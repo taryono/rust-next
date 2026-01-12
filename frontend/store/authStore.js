@@ -102,6 +102,13 @@ const useAuthStore = create((set, get) => ({
             return { success: false, error: errorMessage };
         }
     },
+    updateUser: (updatedUser) =>
+    set((state) => ({
+        user: {
+            ...state.user,
+            ...updatedUser,
+        },
+    })),
 
     // Logout
     logout: () => {

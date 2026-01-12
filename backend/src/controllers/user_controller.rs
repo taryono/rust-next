@@ -1,6 +1,6 @@
 use crate::{
     config::database::Database,
-    models::user::{ChangePasswordRequest, UpdateUserRequest, UserResponse, UserListResponse},
+    models::user::{ChangePasswordRequest, UpdateUserRequest, UserListResponse, UserResponse},
     services::user_service,
     utils::{jwt::Claims, response::ApiResponse},
 };
@@ -42,10 +42,7 @@ pub async fn get_users(db: web::Data<Database>) -> HttpResponse {
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_user_by_id(
-    db: web::Data<Database>,
-    path: web::Path<i32>,
-) -> HttpResponse {
+pub async fn get_user_by_id(db: web::Data<Database>, path: web::Path<i32>) -> HttpResponse {
     let user_id = path.into_inner();
 
     match user_service::get_user_by_id(db.get_connection(), user_id).await {
@@ -67,22 +64,21 @@ pub async fn get_user_by_id(
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_current_user(
-    db: web::Data<Database>,
-    req: HttpRequest,
-) -> HttpResponse {
+pub async fn get_current_user(db: web::Data<Database>, req: HttpRequest) -> HttpResponse {
     let claims = req.extensions().get::<Claims>().cloned();
 
     match claims {
         Some(claims) => {
             let user_id: i32 = claims.sub.parse().unwrap_or(0);
-            
+
             match user_service::get_user_by_id(db.get_connection(), user_id).await {
                 Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
                 Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
             }
         }
-        None => HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string())),
+        None => {
+            HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string()))
+        }
     }
 }
 
@@ -107,9 +103,10 @@ pub async fn update_current_user(
 ) -> HttpResponse {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(
-            format!("Validation error: {}", errors)
-        ));
+        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+            "Validation error: {}",
+            errors
+        )));
     }
 
     let claims = req.extensions().get::<Claims>().cloned();
@@ -117,13 +114,15 @@ pub async fn update_current_user(
     match claims {
         Some(claims) => {
             let user_id: i32 = claims.sub.parse().unwrap_or(0);
-            
+
             match user_service::update_user(db.get_connection(), user_id, body.into_inner()).await {
                 Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
                 Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
             }
         }
-        None => HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string())),
+        None => {
+            HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string()))
+        }
     }
 }
 
@@ -148,9 +147,10 @@ pub async fn change_password(
 ) -> HttpResponse {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(
-            format!("Validation error: {}", errors)
-        ));
+        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+            "Validation error: {}",
+            errors
+        )));
     }
 
     let claims = req.extensions().get::<Claims>().cloned();
@@ -158,17 +158,19 @@ pub async fn change_password(
     match claims {
         Some(claims) => {
             let user_id: i32 = claims.sub.parse().unwrap_or(0);
-            
-            match user_service::change_password(
-                db.get_connection(),
-                user_id,
-                body.into_inner()
-            ).await {
-                Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Password changed successfully")),
+
+            match user_service::change_password(db.get_connection(), user_id, body.into_inner())
+                .await
+            {
+                Ok(_) => {
+                    HttpResponse::Ok().json(ApiResponse::success("Password changed successfully"))
+                }
                 Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
             }
         }
-        None => HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string())),
+        None => {
+            HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string()))
+        }
     }
 }
 
@@ -188,10 +190,7 @@ pub async fn change_password(
         ("bearer_auth" = [])
     )
 )]
-pub async fn delete_user(
-    db: web::Data<Database>,
-    path: web::Path<i32>,
-) -> HttpResponse {
+pub async fn delete_user(db: web::Data<Database>, path: web::Path<i32>) -> HttpResponse {
     let user_id = path.into_inner();
 
     match user_service::delete_user(db.get_connection(), user_id).await {

@@ -18,7 +18,7 @@ impl<T: Serialize> ApiResponse<T> {
         }
     }
 
-     #[allow(dead_code)]  // ← Tambahkan ini
+    #[allow(dead_code)] // ← Tambahkan ini untuk menghindari warning tidak digunakan / unused import
     pub fn success_with_message(data: T, message: String) -> Self {
         Self {
             success: true,

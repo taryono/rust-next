@@ -1,0 +1,31 @@
+# Register
+curl -X POST http://127.0.0.1:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "password123"
+  }'
+
+
+# HTTP/1.1 201 Created
+# content-length: 507
+# connection: close
+# vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+# content-type: application/json
+# date: Mon, 12 Jan 2026 07:40:15 GMT
+
+# {
+#   "success": true,
+#   "data": {
+#     "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzY4MjkwMDE1LCJpYXQiOjE3NjgyMDM2MTUsInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.BiOU6KtxvpS7KLk8Sc-shEytF2KK32HLueosXl3jDXE",
+#     "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzY4ODA4NDE1LCJpYXQiOjE3NjgyMDM2MTUsInRva2VuX3R5cGUiOiJyZWZyZXNoIn0.ghsgqPiQfRornyLoMRqQ2JLiQOzrFnl3HxHEUWrEgXU",
+#     "token_type": "Bearer",
+#     "expires_in": 86400,
+#     "user": {
+#       "id": 2,
+#       "name": "John Doe",
+#       "email": "john@example.com"
+#     }
+#   }
+# }

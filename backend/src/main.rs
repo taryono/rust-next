@@ -8,7 +8,7 @@ mod services;
 mod utils;
 
 use actix_cors::Cors;
-use actix_web::{middleware::Logger, web, App, HttpServer};
+use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer};
 use config::database::Database;
 use dotenv::dotenv;
 use std::env;
@@ -72,9 +72,8 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
     let db = Database::new(&database_url)
         .await
         .expect("Failed to connect to database");
@@ -88,19 +87,29 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-        .allowed_origin("http://localhost:3000")  // Frontend URL
-        .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
-        .allowed_headers(vec![
-            actix_web::http::header::AUTHORIZATION,
-            actix_web::http::header::ACCEPT,
-            actix_web::http::header::CONTENT_TYPE,
-        ])
-        .max_age(3600);
+            .allowed_origin("http://localhost:3000") // Frontend URL
+            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+            .allowed_headers(vec![
+                actix_web::http::header::AUTHORIZATION,
+                actix_web::http::header::ACCEPT,
+                actix_web::http::header::CONTENT_TYPE,
+            ])
+            .max_age(3600);
 
         App::new()
             .app_data(web::Data::new(db.clone()))
             .wrap(cors)
             .wrap(Logger::default())
+            // Health check endpoint (GET - bisa di browser)
+            .route(
+                "/health",
+                web::get().to(|| async {
+                    HttpResponse::Ok().json(serde_json::json!({
+                        "status": "ok",
+                        "message": "Server is running"
+                    }))
+                }),
+            )
             .configure(routes::auth_routes::configure)
             .configure(routes::user_routes::configure)
             .service(

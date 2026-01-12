@@ -5,12 +5,26 @@ import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
 import Link from 'next/link';
 import { Modal } from 'react-bootstrap';
+import { api } from '@/lib/api';
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { user, logout, initialize, isAuthenticated } = useAuthStore();
+    const { user, logout, initialize, isAuthenticated,updateUser } = useAuthStore();
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [profileForm, setProfileForm] = useState({
+        name: '',
+        email: '', 
+    });
+
+    const openEditProfileModal = () => {
+        setProfileForm({
+            name: user.name,
+            email: user.email, 
+        });
+        setShowModal(true);
+    };
+
     
     useEffect(() => {
         initialize();
@@ -27,6 +41,25 @@ export default function DashboardPage() {
         logout();
         window.location.href = '/login';
     };
+
+    const handleUpdateProfileSubmit = async () => {
+        try { 
+           let res = await api.updateCurrentUser(profileForm);
+
+            // UPDATE STATE FRONTEND
+            await updateUser(res.data);
+
+            // optional: refresh user di store
+            await initialize();
+
+            // hide modal
+            setShowModal(false);
+        } catch (error) {
+            console.error('Update profile gagal:', error);
+            alert('Gagal update profile');
+        }
+    };
+
 
     if (!isAuthenticated) {
         return null;
@@ -64,8 +97,16 @@ export default function DashboardPage() {
             <Modal.Body>
                 <div className="mb-3">
                     <label className="form-label">Name</label>
-                    <input className="form-control" defaultValue={user.name} />
+                    <input className="form-control"
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} />
                 </div>
+                <div className="mb-3">
+                    <label className="form-label">Email</label>
+                    <input className="form-control"  
+                    value={profileForm.email}
+                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value }) } />
+                </div> 
             </Modal.Body>
 
             <Modal.Footer>
@@ -75,7 +116,7 @@ export default function DashboardPage() {
                 >
                     Cancel
                 </button>
-                <button className="btn btn-primary">
+                <button className="btn btn-primary" onClick={() => handleUpdateProfileSubmit()}>
                     Save
                 </button>
             </Modal.Footer>
@@ -184,7 +225,7 @@ export default function DashboardPage() {
                                     <span className="info-badge">Email</span>
                                     <p className="mb-0 ms-2 fs-5">{user.email}</p>
                                 </div>
-                                <button className="btn btn-primary mt-3" onClick={() => setShowModal(true)}>
+                                <button className="btn btn-primary mt-3" onClick={() => openEditProfileModal()}>
                                     <i className="bi bi-pencil-square me-2"></i>
                                     Edit Profile
                                 </button>
