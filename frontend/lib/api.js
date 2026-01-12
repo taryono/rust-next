@@ -131,6 +131,13 @@ export const api = {
     updateCurrentUser: (data) => axiosInstance.put('/api/users/me', data),
     changePassword: (data) => axiosInstance.post('/api/users/change-password', data),
     deleteUser: (id) => axiosInstance.delete(`/api/users/${id}`),
+ 
+    // Members 
+    getMembers: () => axiosInstance.get('/api/members'),
+    getMemberById: (id) => axiosInstance.get(`/api/member/${id}`),
+    createMember: (data) => axiosInstance.post('/api/member', data),
+    updateMember: (id, data) => axiosInstance.put(`/api/member/${id}`, data),
+    deleteMember: (id) => axiosInstance.delete(`/api/member/${id}`),
 };
 
 export default axiosInstance;

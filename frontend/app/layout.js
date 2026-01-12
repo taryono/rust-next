@@ -6,6 +6,7 @@ import useAuthStore from '@/store/authStore';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+import ModalManager from '@/components/modals/ModalManager';
 export default function RootLayout({ children }) {
 
   const initialize = useAuthStore(state => state.initialize);
@@ -16,7 +17,11 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ModalManager /> 
+      </body>
+      
     </html>
   );
 }

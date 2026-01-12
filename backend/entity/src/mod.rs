@@ -2,4 +2,7 @@
 
 pub mod prelude;
 
+pub mod notifications;
+pub mod role_users;
+pub mod roles;
 pub mod users;

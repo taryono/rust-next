@@ -132,3 +132,114 @@ body {
   height: 3rem;
   border-width: 0.3rem;
 }
+
+/* ... existing styles ... */
+
+/* Course Card Styles */
+.course-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.course-image {
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.course-card:hover .course-image {
+  transform: scale(1.1);
+}
+
+.course-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  min-height: 3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #2d3748;
+}
+
+.course-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Courses Page Header */
+.courses-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.courses-header .breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.courses-header .breadcrumb-item a {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.courses-header .breadcrumb-item.active,
+.courses-header .breadcrumb-item + .breadcrumb-item::before {
+  color: white;
+}
+
+/* Filter Buttons */
+.btn-outline-secondary {
+  border-color: #dee2e6;
+  color: #495057;
+  background: white;
+}
+
+.btn-outline-secondary:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+  color: #212529;
+}
+
+/* Rating Stars */
+.bi-star-fill,
+.bi-star {
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .course-title {
+    min-height: auto;
+    font-size: 0.95rem;
+  }
+  
+  .course-image {
+    height: 180px;
+  }
+  
+  .courses-header h1 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .course-card {
+    margin-bottom: 1rem;
+  }
+  
+  .course-image {
+    height: 160px;
+  }
+}

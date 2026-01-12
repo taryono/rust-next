@@ -2,29 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useAuthStore from '@/store/authStore';
-import Link from 'next/link';
-import { Modal } from 'react-bootstrap';
-import { api } from '@/lib/api';
+import useAuthStore from '@/store/authStore'; 
+import BootstrapClient from '@/components/ui/BootstrapClient';
+import useModalStore from '@/store/modalStore';
+
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { user, logout, initialize, isAuthenticated,updateUser } = useAuthStore();
+    const { user, logout, initialize, isAuthenticated } = useAuthStore();
     const [isLoading, setIsLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [profileForm, setProfileForm] = useState({
-        name: '',
-        email: '', 
-    });
-
-    const openEditProfileModal = () => {
-        setProfileForm({
-            name: user.name,
-            email: user.email, 
-        });
-        setShowModal(true);
-    };
-
+    const { openModal } = useModalStore();
     
     useEffect(() => {
         initialize();
@@ -41,26 +28,6 @@ export default function DashboardPage() {
         logout();
         window.location.href = '/login';
     };
-
-    const handleUpdateProfileSubmit = async () => {
-        try { 
-           let res = await api.updateCurrentUser(profileForm);
-
-            // UPDATE STATE FRONTEND
-            await updateUser(res.data);
-
-            // optional: refresh user di store
-            await initialize();
-
-            // hide modal
-            setShowModal(false);
-        } catch (error) {
-            console.error('Update profile gagal:', error);
-            alert('Gagal update profile');
-        }
-    };
-
-
     if (!isAuthenticated) {
         return null;
     }
@@ -82,46 +49,7 @@ export default function DashboardPage() {
         return null;
     }
     return (
-        <>
-        <Modal
-            show={showModal}
-            onHide={() => setShowModal(false)}
-            centered
-            size="lg"
-            backdrop="static" // optional
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Edit Profile</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-                <div className="mb-3">
-                    <label className="form-label">Name</label>
-                    <input className="form-control"
-                    value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Email</label>
-                    <input className="form-control"  
-                    value={profileForm.email}
-                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value }) } />
-                </div> 
-            </Modal.Body>
-
-            <Modal.Footer>
-                <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowModal(false)}
-                >
-                    Cancel
-                </button>
-                <button className="btn btn-primary" onClick={() => handleUpdateProfileSubmit()}>
-                    Save
-                </button>
-            </Modal.Footer>
-        </Modal>
-
+        <> 
         <div className="dashboard-container">
             {/* Navbar */}
             <nav className="dashboard-navbar">
@@ -225,7 +153,7 @@ export default function DashboardPage() {
                                     <span className="info-badge">Email</span>
                                     <p className="mb-0 ms-2 fs-5">{user.email}</p>
                                 </div>
-                                <button className="btn btn-primary mt-3" onClick={() => openEditProfileModal()}>
+                                <button className="btn btn-primary mt-3" onClick={() => openModal('edit-profile', user)}>
                                     <i className="bi bi-pencil-square me-2"></i>
                                     Edit Profile
                                 </button>
@@ -282,13 +210,13 @@ export default function DashboardPage() {
                             <div className="card-body">
                                 <div className="row g-3">
                                     <div className="col-md-3">
-                                        <button className="btn btn-outline-primary w-100">
+                                        <button className="btn btn-outline-primary w-100" onClick={() => openModal('add-member', user)}>
                                             <i className="bi bi-person-plus-fill d-block mb-2" style={{ fontSize: '2rem' }}></i>
                                             Add Member
                                         </button>
                                     </div>
                                     <div className="col-md-3">
-                                        <button className="btn btn-outline-success w-100">
+                                        <button className="btn btn-outline-success w-100" onClick={() => openModal('search-tree', user)}>
                                             <i className="bi bi-search d-block mb-2" style={{ fontSize: '2rem' }}></i>
                                             Search Tree
                                         </button>
@@ -300,7 +228,7 @@ export default function DashboardPage() {
                                         </button>
                                     </div>
                                     <div className="col-md-3">
-                                        <button className="btn btn-outline-secondary w-100">
+                                        <button className="btn btn-outline-secondary w-100" onClick={() => openModal('settings', user)}>
                                             <i className="bi bi-gear-fill d-block mb-2" style={{ fontSize: '2rem' }}></i>
                                             Settings
                                         </button>
@@ -310,10 +238,20 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </div>
+                {/* Quick Courses */}
+                <div className="row">
+                    {/* Di bagian Quick Actions, tambahkan: */}
+                    <div className="col-md-3">
+                    <a href="/courses" className="btn btn-outline-warning w-100 text-decoration-none">
+                        <i className="bi bi-book-fill d-block mb-2" style={{fontSize: '2rem'}}></i>
+                        Browse Courses
+                    </a>
+                    </div>
+                </div>
             </div>
 
         </div>
-        
+        <BootstrapClient />
         </>
     );
 }
