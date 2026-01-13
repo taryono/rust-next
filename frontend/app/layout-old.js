@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from "react";
+import "./globals.css";
 import useAuthStore from '@/store/authStore';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import '@tabler/core/dist/css/tabler.min.css';
-import "./globals.css";
+// import '@tabler/core/dist/css/tabler.min.css';
 
 import ModalManager from '@/components/modals/ModalManager';
 export default function RootLayout({ children }) {
@@ -21,13 +21,6 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <ModalManager /> 
-
-        {/* Bootstrap JS */}
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-          defer
-        />
-        
       </body>
       
     </html>

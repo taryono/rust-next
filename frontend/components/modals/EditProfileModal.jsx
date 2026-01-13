@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
 import useAuthStore from '@/store/authStore';
 import { api } from '@/lib/api';
+import { toastSuccess, toastError } from '@/lib/toast';
+
+
 
 export default function EditProfileModal({ data, onClose }) {
-    const { updateUser,initialize } = useAuthStore();
+    const { updateUser, initialize } = useAuthStore();
 
     const [form, setForm] = useState({
         name: '',
@@ -31,12 +34,14 @@ export default function EditProfileModal({ data, onClose }) {
 
             // optional: refresh user di store
             await initialize();
-
+            toastSuccess('Profile berhasil diperbarui');
             // hide modal
             onClose();
         } catch (error) {
             console.error('Update profile gagal:', error);
-            alert('Gagal update profile');
+            toastError('Update profile gagal :'+error.message);
+            onClose();
+
         }
     };
 
