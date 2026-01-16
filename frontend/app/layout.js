@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import useAuthStore from '@/store/authStore';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
 import '@tabler/core/dist/css/tabler.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import "./globals.css";
 import BootstrapClient from '@/components/ui/BootstrapClient';
 import ModalManager from '@/components/modals/ModalManager';

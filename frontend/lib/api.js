@@ -125,9 +125,10 @@ export const api = {
     refresh: (refreshToken) => axiosInstance.post('/api/auth/refresh', { refresh_token: refreshToken }),
 
     // Users
-    getUsers: () => axiosInstance.get('/api/users'),
+    getUsers: (params = '') => axiosInstance.get(`/api/users${params}`),
     getUserById: (id) => axiosInstance.get(`/api/users/${id}`),
     getCurrentUser: () => axiosInstance.get('/api/users/me'),
+    me: () => axiosInstance.get('/api/users/me'),
     updateCurrentUser: (data) => axiosInstance.put('/api/users/me', data),
     changePassword: (data) => axiosInstance.post('/api/users/change-password', data),
     deleteUser: (id) => axiosInstance.delete(`/api/users/${id}`),

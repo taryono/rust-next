@@ -9,6 +9,11 @@ export default function UserDropdown() {
   if (!user) return null;
 
   return (
+    <>
+    <span className="text-white">
+        <i className="bi bi-person-circle me-2"></i>
+        {user.name}
+    </span>
     <div className="dropdown">
       <button
         className="btn btn-dark dropdown-toggle"
@@ -33,5 +38,6 @@ export default function UserDropdown() {
         </li>
       </ul>
     </div>
+    </>
   );
 }

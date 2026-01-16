@@ -73,10 +73,32 @@ const useAuthStore = create((set, get) => ({
                 return { success: false, error: response.message };
             }
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'An error occurred';
-            set({ isLoading: false, error: errorMessage });
+            let errorMessage = 'Terjadi kesalahan';
+
+            // Backend mati / tidak bisa diakses
+            if (
+                error.code === 'ERR_NETWORK' ||
+                error.message?.includes('Network Error')
+            ) {
+                errorMessage = 'Server sedang tidak tersedia. Silakan coba lagi nanti.';
+            }
+            // Timeout
+            else if (error.code === 'ECONNABORTED') {
+                errorMessage = 'Koneksi ke server timeout.';
+            }
+            // Response dari backend (401, 422, dll)
+            else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
+            set({
+                isLoading: false,
+                error: errorMessage,
+            });
+
             return { success: false, error: errorMessage };
         }
+
     },
 
     // Register
@@ -119,6 +141,16 @@ const useAuthStore = create((set, get) => ({
         ...updatedUser,
         }),
     })),
+    me: async () => {
+        try {
+            const response = await api.me();
+            const me = normalizeUser(response.data);
+            set({ me });
+            return me;
+        } catch (error) {
+            set({ error: error.message , me: null });
+        }
+    },
     // Logout
     logout: () => {
         // Clear cookies first

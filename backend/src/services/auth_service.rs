@@ -1,9 +1,13 @@
 use crate::{
-    models::auth::{AuthResponse, LoginRequest, RegisterRequest, UserInfo},
+    models::{
+        auth::{AuthResponse, LoginRequest, RegisterRequest},
+        user::UserResponse,
+    },
     utils::{jwt, password},
 };
+use entity::roles::{self as roles, Entity as Roles};
 use entity::users::{self as users, Entity as User};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set, ColumnTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use std::env;
 
 pub async fn register_user(
@@ -47,11 +51,7 @@ pub async fn register_user(
         refresh_token,
         token_type: "Bearer".to_string(),
         expires_in,
-        user: UserInfo {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-        },
+        user: UserResponse::from_entity(&user),
     })
 }
 
@@ -80,16 +80,23 @@ pub async fn login_user(
         .parse::<i64>()
         .unwrap_or(900);
 
+    // Query roles user
+    let (user, roles) = User::find_by_id(user.id)
+        .find_with_related(Roles)
+        .all(db)
+        .await?
+        .into_iter()
+        .next()
+        .ok_or("User not found")?;
+    println!("Roles: {:?}", roles);
+    // atau
+    dbg!(&roles);
     Ok(AuthResponse {
         access_token,
         refresh_token,
         token_type: "Bearer".to_string(),
         expires_in,
-        user: UserInfo {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-        },
+        user: UserResponse::from_user_with_roles(&user, &roles),
     })
 }
 
