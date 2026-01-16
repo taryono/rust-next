@@ -1,13 +1,13 @@
 use crate::{
     config::database::Database,
-    models::user::{
-        ChangePasswordRequest, PaginationParams, UpdateUserRequest, UserListResponse, UserResponse,
-    },
+    models::user::{ChangePasswordRequest, UpdateUserRequest, UserListResponse, UserResponse},
     services::user_service,
     utils::{jwt::Claims, response::ApiResponse},
 };
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use validator::Validate;
+
+use crate::models::pagination::PaginationParams;
 
 #[utoipa::path(
     get,

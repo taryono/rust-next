@@ -5,7 +5,7 @@ use crate::{
     },
     utils::{jwt, password},
 };
-use entity::roles::{self as roles, Entity as Roles};
+use entity::roles::Entity as Roles;
 use entity::users::{self as users, Entity as User};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use std::env;

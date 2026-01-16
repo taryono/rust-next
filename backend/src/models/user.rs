@@ -23,19 +23,6 @@ pub struct UserListResponse {
     pub per_page: u64,
     pub total_pages: u64,
 }
-
-#[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct PaginationParams {
-    #[validate(range(min = 1))]
-    pub page: Option<u64>,
-
-    #[validate(range(min = 1, max = 100))]
-    pub per_page: Option<u64>,
-
-    pub search: Option<String>,
-    pub role: Option<String>,
-}
-
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateUserRequest {
     #[validate(length(min = 3, max = 50))]
