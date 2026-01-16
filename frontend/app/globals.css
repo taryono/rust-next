@@ -7,7 +7,7 @@
   --light-color: #f9fafb;
 }
 
-body {
+body,.page {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   /* background-color: #10b981; */
   min-height: 100vh;
@@ -386,4 +386,8 @@ main {
   main.collapsed {
     margin-left: 70px;
   }
+}
+
+.page-pretitle, .page-title {
+  color: white;
 }
