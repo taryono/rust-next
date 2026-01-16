@@ -8,16 +8,16 @@ export default function Home() {
   const router = useRouter();
   const { initialize, isAuthenticated } = useAuthStore();
 
+  // Initialize auth state once
   useEffect(() => {
     initialize();
+  }, []); // Empty dependency = run once on mount
 
-    // Redirect based on auth status
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router, initialize]);
+  // Handle redirect based on auth status
+  useEffect(() => {
+    const redirect = isAuthenticated ? '/dashboard' : '/login';
+    router.replace(redirect); // Use replace, not push
+  }, [isAuthenticated, router]);
 
   return (
     <div className="loading-container">
@@ -29,5 +29,4 @@ export default function Home() {
       </div>
     </div>
   );
-
 }

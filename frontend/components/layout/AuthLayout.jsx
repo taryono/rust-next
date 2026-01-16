@@ -1,13 +1,22 @@
+'use client';
+
+import { useEffect } from 'react';
+import clsx from 'clsx';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import useUIStore from '@/store/uiStore';
 
 export default function AuthLayout({ children }) {
+  const { sidebarCollapsed } = useUIStore();
+
   return (
     <>
       <Navbar />
-      <div className="d-flex">
+      <div className="layout-container">
         <Sidebar />
-        <main className="flex-fill p-4">{children}</main>
+        <main className={clsx('main-content', sidebarCollapsed && 'collapsed')}>
+          {children}
+        </main>
       </div>
     </>
   );

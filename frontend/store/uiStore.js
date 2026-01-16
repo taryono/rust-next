@@ -1,17 +1,26 @@
 import { create } from 'zustand';
 
 const useUIStore = create((set) => ({
-  sidebarOpen: false,
-  sidebarCollapsed: false,
+  // State
+  sidebarOpen: false,        // Mobile: apakah sidebar visible
+  sidebarCollapsed: false,   // Desktop: apakah sidebar collapsed
 
-  toggleSidebarMobile: () =>
-    set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+  // Actions
+  toggleSidebar: () => 
+    set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
-  toggleSidebarDesktop: () =>
-    set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  openSidebar: () => 
+    set({ sidebarOpen: true }),
 
-  closeSidebar: () => set({ sidebarOpen: false }),
+  closeSidebar: () => 
+    set({ sidebarOpen: false }),
+
+  toggleCollapse: () => 
+    set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+
+  // Reset (useful for logout)
+  reset: () => 
+    set({ sidebarOpen: false, sidebarCollapsed: false }),
 }));
-
 
 export default useUIStore;

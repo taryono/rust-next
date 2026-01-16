@@ -25,6 +25,8 @@ export const toastError = (message) =>
     Toast.fire({
         icon: 'error',
         title: message,
+        iconColor: '#ffffff',
+        color: 'white',
     });
 
 export const toastInfo = (message) =>

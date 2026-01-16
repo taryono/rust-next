@@ -2,8 +2,18 @@ import { create } from 'zustand';
 import { api } from '@/lib/api';
 import { cookies } from '@/lib/cookies';
 
+const normalizeUser = (user) => {
+  if (!user) return null;
+
+  return {
+    ...user,
+    roles: Array.isArray(user.roles) ? user.roles : [],
+  };
+};
+
+
 const useAuthStore = create((set, get) => ({
-    user: null,
+    user: { roles: [] },
     accessToken: null,
     refreshToken: null,
     isAuthenticated: false,
@@ -18,7 +28,7 @@ const useAuthStore = create((set, get) => ({
 
         if (accessToken && refreshToken && user) {
             set({
-                user,
+                user: normalizeUser(user),
                 accessToken,
                 refreshToken,
                 isAuthenticated: true
@@ -49,7 +59,7 @@ const useAuthStore = create((set, get) => ({
                 cookies.setUser(user);
 
                 set({
-                    user,
+                    user: normalizeUser(user),
                     accessToken: access_token,
                     refreshToken: refresh_token,
                     isAuthenticated: true,
@@ -83,7 +93,7 @@ const useAuthStore = create((set, get) => ({
                 cookies.setUser(user);
 
                 set({
-                    user,
+                    user: normalizeUser(user),
                     accessToken: access_token,
                     refreshToken: refresh_token,
                     isAuthenticated: true,
@@ -102,14 +112,13 @@ const useAuthStore = create((set, get) => ({
             return { success: false, error: errorMessage };
         }
     },
-    updateUser: (updatedUser) =>
+   updateUser: (updatedUser) =>
     set((state) => ({
-        user: {
-            ...state.user,
-            ...updatedUser,
-        },
+        user: normalizeUser({
+        ...state.user,
+        ...updatedUser,
+        }),
     })),
-
     // Logout
     logout: () => {
         // Clear cookies first

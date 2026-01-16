@@ -11,6 +11,7 @@ pub struct UserResponse {
     pub created_at: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<String>,
+    pub roles: Vec<String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -23,7 +24,7 @@ pub struct UserListResponse {
 pub struct UpdateUserRequest {
     #[validate(length(min = 3, max = 50))]
     pub name: Option<String>,
-    
+
     #[validate(email)]
     pub email: Option<String>,
 }
@@ -32,7 +33,7 @@ pub struct UpdateUserRequest {
 pub struct ChangePasswordRequest {
     #[validate(length(min = 1))]
     pub old_password: String,
-    
+
     #[validate(length(min = 6))]
     pub new_password: String,
 }
@@ -46,6 +47,11 @@ impl UserResponse {
             email: user.email.clone(),
             created_at: user.created_at.as_ref().map(|dt| dt.to_string()),
             updated_at: user.updated_at.as_ref().map(|dt| dt.to_string()),
+            roles: user
+                .role_users
+                .into_iter()
+                .map(|(_, role)| role.unwrap().name)
+                .collect(),
         }
     }
 }

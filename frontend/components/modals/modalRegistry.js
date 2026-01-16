@@ -13,6 +13,10 @@ const modalRegistry = {
         ssr: false,
         loading: () => <div className="p-4 text-center">Loading...</div>,
     }),
+    'update-password': dynamic(() => import('./UpdatePasswordModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
 };
 
 export default modalRegistry;

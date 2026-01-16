@@ -3,12 +3,12 @@ use crate::{
     utils::password,
 };
 use entity::users::{self as users, Entity as User};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set, ColumnTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 
-pub async fn get_all_users(db: &DatabaseConnection) -> Result<UserListResponse, Box<dyn std::error::Error>> {
-    let users_list = User::find()
-        .all(db)
-        .await?;
+pub async fn get_all_users(
+    db: &DatabaseConnection,
+) -> Result<UserListResponse, Box<dyn std::error::Error>> {
+    let users_list = User::find().all(db).await?;
 
     let total = users_list.len();
     let user_responses: Vec<UserResponse> = users_list
