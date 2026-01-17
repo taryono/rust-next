@@ -27,6 +27,11 @@ use utoipa_swagger_ui::SwaggerUi;
         controllers::user_controller::update_current_user,
         controllers::user_controller::change_password,
         controllers::user_controller::delete_user,
+        controllers::academic_year_controller::get_all,
+        controllers::academic_year_controller::get_by_id,
+        controllers::academic_year_controller::create,
+        controllers::academic_year_controller::update,
+        controllers::academic_year_controller::delete
     ),
     components(
         schemas(
@@ -40,6 +45,7 @@ use utoipa_swagger_ui::SwaggerUi;
             models::user::UserListResponse,
             models::user::UpdateUserRequest,
             models::user::ChangePasswordRequest,
+            models::academic_year::AcademicYearResponse
         )
     ),
     tags(
@@ -88,6 +94,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin("http://localhost:3000") // Frontend URL
+            .allowed_origin("http://172.18.228.123:3000") // Frontend URL
             .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
             .allowed_headers(vec![
                 actix_web::http::header::AUTHORIZATION,
@@ -112,6 +119,7 @@ async fn main() -> std::io::Result<()> {
             )
             .configure(routes::auth_routes::configure)
             .configure(routes::user_routes::configure)
+            .configure(routes::academic_year_routes::configure)
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")
                     .url("/api-docs/openapi.json", ApiDoc::openapi()),

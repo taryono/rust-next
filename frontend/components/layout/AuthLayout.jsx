@@ -6,16 +6,10 @@ import Sidebar from './Sidebar';
 import useUIStore from '@/store/uiStore';
 import { useEffect } from 'react';
 import useAuthStore from '@/store/authStore';
+import useModalStore from '@/store/modalStore';
 
 export default function AuthLayout({ children }) {
   const { sidebarCollapsed } = useUIStore();
-  const {me} = useAuthStore();
-
-  useEffect (() => {
-    if (me) {
-      console.log(me);
-    }
-  }, [me]);
 
   return (
     <>

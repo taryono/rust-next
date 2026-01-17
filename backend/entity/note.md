@@ -1,6 +1,6 @@
 <!-- jalankan ini untuk generate entity dari database -->
 ### 1. generate entity
-sea-orm-cli generate entity -u mysql://taryono:password@localhost/actix_db -o entity/src --with-serde both
+sea-orm-cli generate entity -u mysql://taryono:password@localhost/actix_db -o entity_temp --with-serde both
 
 
 cd /home/taryono/rust/silsilah/backend
@@ -17,3 +17,5 @@ touch src/models/mod.rs
 touch src/routes/mod.rs
 touch src/services/mod.rs
 touch src/utils/mod.rs
+Lihat struktur project Mode direktori saja (tanpa file)
+tree -d -I "vendor|node_modules"

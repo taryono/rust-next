@@ -39,7 +39,9 @@ pub async fn get_all_users(
     };
 
     // Get total count
-    let total = query.clone().count(db).await? as usize;
+    // let total = query.clone().count(db).await? as u64;
+    let paginator = query.clone().paginate(db, per_page);
+    let total = paginator.num_items().await?;
 
     // Apply pagination
     let paginator = query.paginate(db, per_page);

@@ -7,6 +7,11 @@
   --light-color: #f9fafb;
 }
 
+.page {
+  margin-top:5%;
+  border-radius: 10px;
+}
+
 body,.page {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   /* background-color: #10b981; */
@@ -233,6 +238,12 @@ body,.page {
   .courses-header h1 {
     font-size: 1.75rem;
   }
+
+  .page {
+    margin-top:6%;
+    border-radius: 10px;
+  }
+
 }
 
 @media (max-width: 576px) {
@@ -243,6 +254,12 @@ body,.page {
   .course-image {
     height: 160px;
   }
+
+  .page {
+    margin-top:6%;
+    border-radius: 10px;
+  }
+
 }
 
 .colored-toast.swal2-icon-success {
@@ -306,8 +323,7 @@ body,.page {
 /* Desktop: Always visible */
 @media (min-width: 768px) {
   .sidebar {
-    transform: translateX(0) !important;
-    margin-left: 15px !important;
+    transform: translateX(0) !important; 
   }
 
   .sidebar.collapsed {
@@ -391,3 +407,13 @@ main {
 .page-pretitle, .page-title {
   color: white;
 }
+
+/* globals.css atau custom.css */
+.navbar {
+  margin-left: 0 !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+} 

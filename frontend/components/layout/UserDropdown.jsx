@@ -9,17 +9,13 @@ export default function UserDropdown() {
   if (!user) return null;
 
   return (
-    <>
-    <span className="text-white">
-        <i className="bi bi-person-circle me-2"></i>
-        {user.name}
-    </span>
+    <> 
     <div className="dropdown">
       <button
         className="btn btn-dark dropdown-toggle"
         data-bs-toggle="dropdown"
         aria-expanded="false"
-      >
+      > <span className='me-2'>{user.name}</span>
         <i className="bi bi-person-circle me-2"></i>
         
       </button>

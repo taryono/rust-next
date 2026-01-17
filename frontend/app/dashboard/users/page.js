@@ -5,8 +5,11 @@ import AuthLayout from '@/components/layout/AuthLayout';
 import { api } from '@/lib/api';
 import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
-import Pagination from '@/components/common/Pagination';
+import Pagination from '@/components/common/Pagination'; 
+import useModalStore from '@/store/modalStore';
+
 export default function Users() {
+  const { openModal } = useModalStore();
   const {
     data: users,
     loading,
@@ -83,42 +86,7 @@ export default function Users() {
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
-  };
-
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-    
-    return pages;
-  };
+  }; 
 
   if (loading && users.length === 0) {
     return (
@@ -128,7 +96,12 @@ export default function Users() {
             <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
               <div className="text-center">
                 <div className="spinner-border text-primary" role="status"></div>
-                <p className="mt-3">Loading users...</p>
+                  <p className="mt-3 text-white">
+                  <div>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  </div>
+                    Loading users...
+                  </p>
               </div>
             </div>
           </div>
@@ -151,7 +124,7 @@ export default function Users() {
                 
                 <div className="col-auto ms-auto d-print-none">
                   <div className="btn-list">
-                    <button className="btn btn-primary d-none d-sm-inline-block">
+                    <button className="btn btn-primary d-none d-sm-inline-block" onClick={()=> openModal('add-member',null)}>
                       <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M12 5l0 14" />
@@ -247,7 +220,7 @@ export default function Users() {
                                         </span>
                                       ))
                                     ) : (
-                                      <span className="badge bg-secondary">No roles</span>
+                                      <span className="badge bg-primary">No roles</span>
                                     )}
                                   </div>
                                 </div>

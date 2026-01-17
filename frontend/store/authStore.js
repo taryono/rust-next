@@ -140,17 +140,7 @@ const useAuthStore = create((set, get) => ({
         ...state.user,
         ...updatedUser,
         }),
-    })),
-    me: async () => {
-        try {
-            const response = await api.me();
-            const me = normalizeUser(response.data);
-            set({ me });
-            return me;
-        } catch (error) {
-            set({ error: error.message , me: null });
-        }
-    },
+    })), 
     // Logout
     logout: () => {
         // Clear cookies first

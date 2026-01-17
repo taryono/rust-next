@@ -12,7 +12,7 @@ pub struct PaginatedResponse<T> {
 #[derive(Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginationMeta {
-    pub total: usize,
+    pub total: u64,
     pub page: u64,
     pub per_page: u64,
     pub total_pages: u64,
@@ -60,7 +60,7 @@ impl PaginationParams {
 }
 
 impl PaginationMeta {
-    pub fn new(total: usize, page: u64, per_page: u64) -> Self {
+    pub fn new(total: u64, page: u64, per_page: u64) -> Self {
         let total_pages = ((total as f64) / (per_page as f64)).ceil() as u64;
         Self {
             total,
@@ -74,7 +74,7 @@ impl PaginationMeta {
 }
 
 impl<T> PaginatedResponse<T> {
-    pub fn new(data: Vec<T>, total: usize, page: u64, per_page: u64) -> Self {
+    pub fn new(data: Vec<T>, total: u64, page: u64, per_page: u64) -> Self {
         Self {
             data,
             pagination: PaginationMeta::new(total, page, per_page),
