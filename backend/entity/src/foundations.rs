@@ -16,14 +16,16 @@ pub struct Model {
     pub parent_id: Option<u64>,
     #[sea_orm(column_type = "Text", nullable)]
     pub address: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub description: Option<String>,
     pub city: Option<String>,
     pub province: Option<String>,
     pub phone: Option<String>,
     pub email: Option<String>,
     pub is_active: Option<i8>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
-    pub deleted_at: Option<DateTime>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

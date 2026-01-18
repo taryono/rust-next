@@ -3,6 +3,7 @@
 
 pub mod academic_year_docs;
 pub mod auth_docs;
+pub mod foundation_docs;
 pub mod role_docs;
 pub mod user_docs;
 
@@ -80,6 +81,7 @@ macro_rules! generate_openapi {
         merge_api_docs!(
             docs::academic_year_docs::AcademicYearApiDoc,
             docs::auth_docs::AuthApiDoc,
+            docs::foundation_docs::FoundationApiDoc,
             docs::role_docs::RoleApiDoc,
             docs::user_docs::UserApiDoc,
         )
