@@ -1,13 +1,15 @@
+// ============================================
+// backend/src/controllers/user_controller.rs
+// ============================================
+use crate::models::pagination::PaginationParams;
 use crate::{
     config::database::Database,
     models::user::{ChangePasswordRequest, UpdateUserRequest, UserListResponse, UserResponse},
     services::user_service,
     utils::{jwt::Claims, response::ApiResponse},
 };
-use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, Result};
 use validator::Validate;
-
-use crate::models::pagination::PaginationParams;
 
 #[utoipa::path(
     get,
@@ -17,7 +19,7 @@ use crate::models::pagination::PaginationParams;
         ("page" = Option<u64>, Query, description = "Page number, default 1"),
         ("per_page" = Option<u64>, Query, description = "Items per page, default 10, max 100"),
         ("search" = Option<String>, Query, description = "Search by name or email"),
-        ("role" = Option<String>, Query, description = "Filter by role")
+         ("role" = Option<String>, Query, description = "Filter by role")
     ),
     responses(
         (status = 200, description = "List of users retrieved successfully", body = UserListResponse),
@@ -31,10 +33,12 @@ use crate::models::pagination::PaginationParams;
 pub async fn get_users(
     db: web::Data<Database>,
     query: web::Query<PaginationParams>,
-) -> HttpResponse {
+) -> Result<HttpResponse> {
     match user_service::get_all_users(db.get_connection(), query.into_inner()).await {
-        Ok(users) => HttpResponse::Ok().json(ApiResponse::success(users)),
-        Err(e) => HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())),
+        Ok(users) => Ok(HttpResponse::Ok().json(ApiResponse::success(users))),
+        Err(e) => {
+            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
+        }
     }
 }
 
@@ -54,12 +58,12 @@ pub async fn get_users(
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_user_by_id(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
+pub async fn get_user_by_id(db: web::Data<Database>, path: web::Path<u64>) -> Result<HttpResponse> {
     let user_id = path.into_inner();
 
     match user_service::get_user_by_id(db.get_connection(), user_id).await {
-        Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
-        Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
+        Ok(user) => Ok(HttpResponse::Ok().json(ApiResponse::success(user))),
+        Err(e) => Ok(HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string()))),
     }
 }
 
@@ -76,7 +80,7 @@ pub async fn get_user_by_id(db: web::Data<Database>, path: web::Path<u64>) -> Ht
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_current_user(db: web::Data<Database>, req: HttpRequest) -> HttpResponse {
+pub async fn get_current_user(db: web::Data<Database>, req: HttpRequest) -> Result<HttpResponse> {
     let claims = req.extensions().get::<Claims>().cloned();
 
     match claims {
@@ -84,12 +88,15 @@ pub async fn get_current_user(db: web::Data<Database>, req: HttpRequest) -> Http
             let user_id: u64 = claims.sub.parse().unwrap_or(0);
 
             match user_service::get_user_by_id(db.get_connection(), user_id).await {
-                Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
-                Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
+                Ok(user) => Ok(HttpResponse::Ok().json(ApiResponse::success(user))),
+                Err(e) => {
+                    Ok(HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())))
+                }
             }
         }
         None => {
-            HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string()))
+            Ok(HttpResponse::Unauthorized()
+                .json(ApiResponse::<()>::error("Unauthorized".to_string())))
         }
     }
 }
@@ -112,13 +119,15 @@ pub async fn update_current_user(
     db: web::Data<Database>,
     req: HttpRequest,
     body: web::Json<UpdateUserRequest>,
-) -> HttpResponse {
+) -> Result<HttpResponse> {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
-            "Validation error: {}",
-            errors
-        )));
+        return Ok(
+            HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+                "Validation error: {}",
+                errors
+            ))),
+        );
     }
 
     let claims = req.extensions().get::<Claims>().cloned();
@@ -128,12 +137,15 @@ pub async fn update_current_user(
             let user_id: u64 = claims.sub.parse().unwrap_or(0);
 
             match user_service::update_user(db.get_connection(), user_id, body.into_inner()).await {
-                Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
-                Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
+                Ok(user) => Ok(HttpResponse::Ok().json(ApiResponse::success(user))),
+                Err(e) => {
+                    Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())))
+                }
             }
         }
         None => {
-            HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string()))
+            Ok(HttpResponse::Unauthorized()
+                .json(ApiResponse::<()>::error("Unauthorized".to_string())))
         }
     }
 }
@@ -156,13 +168,15 @@ pub async fn change_password(
     db: web::Data<Database>,
     req: HttpRequest,
     body: web::Json<ChangePasswordRequest>,
-) -> HttpResponse {
+) -> Result<HttpResponse> {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
-            "Validation error: {}",
-            errors
-        )));
+        return Ok(
+            HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+                "Validation error: {}",
+                errors
+            ))),
+        );
     }
 
     let claims = req.extensions().get::<Claims>().cloned();
@@ -175,17 +189,22 @@ pub async fn change_password(
                 .await
             {
                 Ok(_) => {
-                    HttpResponse::Ok().json(ApiResponse::success("Password changed successfully"))
+                    Ok(HttpResponse::Ok()
+                        .json(ApiResponse::success("Password changed successfully")))
                 }
-                Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
+                Err(e) => {
+                    Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())))
+                }
             }
         }
         None => {
-            HttpResponse::Unauthorized().json(ApiResponse::<()>::error("Unauthorized".to_string()))
+            Ok(HttpResponse::Unauthorized()
+                .json(ApiResponse::<()>::error("Unauthorized".to_string())))
         }
     }
 }
 
+/// Soft delete user (replaces delete_user)
 #[utoipa::path(
     delete,
     path = "/api/users/{id}",
@@ -194,19 +213,96 @@ pub async fn change_password(
         ("id" = u64, Path, description = "User ID")
     ),
     responses(
-        (status = 200, description = "User deleted successfully"),
-        (status = 401, description = "Unauthorized"),
-        (status = 404, description = "User not found")
+        (status = 200, description = "User soft deleted successfully"),
+        (status = 404, description = "User not found"),
+        (status = 401, description = "Unauthorized")
     ),
-    security(
-        ("bearer_auth" = [])
-    )
+    security(("bearer_auth" = []))
 )]
-pub async fn delete_user(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
+pub async fn delete_user(db: web::Data<Database>, path: web::Path<u64>) -> Result<HttpResponse> {
     let user_id = path.into_inner();
 
-    match user_service::delete_user(db.get_connection(), user_id).await {
-        Ok(_) => HttpResponse::Ok().json(ApiResponse::success("User deleted successfully")),
-        Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
+    match user_service::soft_delete(db.get_connection(), user_id).await {
+        Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User deleted successfully"))),
+        Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
+    }
+}
+
+/// Restore deleted user
+#[utoipa::path(
+    post,
+    path = "/api/users/{id}/restore",
+    tag = "users",
+    params(
+        ("id" = u64, Path, description = "User ID")
+    ),
+    responses(
+        (status = 200, description = "User restored successfully"),
+        (status = 404, description = "User not found"),
+        (status = 401, description = "Unauthorized")
+    ),
+    security(("bearer_auth" = []))
+)]
+pub async fn restore_user(db: web::Data<Database>, path: web::Path<u64>) -> Result<HttpResponse> {
+    let user_id = path.into_inner();
+
+    match user_service::restore(db.get_connection(), user_id).await {
+        Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User restored successfully"))),
+        Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
+    }
+}
+
+/// Force delete user (permanent)
+#[utoipa::path(
+    delete,
+    path = "/api/users/{id}/force",
+    tag = "users",
+    params(
+        ("id" = u64, Path, description = "User ID")
+    ),
+    responses(
+        (status = 200, description = "User permanently deleted"),
+        (status = 404, description = "User not found"),
+        (status = 401, description = "Unauthorized")
+    ),
+    security(("bearer_auth" = []))
+)]
+pub async fn force_delete_user(
+    db: web::Data<Database>,
+    path: web::Path<u64>,
+) -> Result<HttpResponse> {
+    let user_id = path.into_inner();
+
+    match user_service::force_delete(db.get_connection(), user_id).await {
+        Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User permanently deleted"))),
+        Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
+    }
+}
+
+/// Get deleted users
+#[utoipa::path(
+    get,
+    path = "/api/users/deleted",
+    tag = "users",
+    params(
+        ("page" = Option<u64>, Query, description = "Page number, default 1"),
+        ("per_page" = Option<u64>, Query, description = "Items per page, default 10, max 100"),
+    ),
+    responses(
+        (status = 200, description = "List of deleted users"),
+        (status = 401, description = "Unauthorized"),
+        (status = 500, description = "Internal server error")
+    ),
+    security(("bearer_auth" = []))
+)]
+pub async fn get_deleted_users(
+    db: web::Data<Database>,
+    query: web::Query<PaginationParams>,
+) -> Result<HttpResponse> {
+    match user_service::get_deleted_users(db.get_connection(), query.into_inner()).await {
+        Ok(users) => Ok(HttpResponse::Ok().json(ApiResponse::success(users))),
+        Err(e) => {
+            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
+        }
     }
 }

@@ -3,42 +3,44 @@ members = [".", "entity"]
 resolver = "2"
 
 [workspace.dependencies]
-sea-orm = { version = "1.1" }
-serde = { version = "1.0", features = ["derive"] }
-chrono = { version = "0.4", features = ["serde"] }
+chrono = {version = "0.4", features = ["serde"]}
+sea-orm = {version = "1.1"}
+sea-orm-codegen = {version = "1.1"}# ← Tambahkan ini dan samakan versi
+serde = {version = "1.0", features = ["derive"]}
 
 [package]
-name = "silsilah"
-version = "0.1.0"
-edition = "2021"
+build = "build.rs" # ← Tambahkan ini untuk enable build script
+edition = "2021" 
+name = "silsilah" 
+version = "0.1.0" 
 
 [dependencies]
-entity = { path = "entity" }
-
+async-trait = "0.1" # Untuk async trait
+entity = {path = "entity"} 
 # Actix Web Framework
-actix-web = "4"
 actix-cors = "0.7"
 actix-rt = "2"
+actix-web = "4"
 
 # Serialization
-serde = { workspace = true }
+serde = {workspace = true}
 serde_json = "1.0"
 
 # Futures
 futures = "0.3"
 
 # Database - SeaORM
-sea-orm = { workspace = true, features = [
-    "sqlx-mysql",
-    "runtime-tokio-native-tls",
-    "macros",
-] }
+sea-orm = {workspace = true, features = [
+  "sqlx-mysql",
+  "runtime-tokio-native-tls",
+  "macros",
+]}
 
 # Async runtime
-tokio = { version = "1", features = ["full"] }
+tokio = {version = "1", features = ["full"]}
 
 # Validation
-validator = { version = "0.18", features = ["derive"] }
+validator = {version = "0.18", features = ["derive"]}
 
 # JWT Authentication
 jsonwebtoken = "9"
@@ -54,19 +56,25 @@ env_logger = "0.11"
 log = "0.4"
 
 # Error handling
-thiserror = "1.0"
 anyhow = "1.0"
+thiserror = "1.0"
 
 # Date and time
-chrono = { workspace = true }
+chrono = {workspace = true}
 
 # UUID
-uuid = { version = "1.0", features = ["serde", "v4"] }
+uuid = {version = "1.0", features = ["serde", "v4"]}
 
 # API Documentation - Swagger/OpenAPI
-utoipa = { version = "5", features = ["actix_extras", "chrono", "uuid"] }
-utoipa-swagger-ui = { version = "8", features = ["actix-web"] }
 futures-util = "0.3.31"
+utoipa = {version = "5", features = ["actix_extras", "chrono", "uuid"]}
+utoipa-swagger-ui = {version = "8", features = ["actix-web"]}
+# Actix Governor  Rate Limiting Install actix-governor untuk prevent abuse:
+actix-governor = "0.5"
+actix-web-httpauth = "0.8.2"
 
 [dev-dependencies]
-sea-orm = { workspace = true, features = ["mock"] }
+sea-orm = {workspace = true, features = ["mock"]}
+
+[build-dependencies]
+sea-orm-codegen = {workspace = true}

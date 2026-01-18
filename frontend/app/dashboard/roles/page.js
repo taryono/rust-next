@@ -8,10 +8,10 @@ import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
 
-export default function Users() {
+export default function Roles() {
   const { openModal } = useModalStore();
   const {
-    data: users,
+    data: roles,
     loading,
     error,
     pagination,
@@ -19,7 +19,7 @@ export default function Users() {
     goToPage,
     changePerPage,
     updateFilters,
-  } = usePagination(api.getUsers);
+  } = usePagination(api.getRoles);
  
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
@@ -32,10 +32,10 @@ export default function Users() {
   const [total, setTotal] = useState(0); 
 
   useEffect(() => {
-    fetchUsers();
+    fetchRoles();
   }, [currentPage, perPage, searchQuery, filterRole]);
 
-  const fetchUsers = async () => {
+  const fetchRoles = async () => {
     try {
        
       const params = new URLSearchParams({
@@ -46,14 +46,14 @@ export default function Users() {
       if (searchQuery) params.append('search', searchQuery);
       if (filterRole !== 'all') params.append('role', filterRole);
       
-      const response = await api.getUsers(`?${params.toString()}`);
+      const response = await api.getRoles(`?${params.toString()}`);
       const data = response.data || response; 
       setTotal(data.total || 0);
       setTotalPages(data.total_pages || 1);
       
     } catch (err) {
       console.error('Error:', err);
-      alertError('Failed to fetch users');
+      alertError('Failed to fetch roles');
     } finally { 
     }
   };
@@ -88,7 +88,7 @@ export default function Users() {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   }; 
 
-  if (loading && users.length === 0) {
+  if (loading && roles.length === 0) {
     return (
       <AuthLayout>
         <div className="page">
@@ -99,7 +99,7 @@ export default function Users() {
                   <div>
                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                   </div>
-                    Loading users... 
+                    Loading roles... 
               </div>
             </div>
           </div>
@@ -117,18 +117,18 @@ export default function Users() {
               <div className="row g-2 align-items-center">
                 <div className="col">
                   <div className="page-pretitle">Overview</div>
-                  <h2 className="page-title">Users Management</h2>
+                  <h2 className="page-title">Roles Management</h2>
                 </div>
                 
                 <div className="col-auto ms-auto d-print-none">
                   <div className="btn-list">
-                    <button className="btn btn-primary d-none d-sm-inline-block" onClick={()=> openModal('add-member',null)}>
+                    <button className="btn btn-primary d-none d-sm-inline-block" onClick={()=> openModal('add-role',null)}>
                       <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M12 5l0 14" />
                         <path d="M5 12l14 0" />
                       </svg>
-                      Add new user
+                      Add new role
                     </button>
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export default function Users() {
             <div className="container-xl">
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">Users List</h3>
+                  <h3 className="card-title">Roles List</h3>
                   <div className="ms-auto">
                       <div className="btn-group" role="group">
                         <button 
@@ -185,7 +185,7 @@ export default function Users() {
                         <input 
                           type="text" 
                           className="form-control form-control-sm" 
-                          placeholder="Search users..."
+                          placeholder="Search roles..."
                           value={filters.search}
                           onChange={(e) => updateFilters({ search: e.target.value })}
                         />
@@ -196,23 +196,23 @@ export default function Users() {
                   {viewMode === 'grid' && (
                       <div className="card-body">
                         <div className="row row-cards">
-                          {users.map((user, index) => (
-                            <div key={user.id} className="col-md-6 col-lg-4">
+                          {roles.map((role, index) => (
+                            <div key={role.id} className="col-md-6 col-lg-4">
                               <div className="card card-sm">
                                 <div className="card-body">
                                   <div className="d-flex align-items-center mb-3">
                                     <span className={`avatar avatar-lg rounded me-3 ${getAvatarColor(index)}`}>
-                                      {getInitials(user.name)}
+                                      {getInitials(role.name)}
                                     </span>
                                     <div className="flex-fill">
-                                      <div className="font-weight-medium">{user.name}</div>
-                                      <div className="text-secondary small">{user.email}</div>
+                                      <div className="font-weight-medium">{role.name}</div>
+                                      <div className="text-secondary small">{role.description}</div>
                                     </div>
                                   </div>
                                 
                                   <div className="mb-2">
-                                    {user.roles && user.roles.length > 0 ? (
-                                      user.roles.map((role, idx) => (
+                                    {role.roles && role.roles.length > 0 ? (
+                                      role.roles.map((role, idx) => (
                                         <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
                                           {role}
                                         </span>
@@ -234,37 +234,26 @@ export default function Users() {
                         <table className="table table-vcenter card-table table-striped">
                           <thead>
                             <tr>
-                              <th>User</th>
-                              <th>Email</th>
-                              <th>Roles</th>
+                              <th>Role</th>
+                              <th>Description</th> 
                               <th className="w-1"></th>
                             </tr>
                           </thead>
                           <tbody>
-                            {users.map((user, index) => (
-                              <tr key={user.id}>
+                            {roles.map((role, index) => (
+                              <tr key={role.id}>
                                 <td>
                                   <div className="d-flex py-1 align-items-center">
                                     <span className={`avatar avatar-sm me-2 ${getAvatarColor(index)}`}>
-                                      {getInitials(user.name)}
+                                      {getInitials(role.name)}
                                     </span>
                                     <div className="flex-fill">
-                                      <div className="font-weight-medium">{user.name}</div>
+                                      <div className="font-weight-medium">{role.name}</div>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{user.email}</td>
-                                <td>
-                                  {user.roles && user.roles.length > 0 ? (
-                                    user.roles.map((role, idx) => (
-                                      <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
-                                        {role}
-                                      </span>
-                                    ))
-                                  ) : (
-                                    <span className="badge bg-secondary">No roles</span>
-                                  )}
-                                </td>
+                                <td className="text-secondary">{role.description}</td>
+                                 
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

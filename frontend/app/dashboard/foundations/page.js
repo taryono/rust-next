@@ -83,13 +83,11 @@ export default function Foundations() {
           <div className="page-wrapper">
             <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
               <div className="text-center">
-                <div className="spinner-border text-primary" role="status"></div>
-                  <p className="mt-3 text-white">
+                <div className="spinner-border text-white" role="status"></div>
                   <div>
                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                   </div>
-                    Loading foundations...
-                  </p>
+                    Loading foundations... 
               </div>
             </div>
           </div>

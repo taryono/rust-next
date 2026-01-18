@@ -1,9 +1,13 @@
 [package]
+edition = "2021"
 name = "entity"
 version = "0.1.0"
-edition = "2024"
 
 [dependencies]
-sea-orm = { workspace = true }
-serde = { workspace = true }
-chrono = { workspace = true }
+# async-trait = "0.1" # ← Tambahkan ini
+chrono = {workspace = true}
+sea-orm = {workspace = true}
+serde = {workspace = true}
+
+# [build-dependencies]
+# sea-orm-codegen = {workspace = true}# ← Perbaiki, pakai workspace

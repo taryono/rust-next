@@ -7,10 +7,8 @@ pub struct UserResponse {
     pub id: u64,
     pub name: String,
     pub email: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<String>>,
 }
@@ -50,8 +48,11 @@ impl UserResponse {
             id: user.id,
             name: user.name.clone(),
             email: user.email.clone(),
-            created_at: user.created_at.map(|d| d.to_string()),
-            updated_at: user.updated_at.map(|d| d.to_string()),
+            created_at: user.created_at.to_string(),
+            //  Dipakai jika updated_at adalah Option (tipe: Option<DateTime>)
+            // user.updated_at.as_ref().map(|dt| dt.to_string()),
+            // Dipakai jika updated_at bukan Option (tipe: DateTime)
+            updated_at: user.updated_at.to_string(),
             roles: Some(role_names),
         }
     }
@@ -61,8 +62,11 @@ impl UserResponse {
             id: user.id,
             name: user.name.clone(),
             email: user.email.clone(),
-            created_at: user.created_at.as_ref().map(|dt| dt.to_string()),
-            updated_at: user.updated_at.as_ref().map(|dt| dt.to_string()),
+            created_at: user.created_at.to_string(),
+            //  Dipakai jika updated_at adalah Option (tipe: Option<DateTime>)
+            // user.updated_at.as_ref().map(|dt| dt.to_string()),
+            // Dipakai jika updated_at bukan Option (tipe: DateTime)
+            updated_at: user.updated_at.to_string(),
             roles: None,
         }
     }

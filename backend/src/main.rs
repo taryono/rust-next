@@ -1,78 +1,22 @@
 mod config;
 mod controllers;
+mod docs;
 mod errors;
 mod middleware;
 mod models;
 mod routes;
 mod services;
 mod utils;
-
 use actix_cors::Cors;
+use actix_governor::{Governor, GovernorConfigBuilder};
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer};
+use actix_web_httpauth::middleware::HttpAuthentication;
 use config::database::Database;
 use dotenv::dotenv;
 use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-
-#[derive(OpenApi)]
-#[openapi(
-    paths(
-        controllers::auth_controller::register,
-        controllers::auth_controller::login,
-        controllers::auth_controller::refresh,
-        controllers::user_controller::get_users,
-        controllers::user_controller::get_user_by_id,
-        controllers::user_controller::get_current_user,
-        controllers::user_controller::update_current_user,
-        controllers::user_controller::change_password,
-        controllers::user_controller::delete_user,
-        controllers::academic_year_controller::get_all,
-        controllers::academic_year_controller::get_by_id,
-        controllers::academic_year_controller::create,
-        controllers::academic_year_controller::update,
-        controllers::academic_year_controller::delete
-    ),
-    components(
-        schemas(
-            models::auth::RegisterRequest,
-            models::auth::LoginRequest,
-            models::auth::AuthResponse,
-            models::auth::UserInfo,
-            models::auth::RefreshTokenRequest,
-            models::auth::RefreshTokenResponse,
-            models::user::UserResponse,
-            models::user::UserListResponse,
-            models::user::UpdateUserRequest,
-            models::user::ChangePasswordRequest,
-            models::academic_year::AcademicYearResponse
-        )
-    ),
-    tags(
-        (name = "auth", description = "Authentication endpoints"),
-        (name = "users", description = "User management endpoints")
-    ),
-    modifiers(&SecurityAddon)
-)]
-struct ApiDoc;
-
-struct SecurityAddon;
-
-impl utoipa::Modify for SecurityAddon {
-    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
-        if let Some(components) = openapi.components.as_mut() {
-            components.add_security_scheme(
-                "bearer_auth",
-                utoipa::openapi::security::SecurityScheme::Http(
-                    utoipa::openapi::security::Http::new(
-                        utoipa::openapi::security::HttpAuthScheme::Bearer,
-                    ),
-                ),
-            )
-        }
-    }
-}
-
+// mod macros;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -88,22 +32,52 @@ async fn main() -> std::io::Result<()> {
     let port = env::var("SERVER_PORT").unwrap_or_else(|_| "8080".to_string());
     let server_addr = format!("{}:{}", host, port);
 
+    // ✨ Gunakan macro yang auto-generated dari build.rs
+    let openapi = generate_openapi!();
+    // Check if Swagger should be enabled
+    let enable_swagger = env::var("ENABLE_SWAGGER").unwrap_or("true".to_string()) == "true";
+
+    let swagger_auth = env::var("SWAGGER_AUTH").unwrap_or("false".to_string()) == "true";
+
     log::info!("Starting server at http://{}", server_addr);
-    log::info!("Swagger UI available at http://{}/swagger-ui/", server_addr);
+
+    if enable_swagger {
+        if swagger_auth {
+            log::info!(
+                "Swagger UI available at http://{}/docs/swagger-ui/ (with authentication)",
+                server_addr
+            );
+        } else {
+            log::info!(
+                "Swagger UI available at http://{}/swagger-ui/ (without authentication)",
+                server_addr
+            );
+        }
+    }
+
+    let governor_conf = GovernorConfigBuilder::default()
+        .per_second(10)
+        .burst_size(20)
+        .finish()
+        .unwrap();
 
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin("http://localhost:3000") // Frontend URL
             .allowed_origin("http://172.18.228.123:3000") // Frontend URL
+            // .allowed_origin("https://yourfrontend.com")  // ← Production frontend
+            // .allowed_origin(&format!("http://{}:3000", host))  // Dynamic
             .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
             .allowed_headers(vec![
                 actix_web::http::header::AUTHORIZATION,
                 actix_web::http::header::ACCEPT,
                 actix_web::http::header::CONTENT_TYPE,
             ])
+            .supports_credentials() // Jika perlu cookies
             .max_age(3600);
 
-        App::new()
+        let mut app = App::new()
+            .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
             .wrap(cors)
             .wrap(Logger::default())
@@ -120,10 +94,44 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::auth_routes::configure)
             .configure(routes::user_routes::configure)
             .configure(routes::academic_year_routes::configure)
-            .service(
-                SwaggerUi::new("/swagger-ui/{_:.*}")
-                    .url("/api-docs/openapi.json", ApiDoc::openapi()),
-            )
+            .configure(routes::role_routes::configure);
+
+        // Swagger UI configuration
+        if enable_swagger {
+            if swagger_auth {
+                // Production mode: Swagger UI dengan authentication
+                let openapi_for_json = openapi.clone();
+
+                app = app
+                    // OpenAPI JSON endpoint (tanpa auth - diperlukan oleh Swagger UI)
+                    .route(
+                        "/docs/openapi.json",
+                        web::get().to(move || {
+                            let api = openapi_for_json.clone();
+                            async move { HttpResponse::Ok().json(api) }
+                        }),
+                    )
+                    // Swagger UI dengan auth
+                    .service(
+                        web::scope("/docs")
+                            .wrap(HttpAuthentication::basic(
+                                middleware::swagger_auth::validator,
+                            ))
+                            .service(
+                                SwaggerUi::new("/swagger-ui/{_:.*}")
+                                    .url("/docs/openapi.json", openapi.clone()),
+                            ),
+                    );
+            } else {
+                // Development mode: Swagger UI tanpa authentication
+                app = app.service(
+                    SwaggerUi::new("/swagger-ui/{_:.*}")
+                        .url("/api-docs/openapi.json", openapi.clone()),
+                );
+            }
+        }
+
+        app
     })
     .bind(&server_addr)?
     .run()

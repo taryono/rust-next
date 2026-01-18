@@ -36,5 +36,6 @@ pub mod subjects;
 pub mod teacher_availability;
 pub mod teachers;
 pub mod time_slots;
+pub mod traits;
 pub mod unit_types;
 pub mod units;

@@ -1,0 +1,6 @@
+# .gitignore
+entity_tmp/
+migration/
+scripts/
+target/
+.env

@@ -1,4 +1,4 @@
-use sea_orm::entity::prelude::*;
+use sea_orm::entity::prelude::*; // ← Import dari entity crate
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "users")]
@@ -11,8 +11,9 @@ pub struct Model {
     pub username: Option<String>,
     pub password: String,
     pub is_verified: Option<i8>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
     pub deleted_at: Option<DateTimeUtc>,
 }
 
@@ -43,6 +44,13 @@ impl Related<super::roles::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+// ✅ Implementasi trait SoftDelete
+impl crate::traits::soft_delete::SoftDelete for Entity {
+    fn deleted_at_col() -> Column {
+        Column::DeletedAt
+    }
+}
 
 // ini saya matikan karena di line 19 sudah ada #[derive(DeriveRelation)]
 // DeriveRelation artinya tidak perlu membuat impl RelationTrait manual

@@ -18,14 +18,12 @@ export default function DashboardPage() {
           <div className="page">
             <div className="page-wrapper">
               <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
-                <div className="text-center">
+                <div className="text-center text-white">
                   <div className="spinner-border text-primary font-weight-bold font-size-lg" role="status"></div>
-                    <p className="mt-3 text-white">
                     <div>
                       <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     </div>
-                      Loading ...
-                    </p>
+                      Loading ... 
                 </div>
               </div>
             </div>
