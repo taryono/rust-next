@@ -19,7 +19,7 @@ export default function Foundations() {
     goToPage,
     changePerPage,
     updateFilters,
-  } = usePagination(api.getFoundations());
+  } = usePagination(api.getFoundations);
  
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
@@ -43,7 +43,8 @@ export default function Foundations() {
         per_page: perPage.toString(),
       });
       
-      if (searchQuery) params.append('search', searchQuery); 
+      if (searchQuery) params.append('search', searchQuery);
+      if (filterRole !== 'all') params.append('role', filterRole);
       
       const response = await api.getFoundations(`?${params.toString()}`);
       const data = response.data || response; 
@@ -65,7 +66,18 @@ export default function Foundations() {
     
     return () => clearTimeout(timer);
   }, [searchQuery]);
- 
+
+  // Helper functions
+  const getRoleBadgeColor = (role) => {
+    const colors = {
+      'Admin': 'bg-red',
+      'Editor': 'bg-blue',
+      'Viewer': 'bg-green',
+      'default': 'bg-gray'
+    };
+    return colors[role] || colors.default;
+  };
+
   const getAvatarColor = (index) => {
     const colors = ['bg-blue-lt', 'bg-azure-lt', 'bg-indigo-lt', 'bg-purple-lt', 
                    'bg-pink-lt', 'bg-red-lt', 'bg-orange-lt', 'bg-yellow-lt'];
@@ -116,7 +128,7 @@ export default function Foundations() {
                         <path d="M12 5l0 14" />
                         <path d="M5 12l14 0" />
                       </svg>
-                      Add New Foundations
+                      Add new foundation
                     </button>
                   </div>
                 </div>
@@ -194,7 +206,7 @@ export default function Foundations() {
                                     </span>
                                     <div className="flex-fill">
                                       <div className="font-weight-medium">{foundation.name}</div>
-                                      <div className="text-secondary small">{foundation.code}</div>
+                                      <div className="text-secondary small">{foundation.address}</div>
                                     </div>
                                   </div> 
                                 </div>
@@ -210,8 +222,9 @@ export default function Foundations() {
                         <table className="table table-vcenter card-table table-striped">
                           <thead>
                             <tr>
+                              <th>Foundation</th>
                               <th>Name</th>
-                              <th>Email</th> 
+                              <th>Alamat</th>
                               <th className="w-1"></th>
                             </tr>
                           </thead>
@@ -228,7 +241,18 @@ export default function Foundations() {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{foundation.code}</td> 
+                                <td className="text-secondary">{foundation.address}</td>
+                                <td>
+                                  {foundation.roles && foundation.roles.length > 0 ? (
+                                    foundation.roles.map((role, idx) => (
+                                      <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
+                                        {role}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="badge bg-secondary-outline">-</span>
+                                  )}
+                                </td>
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

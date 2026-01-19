@@ -1,9 +1,9 @@
 use crate::{
-    models::academic_year::{
+    modules::academic_years::models::{
         AcademicYearListResponse, AcademicYearResponse, CreateAcademicYearRequest,
         UpdateAcademicYearRequest,
     },
-    models::pagination::PaginationParams,
+    utils::pagination::PaginationParams,
 };
 use chrono::{NaiveDate, Utc};
 use entity::academic_years;

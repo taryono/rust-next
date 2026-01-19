@@ -208,19 +208,7 @@ export default function Units() {
                                       <div className="font-weight-medium">{unit.name}</div>
                                       <div className="text-secondary small">{unit.email}</div>
                                     </div>
-                                  </div>
-                                
-                                  <div className="mb-2">
-                                    {unit.roles && unit.roles.length > 0 ? (
-                                      unit.roles.map((role, idx) => (
-                                        <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
-                                          {role}
-                                        </span>
-                                      ))
-                                    ) : (
-                                      <span className="badge bg-primary">No roles</span>
-                                    )}
-                                  </div>
+                                  </div> 
                                 </div>
                               </div>
                             </div>
@@ -253,18 +241,7 @@ export default function Units() {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{unit.email}</td>
-                                <td>
-                                  {unit.roles && unit.roles.length > 0 ? (
-                                    unit.roles.map((role, idx) => (
-                                      <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
-                                        {role}
-                                      </span>
-                                    ))
-                                  ) : (
-                                    <span className="badge bg-secondary">No roles</span>
-                                  )}
-                                </td>
+                                <td className="text-secondary">{unit.email}</td> 
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

@@ -1,11 +1,8 @@
 mod config;
-mod controllers;
 mod docs;
 mod errors;
 mod middleware;
-mod models;
-mod routes;
-mod services;
+mod modules;
 mod utils;
 use actix_cors::Cors;
 use actix_governor::{Governor, GovernorConfigBuilder};
@@ -91,10 +88,11 @@ async fn main() -> std::io::Result<()> {
                     }))
                 }),
             )
-            .configure(routes::auth_routes::configure)
-            .configure(routes::user_routes::configure)
-            .configure(routes::academic_year_routes::configure)
-            .configure(routes::role_routes::configure);
+            .configure(modules::auth::routes::configure)
+            .configure(modules::users::routes::configure)
+            .configure(modules::academic_years::routes::configure)
+            .configure(modules::roles::routes::configure)
+            .configure(modules::foundations::routes::configure);
 
         // Swagger UI configuration
         if enable_swagger {

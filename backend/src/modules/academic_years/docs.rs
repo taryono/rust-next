@@ -1,33 +1,30 @@
 // ============================================
-// 3. src/docs/user_docs.rs
+// 4. src/docs/academic_year_docs.rs
 // ============================================
-use crate::{controllers, models};
+use crate::modules::academic_years::academic_year;
+use crate::modules::academic_years::models::AcademicYearResponse;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        controllers::user_controller::get_users,
-        controllers::user_controller::get_user_by_id,
-        controllers::user_controller::get_current_user,
-        controllers::user_controller::update_current_user,
-        controllers::user_controller::change_password,
-        controllers::user_controller::delete_user,
+        academic_year::get_all,
+        academic_year::get_by_id,
+        academic_year::create,
+        academic_year::update,
+        academic_year::delete,
     ),
     components(
         schemas(
-            models::user::UserResponse,
-            models::user::UserListResponse,
-            models::user::UpdateUserRequest,
-            models::user::ChangePasswordRequest,
+            AcademicYearResponse,
         )
     ),
     tags(
-        (name = "users", description = "User management endpoints")
+        (name = "academic_years", description = "Academic Year management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct UserApiDoc;
+pub struct AcademicYearsApiDoc;
 
 struct SecurityAddon;
 

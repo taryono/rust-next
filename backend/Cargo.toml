@@ -10,6 +10,7 @@ serde = {version = "1.0", features = ["derive"]}
 
 [package]
 build = "build.rs" # ← Tambahkan ini untuk enable build script
+default-run = "silsilah" 
 edition = "2021" 
 name = "silsilah" 
 version = "0.1.0" 
@@ -78,3 +79,7 @@ sea-orm = {workspace = true, features = ["mock"]}
 
 [build-dependencies]
 sea-orm-codegen = {workspace = true}
+
+[[bin]]
+name = "gen_module" 
+path = "scripts/gen_module.rs" # untuk generate modul gunakan cargo run --bin gen_module

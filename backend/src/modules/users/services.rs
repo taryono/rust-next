@@ -1,9 +1,9 @@
 // ============================================
 // backend/src/services/user_service.rs
 // ============================================
-use crate::models::pagination::{PaginatedResponse, PaginationParams};
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use crate::{
-    models::user::{ChangePasswordRequest, UpdateUserRequest, UserResponse},
+    modules::users::models::{ChangePasswordRequest, UpdateUserRequest, UserResponse},
     utils::password,
 };
 use chrono::Utc;

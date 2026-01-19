@@ -1,32 +1,32 @@
-// ============================================
-// 2. src/docs/auth_docs.rs
-// ============================================
-use crate::{controllers, models};
+// src/docs/role_docs.rs
+use crate::modules::roles::{models, role};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        controllers::auth_controller::register,
-        controllers::auth_controller::login,
-        controllers::auth_controller::refresh,
+        role::get_roles,
+        role::get_role_by_id,
+        role::get_current_role,
+        role::update_current_role,
+        role::delete_role,
+        role::restore_role,
+        role::force_delete_role,
+        role::get_deleted_roles,
     ),
     components(
         schemas(
-            models::auth::RegisterRequest,
-            models::auth::LoginRequest,
-            models::auth::AuthResponse,
-            models::auth::UserInfo,
-            models::auth::RefreshTokenRequest,
-            models::auth::RefreshTokenResponse,
+            models::RoleResponse,
+            models::RoleListResponse,
+            models::UpdateRoleRequest,
         )
     ),
     tags(
-        (name = "auth", description = "Authentication endpoints")
+        (name = "roles", description = "Role management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct AuthApiDoc;
+pub struct RolesApiDoc;
 
 struct SecurityAddon;
 

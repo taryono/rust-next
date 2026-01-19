@@ -218,7 +218,7 @@ export default function Users() {
                                         </span>
                                       ))
                                     ) : (
-                                      <span className="badge bg-primary">No roles</span>
+                                      <span className="badge bg-primary-outline">No roles</span>
                                     )}
                                   </div>
                                 </div>
@@ -262,7 +262,7 @@ export default function Users() {
                                       </span>
                                     ))
                                   ) : (
-                                    <span className="badge bg-secondary">No roles</span>
+                                    <span className="badge bg-secondary-outline">No roles</span>
                                   )}
                                 </td>
                                 <td>

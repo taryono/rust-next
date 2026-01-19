@@ -1,29 +1,32 @@
-// ============================================
-// 4. src/docs/academic_year_docs.rs
-// ============================================
-use crate::{controllers, models};
+// src/docs/foundation_docs.rs
+use crate::modules::foundations::{foundation, models};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        controllers::academic_year_controller::get_all,
-        controllers::academic_year_controller::get_by_id,
-        controllers::academic_year_controller::create,
-        controllers::academic_year_controller::update,
-        controllers::academic_year_controller::delete,
+        foundation::get_foundations,
+        foundation::get_foundation_by_id,
+        foundation::get_current_foundation,
+        foundation::update_current_foundation,
+        foundation::delete_foundation,
+        foundation::restore_foundation,
+        foundation::force_delete_foundation,
+        foundation::get_deleted_foundations,
     ),
     components(
         schemas(
-            models::academic_year::AcademicYearResponse,
+            models::FoundationResponse,
+            models::FoundationListResponse,
+            models::UpdateFoundationRequest,
         )
     ),
     tags(
-        (name = "academic_years", description = "Academic Year management endpoints")
+        (name = "foundations", description = "Foundation management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct AcademicYearApiDoc;
+pub struct FoundationsApiDoc;
 
 struct SecurityAddon;
 

@@ -208,19 +208,7 @@ export default function Roles() {
                                       <div className="font-weight-medium">{role.name}</div>
                                       <div className="text-secondary small">{role.description}</div>
                                     </div>
-                                  </div>
-                                
-                                  <div className="mb-2">
-                                    {role.roles && role.roles.length > 0 ? (
-                                      role.roles.map((role, idx) => (
-                                        <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
-                                          {role}
-                                        </span>
-                                      ))
-                                    ) : (
-                                      <span className="badge bg-primary">No roles</span>
-                                    )}
-                                  </div>
+                                  </div> 
                                 </div>
                               </div>
                             </div>

@@ -18,7 +18,7 @@ touch src/routes/mod.rs
 touch src/services/mod.rs
 touch src/utils/mod.rs
 Lihat struktur project Mode direktori saja (tanpa file)
-tree -d -I "vendor|node_modules"
+tree -d -I "vendor|node_modules|target|entity_tmp|migrations"
 
 # /etc/nginx/sites-available/your-api
 
@@ -205,3 +205,51 @@ mod traits;
 5. **Permission** berbeda untuk soft delete vs force delete
 
 Mau saya buatkan implementasi lengkap dengan migration dan contoh CRUD yang lebih detail?
+
+├── entity
+│   └── src
+│       └── traits
+├── scripts
+└── src
+    ├── config
+    ├── controllers
+    ├── docs
+    ├── errors
+    ├── macros
+    ├── middleware
+    ├── models
+    ├── routes
+    ├── services
+    └── utils
+
+├── entity
+│   └── src
+│       └── traits
+├── scripts
+└── src
+    ├── config
+    ├── modules
+    |       |
+    |       |__users
+    |          |___service.rs
+    |          |___docs.rs
+    |          |___models.rs
+    |          |___routes.rs
+    |          roles
+    |          |___service.rs
+    |          |___docs.rs
+    |          |___models.rs
+    |          |___routes.rs
+    ├── errors
+    ├── macros
+    ├── middleware
+    └── utils
+
+🛠️ Opsi Implementasi Generator
+
+Aku sarankan script Rust (binary)
+📍 Lokasi: scripts/gen_module.rs
+Cara Pakai
+cargo run --bin gen_module users
+cargo run --bin gen_module employees
+cargo run --bin gen_module positions

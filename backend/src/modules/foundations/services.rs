@@ -1,8 +1,8 @@
 // ============================================
 // backend/src/services/foundation_service.rs
 // ============================================
-use crate::models::foundation::{FoundationResponse, UpdateFoundationRequest};
-use crate::models::pagination::{PaginatedResponse, PaginationParams};
+use crate::modules::foundations::models::{FoundationResponse, UpdateFoundationRequest};
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use chrono::Utc;
 use entity::foundations::{self, Entity as Foundations};
 use sea_orm::{

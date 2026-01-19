@@ -1,11 +1,13 @@
 // ============================================
 // backend/src/controllers/foundation_controller.rs
 // ============================================
-use crate::models::pagination::PaginationParams;
+use crate::utils::pagination::PaginationParams;
 use crate::{
     config::database::Database,
-    models::foundation::{FoundationListResponse, FoundationResponse, UpdateFoundationRequest},
-    services::foundation_service,
+    modules::foundations::models::{
+        FoundationListResponse, FoundationResponse, UpdateFoundationRequest,
+    },
+    modules::foundations::services,
     utils::{jwt::Claims, response::ApiResponse},
 };
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
@@ -33,7 +35,7 @@ pub async fn get_foundations(
     db: web::Data<Database>,
     query: web::Query<PaginationParams>,
 ) -> HttpResponse {
-    match foundation_service::get_all_foundations(db.get_connection(), query.into_inner()).await {
+    match services::get_all_foundations(db.get_connection(), query.into_inner()).await {
         Ok(foundations) => HttpResponse::Ok().json(ApiResponse::success(foundations)),
         Err(e) => HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -58,7 +60,7 @@ pub async fn get_foundations(
 pub async fn get_foundation_by_id(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let foundation_id = path.into_inner();
 
-    match foundation_service::get_foundation_by_id(db.get_connection(), foundation_id).await {
+    match services::get_foundation_by_id(db.get_connection(), foundation_id).await {
         Ok(foundation) => HttpResponse::Ok().json(ApiResponse::success(foundation)),
         Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -84,8 +86,7 @@ pub async fn get_current_foundation(db: web::Data<Database>, req: HttpRequest) -
         Some(claims) => {
             let foundation_id: i64 = claims.sub.parse().unwrap_or(0);
 
-            match foundation_service::get_foundation_by_id(db.get_connection(), foundation_id).await
-            {
+            match services::get_foundation_by_id(db.get_connection(), foundation_id).await {
                 Ok(foundation) => HttpResponse::Ok().json(ApiResponse::success(foundation)),
                 Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
             }
@@ -129,12 +130,8 @@ pub async fn update_current_foundation(
         Some(claims) => {
             let foundation_id: i64 = claims.sub.parse().unwrap_or(0);
 
-            match foundation_service::update_foundation(
-                db.get_connection(),
-                foundation_id,
-                body.into_inner(),
-            )
-            .await
+            match services::update_foundation(db.get_connection(), foundation_id, body.into_inner())
+                .await
             {
                 Ok(foundation) => HttpResponse::Ok().json(ApiResponse::success(foundation)),
                 Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
@@ -164,7 +161,7 @@ pub async fn update_current_foundation(
 pub async fn delete_foundation(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let foundation_id = path.into_inner();
 
-    match foundation_service::soft_delete(db.get_connection(), foundation_id).await {
+    match services::soft_delete(db.get_connection(), foundation_id).await {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Foundation deleted successfully")),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -188,7 +185,7 @@ pub async fn delete_foundation(db: web::Data<Database>, path: web::Path<i64>) ->
 pub async fn restore_foundation(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let foundation_id = path.into_inner();
 
-    match foundation_service::restore(db.get_connection(), foundation_id).await {
+    match services::restore(db.get_connection(), foundation_id).await {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Foundation restored successfully")),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -215,7 +212,7 @@ pub async fn force_delete_foundation(
 ) -> HttpResponse {
     let foundation_id = path.into_inner();
 
-    match foundation_service::force_delete(db.get_connection(), foundation_id).await {
+    match services::force_delete(db.get_connection(), foundation_id).await {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Foundation permanently deleted")),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -241,8 +238,7 @@ pub async fn get_deleted_foundations(
     db: web::Data<Database>,
     query: web::Query<PaginationParams>,
 ) -> HttpResponse {
-    match foundation_service::get_deleted_foundations(db.get_connection(), query.into_inner()).await
-    {
+    match services::get_deleted_foundations(db.get_connection(), query.into_inner()).await {
         Ok(foundations) => HttpResponse::Ok().json(ApiResponse::success(foundations)),
         Err(e) => HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())),
     }

@@ -1,11 +1,11 @@
 // ============================================
 // backend/src/controllers/role_controller.rs
 // ============================================
-use crate::models::pagination::PaginationParams;
+use crate::utils::pagination::PaginationParams;
 use crate::{
     config::database::Database,
-    models::role::{RoleListResponse, RoleResponse, UpdateRoleRequest},
-    services::role_service,
+    modules::roles::models::{RoleListResponse, RoleResponse, UpdateRoleRequest},
+    modules::roles::services,
     utils::{jwt::Claims, response::ApiResponse},
 };
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
@@ -33,7 +33,7 @@ pub async fn get_roles(
     db: web::Data<Database>,
     query: web::Query<PaginationParams>,
 ) -> HttpResponse {
-    match role_service::get_all_roles(db.get_connection(), query.into_inner()).await {
+    match services::get_all_roles(db.get_connection(), query.into_inner()).await {
         Ok(roles) => HttpResponse::Ok().json(ApiResponse::success(roles)),
         Err(e) => HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -58,7 +58,7 @@ pub async fn get_roles(
 pub async fn get_role_by_id(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
     let role_id = path.into_inner();
 
-    match role_service::get_role_by_id(db.get_connection(), role_id).await {
+    match services::get_role_by_id(db.get_connection(), role_id).await {
         Ok(role) => HttpResponse::Ok().json(ApiResponse::success(role)),
         Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -84,7 +84,7 @@ pub async fn get_current_role(db: web::Data<Database>, req: HttpRequest) -> Http
         Some(claims) => {
             let role_id: u64 = claims.sub.parse().unwrap_or(0);
 
-            match role_service::get_role_by_id(db.get_connection(), role_id).await {
+            match services::get_role_by_id(db.get_connection(), role_id).await {
                 Ok(role) => HttpResponse::Ok().json(ApiResponse::success(role)),
                 Err(e) => HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())),
             }
@@ -128,7 +128,7 @@ pub async fn update_current_role(
         Some(claims) => {
             let role_id: u64 = claims.sub.parse().unwrap_or(0);
 
-            match role_service::update_role(db.get_connection(), role_id, body.into_inner()).await {
+            match services::update_role(db.get_connection(), role_id, body.into_inner()).await {
                 Ok(role) => HttpResponse::Ok().json(ApiResponse::success(role)),
                 Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
             }
@@ -157,7 +157,7 @@ pub async fn update_current_role(
 pub async fn delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
     let role_id = path.into_inner();
 
-    match role_service::soft_delete(db.get_connection(), role_id).await {
+    match services::soft_delete(db.get_connection(), role_id).await {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Role deleted successfully")),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -181,7 +181,7 @@ pub async fn delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpR
 pub async fn restore_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
     let role_id = path.into_inner();
 
-    match role_service::restore(db.get_connection(), role_id).await {
+    match services::restore(db.get_connection(), role_id).await {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Role restored successfully")),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -205,7 +205,7 @@ pub async fn restore_role(db: web::Data<Database>, path: web::Path<u64>) -> Http
 pub async fn force_delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
     let role_id = path.into_inner();
 
-    match role_service::force_delete(db.get_connection(), role_id).await {
+    match services::force_delete(db.get_connection(), role_id).await {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::success("Role permanently deleted")),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -231,7 +231,7 @@ pub async fn get_deleted_roles(
     db: web::Data<Database>,
     query: web::Query<PaginationParams>,
 ) -> HttpResponse {
-    match role_service::get_deleted_roles(db.get_connection(), query.into_inner()).await {
+    match services::get_deleted_roles(db.get_connection(), query.into_inner()).await {
         Ok(roles) => HttpResponse::Ok().json(ApiResponse::success(roles)),
         Err(e) => HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())),
     }

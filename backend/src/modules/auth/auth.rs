@@ -1,7 +1,9 @@
 use crate::{
     config::database::Database,
-    models::auth::{AuthResponse, LoginRequest, RefreshTokenRequest, RefreshTokenResponse, RegisterRequest},
-    services::auth_service,
+    modules::auth::models::{
+        AuthResponse, LoginRequest, RefreshTokenRequest, RefreshTokenResponse, RegisterRequest,
+    },
+    modules::auth::services,
     utils::response::ApiResponse,
 };
 use actix_web::{web, HttpResponse};
@@ -18,18 +20,16 @@ use validator::Validate;
         (status = 409, description = "Email already exists")
     )
 )]
-pub async fn register(
-    db: web::Data<Database>,
-    body: web::Json<RegisterRequest>,
-) -> HttpResponse {
+pub async fn register(db: web::Data<Database>, body: web::Json<RegisterRequest>) -> HttpResponse {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(
-            format!("Validation error: {}", errors)
-        ));
+        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+            "Validation error: {}",
+            errors
+        )));
     }
 
-    match auth_service::register_user(db.get_connection(), body.into_inner()).await {
+    match services::register_user(db.get_connection(), body.into_inner()).await {
         Ok(response) => HttpResponse::Created().json(ApiResponse::success(response)),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -46,18 +46,16 @@ pub async fn register(
         (status = 401, description = "Invalid credentials")
     )
 )]
-pub async fn login(
-    db: web::Data<Database>,
-    body: web::Json<LoginRequest>,
-) -> HttpResponse {
+pub async fn login(db: web::Data<Database>, body: web::Json<LoginRequest>) -> HttpResponse {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(
-            format!("Validation error: {}", errors)
-        ));
+        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+            "Validation error: {}",
+            errors
+        )));
     }
 
-    match auth_service::login_user(db.get_connection(), body.into_inner()).await {
+    match services::login_user(db.get_connection(), body.into_inner()).await {
         Ok(response) => HttpResponse::Ok().json(ApiResponse::success(response)),
         Err(e) => HttpResponse::Unauthorized().json(ApiResponse::<()>::error(e.to_string())),
     }
@@ -73,17 +71,16 @@ pub async fn login(
         (status = 401, description = "Invalid refresh token")
     )
 )]
-pub async fn refresh(
-    body: web::Json<RefreshTokenRequest>,
-) -> HttpResponse {
+pub async fn refresh(body: web::Json<RefreshTokenRequest>) -> HttpResponse {
     // Validate input
     if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(
-            format!("Validation error: {}", errors)
-        ));
+        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
+            "Validation error: {}",
+            errors
+        )));
     }
 
-    match auth_service::refresh_token(body.refresh_token.clone()).await {
+    match services::refresh_token(body.refresh_token.clone()).await {
         Ok(response) => HttpResponse::Ok().json(ApiResponse::success(response)),
         Err(e) => HttpResponse::Unauthorized().json(ApiResponse::<()>::error(e.to_string())),
     }

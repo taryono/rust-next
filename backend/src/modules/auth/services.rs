@@ -1,8 +1,6 @@
 use crate::{
-    models::{
-        auth::{AuthResponse, LoginRequest, RegisterRequest},
-        user::UserResponse,
-    },
+    modules::auth::models::{AuthResponse, LoginRequest, RefreshTokenResponse, RegisterRequest},
+    modules::users::models::UserResponse,
     utils::{jwt, password},
 };
 use entity::roles::Entity as Roles;
@@ -102,7 +100,7 @@ pub async fn login_user(
 
 pub async fn refresh_token(
     refresh_token: String,
-) -> Result<crate::models::auth::RefreshTokenResponse, Box<dyn std::error::Error>> {
+) -> Result<RefreshTokenResponse, Box<dyn std::error::Error>> {
     // Verify refresh token
     let claims = jwt::verify_refresh_token(&refresh_token)?;
 
@@ -115,7 +113,7 @@ pub async fn refresh_token(
         .parse::<i64>()
         .unwrap_or(900);
 
-    Ok(crate::models::auth::RefreshTokenResponse {
+    Ok(RefreshTokenResponse {
         access_token: new_access_token,
         refresh_token: new_refresh_token,
         token_type: "Bearer".to_string(),

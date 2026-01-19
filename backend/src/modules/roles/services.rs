@@ -1,8 +1,8 @@
 // ============================================
 // backend/src/services/role_service.rs
 // ============================================
-use crate::models::pagination::{PaginatedResponse, PaginationParams};
-use crate::models::role::{RoleResponse, UpdateRoleRequest};
+use crate::modules::roles::models::{RoleResponse, UpdateRoleRequest};
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use chrono::Utc;
 use entity::roles::{self, Entity as Roles};
 use entity::traits::soft_delete::SoftDelete;
