@@ -1,26 +1,32 @@
-// ============================================
-// 4. src/docs/academic_year_docs.rs
-// ============================================
-use crate::modules::academic_years::academic_year;
-use crate::modules::academic_years::models::AcademicYearResponse;
+// ============================================================================
+// docs.rs - OpenAPI Documentation
+// ============================================================================
+use super::dto::{AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest};
+use super::handler;
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        academic_year::get_all,
-        academic_year::get_by_id,
-        academic_year::create,
-        academic_year::update,
-        academic_year::delete,
+        handler::get_all,
+        handler::get_by_id,
+        handler::get_active,
+        handler::create,
+        handler::update,
+        handler::delete,
     ),
     components(
         schemas(
             AcademicYearResponse,
+            CreateAcademicYearRequest,
+            UpdateAcademicYearRequest,
+            PaginatedResponse<AcademicYearResponse>,
+            PaginationParams,
         )
     ),
     tags(
-        (name = "academic_years", description = "Academic Year management endpoints")
+        (name = "Academic Years", description = "Academic Year management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

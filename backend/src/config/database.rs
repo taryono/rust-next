@@ -1,3 +1,4 @@
+// backend/src/config/database.rs
 use sea_orm::{Database as SeaDatabase, DatabaseConnection, DbErr};
 use std::sync::Arc;
 
@@ -9,11 +10,11 @@ pub struct Database {
 impl Database {
     pub async fn new(database_url: &str) -> Result<Self, DbErr> {
         let connection = SeaDatabase::connect(database_url).await?;
-        
+
         log::info!("Database connection established");
-        
-        Ok(Self { 
-            connection: Arc::new(connection) 
+
+        Ok(Self {
+            connection: Arc::new(connection),
         })
     }
 

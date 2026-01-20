@@ -134,7 +134,7 @@ const useAuthStore = create((set, get) => ({
             return { success: false, error: errorMessage };
         }
     },
-   updateUser: (updatedUser) =>
+    updateUser: (updatedUser) =>
     set((state) => ({
         user: normalizeUser({
         ...state.user,

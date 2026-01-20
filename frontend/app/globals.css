@@ -383,10 +383,7 @@ body,.page {
   font-size: 1.25rem;
 }
 
-.sidebar .nav-item.active .nav-link {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
+
 
 /* Main Content Adjustment */
 main {

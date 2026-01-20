@@ -2,12 +2,9 @@
  
 import clsx from 'clsx';
 import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import useUIStore from '@/store/uiStore';
-import { useEffect } from 'react';
-import useAuthStore from '@/store/authStore';
-import useModalStore from '@/store/modalStore';
-
+// import Sidebar from './Sidebar';
+import SidebarTree from './SidebarTree';
+import useUIStore from '@/store/uiStore'; 
 export default function AuthLayout({ children }) {
   const { sidebarCollapsed } = useUIStore();
 
@@ -15,7 +12,7 @@ export default function AuthLayout({ children }) {
     <>
       <Navbar />
       <div className="layout-container">
-        <Sidebar />
+        <SidebarTree />
         <main className={clsx('main-content', sidebarCollapsed && 'collapsed')}>
           {children}
         </main>

@@ -1,3 +1,4 @@
+// frontend/components/layout/Sidebar.jsx
 'use client';
 
 import Link from 'next/link';
@@ -6,30 +7,46 @@ import { usePathname } from 'next/navigation';
 import useUIStore from '@/store/uiStore';
 import useAuthStore from '@/store/authStore';
 import menuConfig from '@/config/menu';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+// import css 
+import "@/app/sidebar.css";
 
 export default function Sidebar() {
   const { sidebarOpen, sidebarCollapsed, closeSidebar } = useUIStore();
   const { user } = useAuthStore();
   const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile(); // Check on mount
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
-    console.log(user);
-    if (window.innerWidth < 768) {
-      closeSidebar();
-    }
-  }, [closeSidebar, user]);
+    console.log('User:', user);
+    console.log('Is Mobile:', isMobile);
+    console.log('Sidebar Open:', sidebarOpen);
+    console.log('Sidebar Collapsed:', sidebarCollapsed);
+  }, [user, isMobile, sidebarOpen, sidebarCollapsed]);
+
   const handleLinkClick = () => {
     // Close sidebar on mobile after clicking link
-    if (window.innerWidth < 768) {
+    if (isMobile) {
       closeSidebar();
     }
   };
 
   return (
     <>
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
+      {/* Mobile Overlay - hanya tampil di mobile */}
+      {isMobile && sidebarOpen && (
         <div 
           className="sidebar-overlay d-md-none" 
           onClick={closeSidebar}
@@ -40,13 +57,13 @@ export default function Sidebar() {
       <aside 
         className={clsx(
           'sidebar',
-          sidebarOpen && 'show',
-          sidebarCollapsed && 'collapsed'
+          isMobile ? sidebarOpen && 'show' : '', // Mobile: show/hide
+          !isMobile && sidebarCollapsed && 'collapsed' // Desktop: collapsed/expanded
         )}
       >
         <div className="sidebar-header">
           <h3 className="navbar-brand mb-3">
-            {sidebarCollapsed ? 'MA' : 'My Admin'}
+            {sidebarCollapsed && !isMobile ? 'MA' : 'My Admin'}
           </h3>
         </div>
 
@@ -68,7 +85,7 @@ export default function Sidebar() {
                   onClick={handleLinkClick}
                 >
                   <i className={menu.icon}></i>
-                  {!sidebarCollapsed && <span>{menu.label}</span>}
+                  {(!sidebarCollapsed || isMobile) && <span>{menu.label}</span>}
                 </Link>
               </li>
             ))}

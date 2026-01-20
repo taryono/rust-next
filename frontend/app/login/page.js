@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
 import Link from 'next/link';
-
+import { api } from '@/lib/api'; 
 export default function LoginPage() {
     const router = useRouter();
     const { login, isLoading, error, clearError, isAuthenticated } = useAuthStore();
-
+    const [serverStatus, setServerStatus] = useState('checking');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +17,17 @@ export default function LoginPage() {
         if (isAuthenticated) {
             router.push('/dashboard');
         }
+        const checkServer = async () => {
+            try {
+                await api.isOnline();
+                setServerStatus('online');
+            } catch (error) {
+                setServerStatus('offline');
+            }
+        };
+        setEmail('denmas.yono@gmail.com');
+        setPassword('password');
+        checkServer();
     }, [isAuthenticated, router]);
 
     const handleSubmit = async (e) => {
@@ -31,6 +42,7 @@ export default function LoginPage() {
     };
 
     return (
+        <>
         <div className="auth-container">
             <div className="auth-card fade-in">
                 <div className="auth-header">
@@ -40,9 +52,41 @@ export default function LoginPage() {
                     </svg>
                     <h1>Welcome Back</h1>
                     <p className="mb-0">Sign in to your account</p>
+                    
                 </div>
 
-                <div className="auth-body">
+                <div className="auth-body"> 
+                    {/* Server Status */}
+                    <div className="mb-3">
+                        {serverStatus === 'checking' && (
+                            <div className="alert alert-warning">
+                            <div className="d-flex">
+                                <div className="spinner-border spinner-border-sm me-2"></div>
+                                <div>Checking server status...</div>
+                            </div>
+                            </div>
+                        )}
+                        {serverStatus === 'online' && (
+                            <div className="alert alert-success">
+                            <div className="d-flex align-items-center">
+                                <svg className="icon alert-icon" width="24" height="24">
+                                <use xlinkHref="#tabler-check" />
+                                </svg>
+                                <div>Server is online</div>
+                            </div>
+                            </div>
+                        )}
+                        {serverStatus === 'offline' && (
+                            <div className="alert alert-danger">
+                            <div className="d-flex align-items-center">
+                                <svg className="icon alert-icon" width="24" height="24">
+                                <use xlinkHref="#tabler-alert-triangle" />
+                                </svg>
+                                <div>Server is offline</div>
+                            </div>
+                            </div>
+                        )}
+                    </div>
                     {error && (
                         <div className="alert alert-danger alert-dismissible fade show" role="alert">
                             <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -104,7 +148,7 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             className="btn btn-primary btn-lg w-100 mb-3"
-                            disabled={isLoading}
+                            disabled={isLoading || serverStatus !== 'online'}
                         >
                             {isLoading ? (
                                 <>
@@ -130,6 +174,7 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> 
+        </>
     );
 }

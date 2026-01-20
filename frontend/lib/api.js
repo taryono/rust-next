@@ -120,6 +120,7 @@ axiosInstance.interceptors.response.use(
 // API methods
 export const api = {
     // Auth
+    isOnline: () => axiosInstance.get('/health'),
     login: (data) => axiosInstance.post('/api/auth/login', data),
     register: (data) => axiosInstance.post('/api/auth/register', data),
     refresh: (refreshToken) => axiosInstance.post('/api/auth/refresh', { refresh_token: refreshToken }),

@@ -2,12 +2,22 @@
 
 import useAuthStore from '@/store/authStore';
 import useModalStore from '@/store/modalStore';
+import { useState, useEffect } from 'react';
 
 export default function UserDropdown() {
   const { user, logout } = useAuthStore();
   const { openModal } = useModalStore();
+  const [isMobile, setIsMobile] = useState(false);
   if (!user) return null;
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   return (
     <> 
     <div className="dropdown">
@@ -15,7 +25,10 @@ export default function UserDropdown() {
         className="btn btn-dark dropdown-toggle"
         data-bs-toggle="dropdown"
         aria-expanded="false"
-      > <span className='me-2'>{user.name}</span>
+      > 
+         {!isMobile && (
+        <span className='me-2'>{user.name}</span>
+         )}
         <i className="bi bi-person-circle me-2"></i>
         
       </button>

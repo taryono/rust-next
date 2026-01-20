@@ -1,3 +1,4 @@
+// backend/src/main.rs
 mod config;
 mod docs;
 mod errors;
@@ -28,7 +29,7 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("SERVER_PORT").unwrap_or_else(|_| "8080".to_string());
     let server_addr = format!("{}:{}", host, port);
-
+    let academic_year_service = modules::academic_years::init_service(db.clone());
     // ✨ Gunakan macro yang auto-generated dari build.rs
     let openapi = generate_openapi!();
     // Check if Swagger should be enabled
@@ -76,6 +77,7 @@ async fn main() -> std::io::Result<()> {
         let mut app = App::new()
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
+            .app_data(web::Data::new(academic_year_service.clone())) // ← Tambah ini jika dengan service
             .wrap(cors)
             .wrap(Logger::default())
             // Health check endpoint (GET - bisa di browser)

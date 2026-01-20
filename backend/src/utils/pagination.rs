@@ -1,5 +1,12 @@
+// backend/src/utils/pagination.rs
 use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use utoipa::{IntoParams, ToSchema}; // ← Tambah IntoParams di sini
+                                    // untuk menghindari error error[E0277]: the trait bound `PaginationParams: IntoParams` is not satisfied
+                                    //   --> src/modules/academic_years/handler.rs:64:23
+                                    //    |
+                                    // 64 |     query: web::Query<PaginationParams>,
+                                    //    |                       ^^^^^^^^^^^^^^^^ the trait `IntoParams` is not implemented for `PaginationParams`
+
 use validator::Validate;
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -20,7 +27,7 @@ pub struct PaginationMeta {
     pub has_prev: bool,
 }
 
-#[derive(Debug, Deserialize, Validate, ToSchema, Clone)]
+#[derive(Debug, Deserialize, Validate, ToSchema, Clone, IntoParams)]
 pub struct PaginationParams {
     #[validate(range(min = 1))]
     pub page: Option<u64>,
