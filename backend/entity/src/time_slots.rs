@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "time_slots")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub foundation_id: u64,
+    pub id: i64,
+    pub foundation_id: i64,
     pub name: String,
     pub day_of_week: i8,
     pub start_time: Time,
@@ -17,50 +17,10 @@ pub struct Model {
     pub slot_type: Option<SlotType>,
     pub order: i32,
     pub is_active: Option<i8>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::class_schedules::Entity")]
-    ClassSchedules,
-    #[sea_orm(
-        belongs_to = "super::foundations::Entity",
-        from = "Column::FoundationId",
-        to = "super::foundations::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Foundations,
-    #[sea_orm(has_many = "super::subject_preferences::Entity")]
-    SubjectPreferences,
-    #[sea_orm(has_many = "super::teacher_availability::Entity")]
-    TeacherAvailability,
-}
-
-impl Related<super::class_schedules::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ClassSchedules.def()
-    }
-}
-
-impl Related<super::foundations::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Foundations.def()
-    }
-}
-
-impl Related<super::subject_preferences::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::SubjectPreferences.def()
-    }
-}
-
-impl Related<super::teacher_availability::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::TeacherAvailability.def()
-    }
-}
-
+pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}

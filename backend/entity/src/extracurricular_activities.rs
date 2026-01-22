@@ -7,39 +7,17 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "extracurricular_activities")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub foundation_id: u64,
+    pub id: i64,
+    pub foundation_id: i64,
     pub name: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::extracurricular_enrollments::Entity")]
-    ExtracurricularEnrollments,
-    #[sea_orm(
-        belongs_to = "super::foundations::Entity",
-        from = "Column::FoundationId",
-        to = "super::foundations::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Foundations,
-}
-
-impl Related<super::extracurricular_enrollments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ExtracurricularEnrollments.def()
-    }
-}
-
-impl Related<super::foundations::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Foundations.def()
-    }
-}
-
+pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}

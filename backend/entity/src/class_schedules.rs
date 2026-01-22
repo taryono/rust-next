@@ -8,17 +8,17 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "class_schedules")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub class_subject_id: u64,
-    pub time_slot_id: u64,
-    pub room_id: Option<u64>,
-    pub teacher_id: Option<u64>,
+    pub id: i64,
+    pub class_subject_id: i64,
+    pub time_slot_id: i64,
+    pub room_id: Option<i64>,
+    pub teacher_id: Option<i64>,
     pub is_auto_generated: Option<i8>,
     pub generation_batch_id: Option<String>,
     pub conflict_score: Option<i32>,
     pub status: Option<Status>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

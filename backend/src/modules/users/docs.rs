@@ -1,14 +1,14 @@
 // ============================================
 // 3. src/docs/user_docs.rs
 // ============================================
-use crate::modules::users::{models, user};
+use crate::modules::users::{dto, user};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
         user::get_users,
-        user::get_user_by_id,
+        user::get_by_id,
         user::get_current_user,
         user::update_current_user,
         user::change_password,
@@ -16,10 +16,10 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            models::UserResponse,
-            models::UserListResponse,
-            models::UpdateUserRequest,
-            models::ChangePasswordRequest,
+            dto::UserResponse,
+            dto::UserListResponse,
+            dto::UpdateUserRequest,
+            dto::ChangePasswordRequest,
         )
     ),
     tags(

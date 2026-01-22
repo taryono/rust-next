@@ -5,7 +5,7 @@ use sea_orm::entity::prelude::*; // ← Import dari entity crate
 #[sea_orm(table_name = "roles")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
+    pub id: i64,
     #[sea_orm(unique)]
     pub name: String,
     #[sea_orm(column_type = "Text", nullable)]

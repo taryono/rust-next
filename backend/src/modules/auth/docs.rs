@@ -1,7 +1,7 @@
 // ============================================
 // 2. src/docs/auth_docs.rs
 // ============================================
-use crate::modules::auth::{auth, models};
+use crate::modules::auth::{auth, dto};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -13,12 +13,12 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            models::RegisterRequest,
-            models::LoginRequest,
-            models::AuthResponse,
-            models::UserInfo,
-            models::RefreshTokenRequest,
-            models::RefreshTokenResponse,
+            dto::RegisterRequest,
+            dto::LoginRequest,
+            dto::AuthResponse,
+            dto::UserInfo,
+            dto::RefreshTokenRequest,
+            dto::RefreshTokenResponse,
         )
     ),
     tags(

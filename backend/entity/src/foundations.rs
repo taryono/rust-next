@@ -8,12 +8,12 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "foundations")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
+    pub id: i64,
     pub name: String,
     #[sea_orm(unique)]
     pub code: Option<String>,
     pub foundation_type: Option<FoundationType>,
-    pub parent_id: Option<u64>,
+    pub parent_id: Option<i64>,
     #[sea_orm(column_type = "Text", nullable)]
     pub address: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
@@ -29,82 +29,6 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::academic_years::Entity")]
-    AcademicYears,
-    #[sea_orm(has_many = "super::employees::Entity")]
-    Employees,
-    #[sea_orm(has_many = "super::extracurricular_activities::Entity")]
-    ExtracurricularActivities,
-    #[sea_orm(
-        belongs_to = "Entity",
-        from = "Column::ParentId",
-        to = "Column::Id",
-        on_update = "NoAction",
-        on_delete = "Restrict"
-    )]
-    SelfRef,
-    #[sea_orm(has_many = "super::role_users::Entity")]
-    RoleUsers,
-    #[sea_orm(has_many = "super::students::Entity")]
-    Students,
-    #[sea_orm(has_many = "super::subjects::Entity")]
-    Subjects,
-    #[sea_orm(has_many = "super::teachers::Entity")]
-    Teachers,
-    #[sea_orm(has_many = "super::time_slots::Entity")]
-    TimeSlots,
-}
-
-impl Related<super::academic_years::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::AcademicYears.def()
-    }
-}
-
-impl Related<super::employees::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Employees.def()
-    }
-}
-
-impl Related<super::extracurricular_activities::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ExtracurricularActivities.def()
-    }
-}
-
-impl Related<super::role_users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::RoleUsers.def()
-    }
-}
-
-impl Related<super::students::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Students.def()
-    }
-}
-
-impl Related<super::subjects::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Subjects.def()
-    }
-}
-
-impl Related<super::teachers::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Teachers.def()
-    }
-}
-
-impl Related<super::time_slots::Entity> for Entity {
-    /*************  ✨ Windsurf Command ⭐  *************/
-    /// Returns the definition of the `TimeSlots` relation.
-    /*******  4764b8ed-bee6-4a79-a0f9-f6a12b14fcb7  *******/
-    fn to() -> RelationDef {
-        Relation::TimeSlots.def()
-    }
-}
+pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

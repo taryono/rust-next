@@ -49,9 +49,9 @@ pub mod soft_delete;
 
 // pub type BoxTryFutureOptionBool = futures::future::BoxFuture<'static, BoxResult<Option<bool>>>;
 
-// pub type BoxTryFutureOptionU64 = futures::future::BoxFuture<'static, BoxResult<Option<u64>>>;
+// pub type BoxTryFutureOptionU64 = futures::future::BoxFuture<'static, BoxResult<Option<i64>>>;
 
-// pub type BoxTryFutureU64 = futures::future::BoxFuture<'static, BoxResult<u64>>;
+// pub type BoxTryFutureU64 = futures::future::BoxFuture<'static, BoxResult<i64>>;
 
 // pub type BoxTryFutureOptionU32 = futures::future::BoxFuture<'static, BoxResult<Option<u32>>>;
 

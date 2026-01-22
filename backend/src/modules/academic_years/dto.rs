@@ -5,19 +5,19 @@ use validator::Validate;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AcademicYearResponse {
-    pub id: u64,
-    pub foundation_id: u64,
+    pub id: i64,
+    pub foundation_id: i64,
     pub name: String,
     pub start_date: String, // ✅ Correct - akan di-convert dari Date
     pub end_date: String,   // ✅ Correct
     pub is_active: i8,      // ✅ Correct - NOT NULL di DB
-    pub created_at: String, // ← Tambah ini (good practice)
-    pub updated_at: String, // ← Tambah ini
+    pub created_at: String,
+    pub updated_at: String, // ← Tambah ini (good practice)
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateAcademicYearRequest {
-    pub foundation_id: u64,
+    pub foundation_id: i64,
 
     #[validate(length(min = 3, max = 100))]
     pub name: String,
@@ -50,10 +50,10 @@ pub struct UpdateAcademicYearRequest {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AcademicYearListResponse {
     pub data: Vec<AcademicYearResponse>,
-    pub total: u64,
-    pub page: u64,
-    pub per_page: u64,
-    pub total_pages: u64,
+    pub total: i64,
+    pub page: i64,
+    pub per_page: i64,
+    pub total_pages: i64,
 }
 // Implement From trait untuk convert entity ke response
 impl From<entity::academic_years::Model> for AcademicYearResponse {
@@ -76,7 +76,7 @@ impl AcademicYearResponse {
         Self::from(model)
     }
     #[warn(unused_imports)]
-    pub fn from_vec(models: Vec<entity::academic_years::Model>) -> Vec<Self> {
-        models.into_iter().map(Self::from).collect()
+    pub fn from_vec(dto: Vec<entity::academic_years::Model>) -> Vec<Self> {
+        dto.into_iter().map(Self::from).collect()
     }
 }

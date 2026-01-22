@@ -8,10 +8,10 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "grades")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub class_subject_id: u64,
-    pub semester_id: u64,
+    pub id: i64,
+    pub student_id: i64,
+    pub class_subject_id: i64,
+    pub semester_id: i64,
     #[sea_orm(column_type = "Decimal(Some((5, 2)))", nullable)]
     pub attendance_score: Option<Decimal>,
     #[sea_orm(column_type = "Decimal(Some((5, 2)))", nullable)]
@@ -29,70 +29,12 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub teacher_notes: Option<String>,
     pub is_finalized: Option<i8>,
-    pub finalized_at: Option<DateTime>,
-    pub finalized_by: Option<u64>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub finalized_at: Option<DateTimeUtc>,
+    pub finalized_by: Option<i64>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::class_subjects::Entity",
-        from = "Column::ClassSubjectId",
-        to = "super::class_subjects::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    ClassSubjects,
-    #[sea_orm(
-        belongs_to = "super::semesters::Entity",
-        from = "Column::SemesterId",
-        to = "super::semesters::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Semesters,
-    #[sea_orm(
-        belongs_to = "super::students::Entity",
-        from = "Column::StudentId",
-        to = "super::students::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Students,
-    #[sea_orm(
-        belongs_to = "super::teachers::Entity",
-        from = "Column::FinalizedBy",
-        to = "super::teachers::Column::Id",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    Teachers,
-}
-
-impl Related<super::class_subjects::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ClassSubjects.def()
-    }
-}
-
-impl Related<super::semesters::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Semesters.def()
-    }
-}
-
-impl Related<super::students::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Students.def()
-    }
-}
-
-impl Related<super::teachers::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Teachers.def()
-    }
-}
-
+pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}

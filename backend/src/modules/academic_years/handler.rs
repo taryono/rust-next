@@ -2,11 +2,10 @@
 // handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest};
-use super::service::AcademicYearService;
+use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use actix_web::{web, HttpResponse};
-
 /// Create academic year
 #[utoipa::path(
     post,
@@ -20,10 +19,13 @@ use actix_web::{web, HttpResponse};
     tag = "Academic Years"
 )]
 pub async fn create(
-    service: web::Data<AcademicYearService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreateAcademicYearRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state
+        .academic_year_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -32,7 +34,7 @@ pub async fn create(
     get,
     path = "/api/academic-years/{id}",
     params(
-        ("id" = u64, Path, description = "Academic year ID")
+        ("id" = i64, Path, description = "Academic year ID")
     ),
     responses(
         (status = 200, description = "Academic year found", body = AcademicYearResponse),
@@ -41,10 +43,13 @@ pub async fn create(
     tag = "Academic Years"
 )]
 pub async fn get_by_id(
-    service: web::Data<AcademicYearService>,
-    id: web::Path<u64>,
+    app_state: web::Data<AppState>,
+    id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .academic_year_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -53,8 +58,8 @@ pub async fn get_by_id(
     get,
     path = "/api/academic-years",
     params(
-        ("page" = Option<u64>, Query, description = "Page number (default: 1)"),
-        ("per_page" = Option<u64>, Query, description = "Items per page (default: 10, max: 100)"),
+        ("page" = Option<i64>, Query, description = "Page number (default: 1)"),
+        ("per_page" = Option<i64>, Query, description = "Items per page (default: 10, max: 100)"),
         ("search" = Option<String>, Query, description = "Search query"),
         ("sort_by" = Option<String>, Query, description = "Sort field"),
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
@@ -65,18 +70,21 @@ pub async fn get_by_id(
     tag = "Academic Years"
 )]
 pub async fn get_all(
-    service: web::Data<AcademicYearService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
-    // foundation_id: web::ReqData<u64>,
+    // foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
 
     // Jika pakai multi-tenant by foundation
-    // let result = service.get_all(params, Some(*foundation_id)).await?;
+    // let result = app_state.academic_year_service.get_all(params, Some(*foundation_id)).await?;
 
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, None).await?;
+    let result = app_state
+        .academic_year_service
+        .get_all(params, None)
+        .await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -86,7 +94,7 @@ pub async fn get_all(
     get,
     path = "/api/academic-years/active/{foundation_id}",
     params(
-        ("foundation_id" = u64, Path, description = "Foundation ID")
+        ("foundation_id" = i64, Path, description = "Foundation ID")
     ),
     responses(
         (status = 200, description = "Active academic year", body = AcademicYearResponse),
@@ -95,10 +103,13 @@ pub async fn get_all(
     tag = "Academic Years"
 )]
 pub async fn get_active(
-    service: web::Data<AcademicYearService>,
-    foundation_id: web::Path<u64>,
+    app_state: web::Data<AppState>,
+    foundation_id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_active(foundation_id.into_inner()).await?;
+    let result = app_state
+        .academic_year_service
+        .get_active(foundation_id.into_inner())
+        .await?;
     match result {
         Some(data) => Ok(HttpResponse::Ok().json(data)),
         None => Err(AppError::NotFoundError(
@@ -112,7 +123,7 @@ pub async fn get_active(
     put,
     path = "/api/academic-years/{id}",
     params(
-        ("id" = u64, Path, description = "Academic year ID")
+        ("id" = i64, Path, description = "Academic year ID")
     ),
     request_body = UpdateAcademicYearRequest,
     responses(
@@ -123,11 +134,12 @@ pub async fn get_active(
     tag = "Academic Years"
 )]
 pub async fn update(
-    service: web::Data<AcademicYearService>,
-    id: web::Path<u64>,
+    app_state: web::Data<AppState>,
+    id: web::Path<i64>,
     request: web::Json<UpdateAcademicYearRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .academic_year_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -138,7 +150,7 @@ pub async fn update(
     delete,
     path = "/api/academic-years/{id}",
     params(
-        ("id" = u64, Path, description = "Academic year ID")
+        ("id" = i64, Path, description = "Academic year ID")
     ),
     responses(
         (status = 204, description = "Academic year deleted"),
@@ -147,9 +159,12 @@ pub async fn update(
     tag = "Academic Years"
 )]
 pub async fn delete(
-    service: web::Data<AcademicYearService>,
-    id: web::Path<u64>,
+    app_state: web::Data<AppState>,
+    id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state
+        .academic_year_service
+        .delete(id.into_inner())
+        .await?;
     Ok(HttpResponse::NoContent().finish())
 }

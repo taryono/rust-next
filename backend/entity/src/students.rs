@@ -7,120 +7,24 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "students")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
+    pub id: i64,
     #[sea_orm(unique)]
-    pub user_id: u64,
-    pub foundation_id: u64,
-    pub unit_id: Option<u64>,
+    pub user_id: i64,
+    pub name: String,
+    pub foundation_id: i64,
+    pub unit_id: Option<i64>,
     pub student_number: String,
-    pub class_id: Option<u64>,
+    pub class_id: Option<i64>,
     pub parent_name: Option<String>,
     pub parent_phone: Option<String>,
-    pub enrollment_date: Option<Date>,
-    pub graduation_date: Option<Date>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
-    pub deleted_at: Option<DateTime>,
+    pub enrollment_date: Option<DateTimeUtc>,
+    pub graduation_date: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::attendances::Entity")]
-    Attendances,
-    #[sea_orm(has_many = "super::character_assessments::Entity")]
-    CharacterAssessments,
-    #[sea_orm(
-        belongs_to = "super::classes::Entity",
-        from = "Column::ClassId",
-        to = "super::classes::Column::Id",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    Classes,
-    #[sea_orm(has_many = "super::extracurricular_enrollments::Entity")]
-    ExtracurricularEnrollments,
-    #[sea_orm(
-        belongs_to = "super::foundations::Entity",
-        from = "Column::FoundationId",
-        to = "super::foundations::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Restrict"
-    )]
-    Foundations,
-    #[sea_orm(has_many = "super::grades::Entity")]
-    Grades,
-    #[sea_orm(has_many = "super::report_cards::Entity")]
-    ReportCards,
-    #[sea_orm(
-        belongs_to = "super::units::Entity",
-        from = "Column::UnitId",
-        to = "super::units::Column::Id",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    Units,
-    #[sea_orm(
-        belongs_to = "super::users::Entity",
-        from = "Column::UserId",
-        to = "super::users::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Users,
-}
-
-impl Related<super::attendances::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Attendances.def()
-    }
-}
-
-impl Related<super::character_assessments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::CharacterAssessments.def()
-    }
-}
-
-impl Related<super::classes::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Classes.def()
-    }
-}
-
-impl Related<super::extracurricular_enrollments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ExtracurricularEnrollments.def()
-    }
-}
-
-impl Related<super::foundations::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Foundations.def()
-    }
-}
-
-impl Related<super::grades::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Grades.def()
-    }
-}
-
-impl Related<super::report_cards::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ReportCards.def()
-    }
-}
-
-impl Related<super::units::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Units.def()
-    }
-}
-
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Users.def()
-    }
-}
+pub enum Relation {} 
 
 impl ActiveModelBehavior for ActiveModel {}

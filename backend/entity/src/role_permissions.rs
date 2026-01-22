@@ -6,10 +6,12 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "role_permissions")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
+    pub id: i64,
     pub user_id: i32,
     pub permission_id: i32,
     pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

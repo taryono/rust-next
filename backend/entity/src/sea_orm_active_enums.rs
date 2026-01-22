@@ -2,8 +2,12 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema; // ← Tambah ini harus
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+// #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "employment_status")]
 pub enum EmploymentStatus {
     #[sea_orm(string_value = "permanent")]
@@ -13,7 +17,9 @@ pub enum EmploymentStatus {
     #[sea_orm(string_value = "freelance")]
     Freelance,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "employment_type")]
 pub enum EmploymentType {
     #[sea_orm(string_value = "permanent")]
@@ -25,7 +31,9 @@ pub enum EmploymentType {
     #[sea_orm(string_value = "freelance")]
     Freelance,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "foundation_type")]
 pub enum FoundationType {
     #[sea_orm(string_value = "pusat")]
@@ -33,7 +41,9 @@ pub enum FoundationType {
     #[sea_orm(string_value = "cabang")]
     Cabang,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "gender")]
 pub enum Gender {
     #[sea_orm(string_value = "m")]
@@ -41,7 +51,9 @@ pub enum Gender {
     #[sea_orm(string_value = "f")]
     F,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "grade")]
 pub enum Grade {
     #[sea_orm(string_value = "A")]
@@ -55,7 +67,9 @@ pub enum Grade {
     #[sea_orm(string_value = "E")]
     E,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "membership_type")]
 pub enum MembershipType {
     #[sea_orm(string_value = "basic")]
@@ -65,7 +79,9 @@ pub enum MembershipType {
     #[sea_orm(string_value = "vip")]
     Vip,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "predicate")]
 pub enum Predicate {
     #[sea_orm(string_value = "Sangat Baik")]
@@ -77,7 +93,9 @@ pub enum Predicate {
     #[sea_orm(string_value = "Kurang")]
     Kurang,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "preference_level")]
 pub enum PreferenceLevel {
     #[sea_orm(string_value = "preferred")]
@@ -87,7 +105,9 @@ pub enum PreferenceLevel {
     #[sea_orm(string_value = "avoid")]
     Avoid,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "required_room_type")]
 pub enum RequiredRoomType {
     #[sea_orm(string_value = "classroom")]
@@ -101,7 +121,9 @@ pub enum RequiredRoomType {
     #[sea_orm(string_value = "outdoor")]
     Outdoor,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "room_type")]
 pub enum RoomType {
     #[sea_orm(string_value = "classroom")]
@@ -115,7 +137,9 @@ pub enum RoomType {
     #[sea_orm(string_value = "outdoor")]
     Outdoor,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "scope_level")]
 pub enum ScopeLevel {
     #[sea_orm(string_value = "system")]
@@ -125,7 +149,9 @@ pub enum ScopeLevel {
     #[sea_orm(string_value = "unit")]
     Unit,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "slot_type")]
 pub enum SlotType {
     #[sea_orm(string_value = "lesson")]
@@ -135,7 +161,9 @@ pub enum SlotType {
     #[sea_orm(string_value = "extracurricular")]
     Extracurricular,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)] // ← Tambah ToSchema disini harus
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "status")]
 pub enum Status {
     #[sea_orm(string_value = "active")]

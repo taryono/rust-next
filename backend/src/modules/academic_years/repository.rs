@@ -37,7 +37,7 @@ impl AcademicYearRepository {
     }
 
     /// Find by ID
-    pub async fn find_by_id(&self, id: u64) -> Result<Option<academic_years::Model>, AppError> {
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<academic_years::Model>, AppError> {
         AcademicYear::find_by_id(id)
             .one(self.conn())
             .await
@@ -48,7 +48,7 @@ impl AcademicYearRepository {
     pub async fn find_all(
         &self,
         params: &PaginationParams,
-        foundation_id: Option<u64>,
+        foundation_id: Option<i64>,
     ) -> Result<(Vec<academic_years::Model>, u64), AppError> {
         let mut query = AcademicYear::find();
 
@@ -96,7 +96,7 @@ impl AcademicYearRepository {
         }
 
         // Paginate
-        let paginator = query.paginate(self.conn(), params.per_page());
+        let paginator = query.paginate(self.conn(), params.per_page() as u64);
 
         let total = paginator
             .num_items()
@@ -104,17 +104,16 @@ impl AcademicYearRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
         let items = paginator
-            .fetch_page(params.page() - 1)
+            .fetch_page((params.page() - 1) as u64)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
-
-        Ok((items, total))
+        Ok((items, total.try_into().unwrap_or(0)))
     }
 
     /// Find active academic year for a foundation
     pub async fn find_active(
         &self,
-        foundation_id: u64,
+        foundation_id: i64,
     ) -> Result<Option<academic_years::Model>, AppError> {
         AcademicYear::find()
             .filter(academic_years::Column::FoundationId.eq(foundation_id))
@@ -128,7 +127,7 @@ impl AcademicYearRepository {
     pub async fn find_by_name(
         &self,
         name: &str,
-        foundation_id: u64,
+        foundation_id: i64,
     ) -> Result<Option<academic_years::Model>, AppError> {
         AcademicYear::find()
             .filter(academic_years::Column::FoundationId.eq(foundation_id))
@@ -143,8 +142,8 @@ impl AcademicYearRepository {
         &self,
         start_date: &str,
         end_date: &str,
-        foundation_id: u64,
-        exclude_id: Option<u64>,
+        foundation_id: i64,
+        exclude_id: Option<i64>,
     ) -> Result<bool, AppError> {
         let mut query = AcademicYear::find()
             .filter(academic_years::Column::FoundationId.eq(foundation_id))
@@ -166,7 +165,7 @@ impl AcademicYearRepository {
     /// Update academic year
     pub async fn update(
         &self,
-        id: u64,
+        id: i64,
         active_model: academic_years::ActiveModel,
     ) -> Result<academic_years::Model, AppError> {
         let mut model = active_model;
@@ -179,7 +178,7 @@ impl AcademicYearRepository {
     }
 
     /// Delete academic year
-    pub async fn delete(&self, id: u64) -> Result<(), AppError> {
+    pub async fn delete(&self, id: i64) -> Result<(), AppError> {
         AcademicYear::delete_by_id(id)
             .exec(self.conn())
             .await
@@ -189,7 +188,7 @@ impl AcademicYearRepository {
     }
 
     /// Deactivate all academic years in a foundation
-    pub async fn deactivate_all(&self, foundation_id: u64) -> Result<(), AppError> {
+    pub async fn deactivate_all(&self, foundation_id: i64) -> Result<(), AppError> {
         use sea_orm::sea_query::Expr;
 
         AcademicYear::update_many()

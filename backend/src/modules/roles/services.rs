@@ -1,7 +1,7 @@
 // ============================================
 // backend/src/services/role_service.rs
 // ============================================
-use crate::modules::roles::models::{RoleResponse, UpdateRoleRequest};
+use crate::modules::roles::dto::{RoleResponse, UpdateRoleRequest};
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use chrono::Utc;
 use entity::roles::{self, Entity as Roles};
@@ -60,7 +60,7 @@ pub async fn get_all_roles(
     ))
 }
 
-pub async fn get_role_by_id(db: &DatabaseConnection, role_id: u64) -> Result<RoleResponse, DbErr> {
+pub async fn get_role_by_id(db: &DatabaseConnection, role_id: i64) -> Result<RoleResponse, DbErr> {
     let role = Roles::find_not_deleted()
         .filter(roles::Column::Id.eq(role_id))
         .one(db)
@@ -72,7 +72,7 @@ pub async fn get_role_by_id(db: &DatabaseConnection, role_id: u64) -> Result<Rol
 
 pub async fn update_role(
     db: &DatabaseConnection,
-    role_id: u64,
+    role_id: i64,
     update_data: UpdateRoleRequest,
 ) -> Result<RoleResponse, DbErr> {
     let role = Roles::find_not_deleted()
@@ -110,7 +110,7 @@ pub async fn update_role(
 }
 
 /// Soft delete role
-pub async fn soft_delete(db: &DatabaseConnection, role_id: u64) -> Result<(), DbErr> {
+pub async fn soft_delete(db: &DatabaseConnection, role_id: i64) -> Result<(), DbErr> {
     let role = Roles::find_by_id(role_id)
         .one(db)
         .await?
@@ -124,7 +124,7 @@ pub async fn soft_delete(db: &DatabaseConnection, role_id: u64) -> Result<(), Db
 }
 
 /// Restore deleted role
-pub async fn restore(db: &DatabaseConnection, role_id: u64) -> Result<(), DbErr> {
+pub async fn restore(db: &DatabaseConnection, role_id: i64) -> Result<(), DbErr> {
     let role = Roles::find_by_id(role_id)
         .one(db)
         .await?
@@ -204,7 +204,7 @@ pub async fn get_all_with_deleted(
 }
 
 /// Force delete (permanent)
-pub async fn force_delete(db: &DatabaseConnection, role_id: u64) -> Result<(), DbErr> {
+pub async fn force_delete(db: &DatabaseConnection, role_id: i64) -> Result<(), DbErr> {
     Roles::delete_by_id(role_id).exec(db).await?;
     Ok(())
 }

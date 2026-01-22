@@ -4,7 +4,7 @@
 use crate::utils::pagination::PaginationParams;
 use crate::{
     config::database::Database,
-    modules::roles::models::{RoleListResponse, RoleResponse, UpdateRoleRequest},
+    modules::roles::dto::{RoleListResponse, RoleResponse, UpdateRoleRequest},
     modules::roles::services,
     utils::{jwt::Claims, response::ApiResponse},
 };
@@ -16,8 +16,8 @@ use validator::Validate;
     path = "/api/roles",
     tag = "roles",
     params(
-        ("page" = Option<u64>, Query, description = "Page number, default 1"),
-        ("per_page" = Option<u64>, Query, description = "Items per page, default 10, max 100"),
+        ("page" = Option<i64>, Query, description = "Page number, default 1"),
+        ("per_page" = Option<i64>, Query, description = "Items per page, default 10, max 100"),
         ("search" = Option<String>, Query, description = "Search by name or description"),
     ),
     responses(
@@ -44,7 +44,7 @@ pub async fn get_roles(
     path = "/api/roles/{id}",
     tag = "roles",
     params(
-        ("id" = u64, Path, description = "Role ID")
+        ("id" = i64, Path, description = "Role ID")
     ),
     responses(
         (status = 200, description = "Role found", body = RoleResponse),
@@ -55,7 +55,7 @@ pub async fn get_roles(
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_role_by_id(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
+pub async fn get_role_by_id(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let role_id = path.into_inner();
 
     match services::get_role_by_id(db.get_connection(), role_id).await {
@@ -82,7 +82,7 @@ pub async fn get_current_role(db: web::Data<Database>, req: HttpRequest) -> Http
 
     match claims {
         Some(claims) => {
-            let role_id: u64 = claims.sub.parse().unwrap_or(0);
+            let role_id: i64 = claims.sub.parse().unwrap_or(0);
 
             match services::get_role_by_id(db.get_connection(), role_id).await {
                 Ok(role) => HttpResponse::Ok().json(ApiResponse::success(role)),
@@ -126,7 +126,7 @@ pub async fn update_current_role(
 
     match claims {
         Some(claims) => {
-            let role_id: u64 = claims.sub.parse().unwrap_or(0);
+            let role_id: i64 = claims.sub.parse().unwrap_or(0);
 
             match services::update_role(db.get_connection(), role_id, body.into_inner()).await {
                 Ok(role) => HttpResponse::Ok().json(ApiResponse::success(role)),
@@ -145,7 +145,7 @@ pub async fn update_current_role(
     path = "/api/roles/{id}",
     tag = "roles",
     params(
-        ("id" = u64, Path, description = "Role ID")
+        ("id" = i64, Path, description = "Role ID")
     ),
     responses(
         (status = 200, description = "Role soft deleted successfully"),
@@ -154,7 +154,7 @@ pub async fn update_current_role(
     ),
     security(("bearer_auth" = []))
 )]
-pub async fn delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
+pub async fn delete_role(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let role_id = path.into_inner();
 
     match services::soft_delete(db.get_connection(), role_id).await {
@@ -169,7 +169,7 @@ pub async fn delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpR
     path = "/api/roles/{id}/restore",
     tag = "roles",
     params(
-        ("id" = u64, Path, description = "Role ID")
+        ("id" = i64, Path, description = "Role ID")
     ),
     responses(
         (status = 200, description = "Role restored successfully"),
@@ -178,7 +178,7 @@ pub async fn delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpR
     ),
     security(("bearer_auth" = []))
 )]
-pub async fn restore_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
+pub async fn restore_role(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let role_id = path.into_inner();
 
     match services::restore(db.get_connection(), role_id).await {
@@ -193,7 +193,7 @@ pub async fn restore_role(db: web::Data<Database>, path: web::Path<u64>) -> Http
     path = "/api/roles/{id}/force",
     tag = "roles",
     params(
-        ("id" = u64, Path, description = "Role ID")
+        ("id" = i64, Path, description = "Role ID")
     ),
     responses(
         (status = 200, description = "Role permanently deleted"),
@@ -202,7 +202,7 @@ pub async fn restore_role(db: web::Data<Database>, path: web::Path<u64>) -> Http
     ),
     security(("bearer_auth" = []))
 )]
-pub async fn force_delete_role(db: web::Data<Database>, path: web::Path<u64>) -> HttpResponse {
+pub async fn force_delete_role(db: web::Data<Database>, path: web::Path<i64>) -> HttpResponse {
     let role_id = path.into_inner();
 
     match services::force_delete(db.get_connection(), role_id).await {
@@ -217,8 +217,8 @@ pub async fn force_delete_role(db: web::Data<Database>, path: web::Path<u64>) ->
     path = "/api/roles/deleted",
     tag = "roles",
     params(
-        ("page" = Option<u64>, Query, description = "Page number, default 1"),
-        ("per_page" = Option<u64>, Query, description = "Items per page, default 10, max 100"),
+        ("page" = Option<i64>, Query, description = "Page number, default 1"),
+        ("per_page" = Option<i64>, Query, description = "Items per page, default 10, max 100"),
     ),
     responses(
         (status = 200, description = "List of deleted roles"),

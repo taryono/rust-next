@@ -1,12 +1,12 @@
 // ============================================================================
 // routes.rs - Route Configuration
 // ============================================================================
-use super::handler;
+use crate::{middleware::auth::JwtMiddleware, modules::academic_years::handler};
 use actix_web::web;
-
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/academic-years")
+        web::scope("/api/academic_years")
+            .wrap(JwtMiddleware)
             .route("", web::post().to(handler::create))
             .route("", web::get().to(handler::get_all))
             .route(
@@ -18,4 +18,3 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::delete().to(handler::delete)),
     );
 }
-    

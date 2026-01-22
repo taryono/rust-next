@@ -8,61 +8,20 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "extracurricular_enrollments")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub extracurricular_id: u64,
-    pub semester_id: u64,
+    pub id: i64,
+    pub foundation_id: i64,
+    pub student_id: i64,
+    pub extracurricular_id: i64,
+    pub semester_id: i64,
     pub grade: Option<Grade>,
     #[sea_orm(column_type = "Text", nullable)]
     pub notes: Option<String>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::extracurricular_activities::Entity",
-        from = "Column::ExtracurricularId",
-        to = "super::extracurricular_activities::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    ExtracurricularActivities,
-    #[sea_orm(
-        belongs_to = "super::semesters::Entity",
-        from = "Column::SemesterId",
-        to = "super::semesters::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Semesters,
-    #[sea_orm(
-        belongs_to = "super::students::Entity",
-        from = "Column::StudentId",
-        to = "super::students::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Students,
-}
-
-impl Related<super::extracurricular_activities::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ExtracurricularActivities.def()
-    }
-}
-
-impl Related<super::semesters::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Semesters.def()
-    }
-}
-
-impl Related<super::students::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Students.def()
-    }
-}
+pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

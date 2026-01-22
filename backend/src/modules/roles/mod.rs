@@ -1,5 +1,5 @@
 pub mod docs;
-pub mod models;
+pub mod dto;
 pub mod role;
 pub mod routes;
 pub mod services;

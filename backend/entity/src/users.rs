@@ -4,7 +4,7 @@ use sea_orm::entity::prelude::*; // ← Import dari entity crate
 #[sea_orm(table_name = "users")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
+    pub id: i64,
     pub name: String,
     #[sea_orm(unique)]
     pub email: String,
@@ -51,14 +51,3 @@ impl crate::traits::soft_delete::SoftDelete for Entity {
         Column::DeletedAt
     }
 }
-
-// ini saya matikan karena di line 19 sudah ada #[derive(DeriveRelation)]
-// DeriveRelation artinya tidak perlu membuat impl RelationTrait manual
-// impl RelationTrait for Relation {
-//     fn def(&self) -> RelationDef {
-//         match self {
-//             Self::Notifications => Entity::has_many(super::notifications::Entity).into(),
-//             Self::RoleUsers => Entity::has_many(super::role_users::Entity).into(),
-//         }
-//     }
-// }

@@ -1,5 +1,5 @@
 // src/docs/role_docs.rs
-use crate::modules::roles::{models, role};
+use crate::modules::roles::{dto, role};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -16,9 +16,9 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            models::RoleResponse,
-            models::RoleListResponse,
-            models::UpdateRoleRequest,
+            dto::RoleResponse,
+            dto::RoleListResponse,
+            dto::UpdateRoleRequest,
         )
     ),
     tags(

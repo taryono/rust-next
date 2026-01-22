@@ -1,28 +1,31 @@
-// src/docs/foundation_docs.rs
-use crate::modules::foundations::{foundation, models};
+// ============================================================================
+// docs.rs - OpenAPI Documentation
+// ============================================================================
+use super::dto::{CreateFoundationRequest, FoundationResponse, UpdateFoundationRequest};
+use super::handler;
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        foundation::get_foundations,
-        foundation::get_foundation_by_id,
-        foundation::get_current_foundation,
-        foundation::update_current_foundation,
-        foundation::delete_foundation,
-        foundation::restore_foundation,
-        foundation::force_delete_foundation,
-        foundation::get_deleted_foundations,
+        handler::get_all,
+        handler::get_by_id, 
+        handler::create,
+        handler::update,
+        handler::delete,
     ),
     components(
         schemas(
-            models::FoundationResponse,
-            models::FoundationListResponse,
-            models::UpdateFoundationRequest,
+            FoundationResponse,
+            CreateFoundationRequest,
+            UpdateFoundationRequest,
+            PaginatedResponse<FoundationResponse>,
+            PaginationParams,
         )
     ),
     tags(
-        (name = "foundations", description = "Foundation management endpoints")
+        (name = "Foundation ", description = "Foundation management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

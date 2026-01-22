@@ -1,0 +1,125 @@
+// ============================================================================
+// handler.rs - HTTP Handlers
+// ============================================================================
+use super::dto::{CreateSubjectRequest, SubjectResponse, UpdateSubjectRequest};
+use super::service::SubjectService;
+use crate::errors::AppError;
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
+use actix_web::{web, HttpResponse};
+
+/// Create subject
+#[utoipa::path(
+    post,
+    path = "/api/subjects",
+    request_body = CreateSubjectRequest,
+    responses(
+        (status = 201, description = "Subject created successfully", body = SubjectResponse),
+        (status = 400, description = "Bad request"),
+        (status = 409, description = "Conflict - duplicate name or overlapping dates")
+    ),
+    tag = "Subject "
+)]
+pub async fn create(
+    service: web::Data<SubjectService>,
+    request: web::Json<CreateSubjectRequest>,
+) -> Result<HttpResponse, AppError> {
+    let result = service.create(request.into_inner()).await?;
+    Ok(HttpResponse::Created().json(result))
+}
+
+/// Get subject by ID
+#[utoipa::path(
+    get,
+    path = "/api/subjects/{id}",
+    params(
+        ("id" = i64, Path, description = "Subject ID")
+    ),
+    responses(
+        (status = 200, description = "Subject found", body = SubjectResponse),
+        (status = 404, description = "Subject not found")
+    ),
+    tag = "Subject "
+)]
+pub async fn get_by_id(
+    service: web::Data<SubjectService>,
+    id: web::Path<i64>,
+) -> Result<HttpResponse, AppError> {
+    let result = service.get_by_id(id.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(result))
+}
+
+/// Get all subjects with pagination
+#[utoipa::path(
+    get,
+    path = "/api/subjects",
+    params(
+        ("page" = Option<i64>, Query, description = "Page number (default: 1)"),
+        ("per_page" = Option<i64>, Query, description = "Items per page (default: 10, max: 100)"),
+        ("search" = Option<String>, Query, description = "Search query"),
+        ("sort_by" = Option<String>, Query, description = "Sort field"),
+        ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
+    ),
+    responses(
+        (status = 200, description = "List of subjects", body = PaginatedResponse<SubjectResponse>)
+    ),
+    tag = "Subject "
+)]
+pub async fn get_all(
+    service: web::Data<SubjectService>,
+    query: web::Query<PaginationParams>,
+    // Optional: foundation_id dari auth/context
+    // foundation_id: web::ReqData<i64>,
+) -> Result<HttpResponse, AppError> {
+    let params = query.into_inner();
+    // Untuk admin (semua foundation)
+    let result = service.get_all(params, None).await?;
+
+    Ok(HttpResponse::Ok().json(result))
+}
+
+/// Update subject
+#[utoipa::path(
+    put,
+    path = "/api/subjects/{id}",
+    params(
+        ("id" = i64, Path, description = "Subject ID")
+    ),
+    request_body = UpdateSubjectRequest,
+    responses(
+        (status = 200, description = "Subject updated", body = SubjectResponse),
+        (status = 404, description = "Subject not found"),
+        (status = 409, description = "Conflict")
+    ),
+    tag = "Subject "
+)]
+pub async fn update(
+    service: web::Data<SubjectService>,
+    id: web::Path<i64>,
+    request: web::Json<UpdateSubjectRequest>,
+) -> Result<HttpResponse, AppError> {
+    let result = service
+        .update(id.into_inner(), request.into_inner())
+        .await?;
+    Ok(HttpResponse::Ok().json(result))
+}
+
+/// Delete subject
+#[utoipa::path(
+    delete,
+    path = "/api/subjects/{id}",
+    params(
+        ("id" = i64, Path, description = "Subject ID")
+    ),
+    responses(
+        (status = 204, description = "Subject deleted"),
+        (status = 404, description = "Subject not found")
+    ),
+    tag = "Subject "
+)]
+pub async fn delete(
+    service: web::Data<SubjectService>,
+    id: web::Path<i64>,
+) -> Result<HttpResponse, AppError> {
+    service.delete(id.into_inner()).await?;
+    Ok(HttpResponse::NoContent().finish())
+}

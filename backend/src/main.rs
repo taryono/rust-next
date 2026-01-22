@@ -1,9 +1,11 @@
 // backend/src/main.rs
+mod app_state;
 mod config;
 mod docs;
 mod errors;
 mod middleware;
 mod modules;
+mod routes;
 mod utils;
 use actix_cors::Cors;
 use actix_governor::{Governor, GovernorConfigBuilder};
@@ -14,6 +16,8 @@ use dotenv::dotenv;
 use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
+// ✨ Tambahkan import ini
+use crate::app_state::AppState;
 // mod macros;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -29,16 +33,18 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("SERVER_PORT").unwrap_or_else(|_| "8080".to_string());
     let server_addr = format!("{}:{}", host, port);
-    let academic_year_service = modules::academic_years::init_service(db.clone());
     // ✨ Gunakan macro yang auto-generated dari build.rs
     let openapi = generate_openapi!();
     // Check if Swagger should be enabled
     let enable_swagger = env::var("ENABLE_SWAGGER").unwrap_or("true".to_string()) == "true";
 
     let swagger_auth = env::var("SWAGGER_AUTH").unwrap_or("false".to_string()) == "true";
+    // init service here
 
     log::info!("Starting server at http://{}", server_addr);
-
+    let academic_year_service = modules::academic_years::init_service(db.clone());
+    // ✨ Create AppState
+    let app_state = web::Data::new(AppState::new(academic_year_service));
     if enable_swagger {
         if swagger_auth {
             log::info!(
@@ -77,7 +83,7 @@ async fn main() -> std::io::Result<()> {
         let mut app = App::new()
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
-            .app_data(web::Data::new(academic_year_service.clone())) // ← Tambah ini jika dengan service
+            .app_data(app_state.clone()) // ← Tambahkan AppState
             .wrap(cors)
             .wrap(Logger::default())
             // Health check endpoint (GET - bisa di browser)
@@ -90,11 +96,7 @@ async fn main() -> std::io::Result<()> {
                     }))
                 }),
             )
-            .configure(modules::auth::routes::configure)
-            .configure(modules::users::routes::configure)
-            .configure(modules::academic_years::routes::configure)
-            .configure(modules::roles::routes::configure)
-            .configure(modules::foundations::routes::configure);
+            .configure(routes::configure);
 
         // Swagger UI configuration
         if enable_swagger {

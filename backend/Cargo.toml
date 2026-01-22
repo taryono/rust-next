@@ -74,6 +74,7 @@ utoipa-swagger-ui = {version = "8", features = ["actix-web"]}
 actix-governor = "0.5"
 actix-web-httpauth = "0.8.2"
 
+regex = "1.10"
 [dev-dependencies]
 sea-orm = {workspace = true, features = ["mock"]}
 

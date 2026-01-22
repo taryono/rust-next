@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "student_enrollments")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub class_id: u64,
-    pub academic_year_id: u64,
+    pub id: i64,
+    pub student_id: i64,
+    pub class_id: i64,
+    pub academic_year_id: i64,
     pub enrollment_date: Date,
     pub status: Option<Status>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

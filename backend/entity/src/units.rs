@@ -7,68 +7,17 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "units")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
-    #[sea_orm(unique)]
+    pub id: i64,
     pub name: String,
-    pub foundation_id: Option<i32>,
+    pub foundation_id: i64,
     pub unit_type: Option<String>,
     pub class_level_id: Option<i32>,
     pub level_id: Option<i32>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub deleted_at: Option<DateTime>,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::employees::Entity")]
-    Employees,
-    #[sea_orm(has_many = "super::role_users::Entity")]
-    RoleUsers,
-    #[sea_orm(has_many = "super::rooms::Entity")]
-    Rooms,
-    #[sea_orm(has_many = "super::schedule_generation_logs::Entity")]
-    ScheduleGenerationLogs,
-    #[sea_orm(has_many = "super::students::Entity")]
-    Students,
-    #[sea_orm(has_many = "super::teachers::Entity")]
-    Teachers,
-}
-
-impl Related<super::employees::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Employees.def()
-    }
-}
-
-impl Related<super::role_users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::RoleUsers.def()
-    }
-}
-
-impl Related<super::rooms::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Rooms.def()
-    }
-}
-
-impl Related<super::schedule_generation_logs::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ScheduleGenerationLogs.def()
-    }
-}
-
-impl Related<super::students::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Students.def()
-    }
-}
-
-impl Related<super::teachers::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Teachers.def()
-    }
-}
-
+pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}

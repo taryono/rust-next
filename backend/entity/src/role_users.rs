@@ -4,15 +4,15 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "role_users")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub user_id: u64,
-    pub role_id: u64,
+    pub id: i64,
+    pub user_id: i64,
+    pub role_id: i64,
     pub scope_level: ScopeLevel,
-    pub foundation_id: Option<u64>,
-    pub unit_id: Option<u64>,
+    pub foundation_id: Option<i64>,
+    pub unit_id: Option<i64>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub deleted_at: Option<DateTime>,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

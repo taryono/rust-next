@@ -6,7 +6,7 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "notifications")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
+    pub id: i64,
     pub user_id: i32,
     pub title: String,
     #[sea_orm(column_type = "Text")]
@@ -14,8 +14,8 @@ pub struct Model {
     pub icon: Option<String>,
     pub link: Option<String>,
     pub was_read: Option<i32>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -24,7 +24,7 @@ pub enum Relation {
         belongs_to = "super::users::Entity",
         from = "Column::UserId",
         to = "super::users::Column::Id",
-        on_update = "NoAction",
+        on_update = "Cascade",
         on_delete = "Cascade"
     )]
     Users,
@@ -35,5 +35,4 @@ impl Related<super::users::Entity> for Entity {
         Relation::Users.def()
     }
 }
-
 impl ActiveModelBehavior for ActiveModel {}

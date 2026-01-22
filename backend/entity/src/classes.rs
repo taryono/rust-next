@@ -6,12 +6,14 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "classes")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
-    #[sea_orm(unique)]
+    pub id: i64,
+    pub foundation_id: i64,
     pub name: String,
     pub class_level_id: Option<i32>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -104,7 +104,7 @@ impl AcademicYearService {
     }
 
     /// Get academic year by ID
-    pub async fn get_by_id(&self, id: u64) -> Result<AcademicYearResponse, AppError> {
+    pub async fn get_by_id(&self, id: i64) -> Result<AcademicYearResponse, AppError> {
         let academic_year = self
             .repository
             .find_by_id(id)
@@ -118,7 +118,7 @@ impl AcademicYearService {
     pub async fn get_all(
         &self,
         params: PaginationParams,
-        foundation_id: Option<u64>,
+        foundation_id: Option<i64>,
     ) -> Result<PaginatedResponse<AcademicYearResponse>, AppError> {
         // Validate pagination params
         params
@@ -141,7 +141,7 @@ impl AcademicYearService {
     /// Get active academic year for a foundation
     pub async fn get_active(
         &self,
-        foundation_id: u64,
+        foundation_id: i64,
     ) -> Result<Option<AcademicYearResponse>, AppError> {
         let academic_year = self.repository.find_active(foundation_id).await?;
         Ok(academic_year.map(AcademicYearResponse::from))
@@ -150,7 +150,7 @@ impl AcademicYearService {
     /// Update academic year
     pub async fn update(
         &self,
-        id: u64,
+        id: i64,
         request: UpdateAcademicYearRequest,
     ) -> Result<AcademicYearResponse, AppError> {
         // Validate request
@@ -253,7 +253,7 @@ impl AcademicYearService {
     }
 
     /// Delete academic year
-    pub async fn delete(&self, id: u64) -> Result<(), AppError> {
+    pub async fn delete(&self, id: i64) -> Result<(), AppError> {
         // Check if exists
         self.repository
             .find_by_id(id)

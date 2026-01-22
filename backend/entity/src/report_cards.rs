@@ -8,11 +8,11 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "report_cards")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub class_id: u64,
-    pub semester_id: u64,
-    pub academic_year_id: u64,
+    pub id: i64,
+    pub student_id: i64,
+    pub class_id: i64,
+    pub semester_id: i64,
+    pub academic_year_id: i64,
     pub class_rank: Option<i32>,
     pub total_students: Option<i32>,
     #[sea_orm(column_type = "Decimal(Some((5, 2)))", nullable)]
@@ -23,86 +23,15 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub principal_notes: Option<String>,
     pub status: Option<Status>,
-    pub finalized_at: Option<DateTime>,
-    pub finalized_by: Option<u64>,
+    pub finalized_at: Option<DateTimeUtc>,
+    pub finalized_by: Option<i64>,
     pub printed_count: Option<i32>,
-    pub last_printed_at: Option<DateTime>,
-    pub created_at: Option<DateTimeUtc>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub last_printed_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::academic_years::Entity",
-        from = "Column::AcademicYearId",
-        to = "super::academic_years::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    AcademicYears,
-    #[sea_orm(
-        belongs_to = "super::classes::Entity",
-        from = "Column::ClassId",
-        to = "super::classes::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Classes,
-    #[sea_orm(
-        belongs_to = "super::semesters::Entity",
-        from = "Column::SemesterId",
-        to = "super::semesters::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Semesters,
-    #[sea_orm(
-        belongs_to = "super::students::Entity",
-        from = "Column::StudentId",
-        to = "super::students::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Students,
-    #[sea_orm(
-        belongs_to = "super::users::Entity",
-        from = "Column::FinalizedBy",
-        to = "super::users::Column::Id",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    Users,
-}
-
-impl Related<super::academic_years::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::AcademicYears.def()
-    }
-}
-
-impl Related<super::classes::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Classes.def()
-    }
-}
-
-impl Related<super::semesters::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Semesters.def()
-    }
-}
-
-impl Related<super::students::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Students.def()
-    }
-}
-
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Users.def()
-    }
-}
-
+pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}

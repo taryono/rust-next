@@ -52,6 +52,7 @@ export default function TreeMenuItem({
     if (hasChildren && active && !isExpanded) {
       toggleMenu(menu.key);
     }
+    console.log("isExpanded",isExpanded,active, hasChildren, menu.key);
   }, [active, hasChildren, isExpanded, menu.key, toggleMenu]);
 
   /* =======================
@@ -59,6 +60,7 @@ export default function TreeMenuItem({
    * ======================= */
   const handleToggle = () => {
     if (hasChildren) toggleMenu(menu.key);
+    console.log("isExpanded",isExpanded,active, hasChildren, menu.key);
   };
 
   const handleKeyDown = (e) => {

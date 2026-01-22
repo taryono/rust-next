@@ -7,24 +7,17 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "character_traits")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    #[sea_orm(unique)]
+    pub id: i64,
+    pub foundation_id: i64,
     pub name: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
-    pub created_at: Option<DateTimeUtc>,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::character_assessments::Entity")]
-    CharacterAssessments,
-}
-
-impl Related<super::character_assessments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::CharacterAssessments.def()
-    }
-}
+pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

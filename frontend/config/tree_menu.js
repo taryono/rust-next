@@ -25,6 +25,12 @@ const treeMenuConfig = [
         label: 'Role',
         href: '/dashboard/roles',
         icon: 'ti ti-shield'
+      },
+      {
+        key:'permission',
+        label: 'Permission',
+        href: '/dashboard/permissions',
+        icon: 'ti ti-shield'
       }
     ]
   },

@@ -8,11 +8,11 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "schedule_generation_logs")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
+    pub id: i64,
     #[sea_orm(unique)]
     pub batch_id: String,
-    pub semester_id: u64,
-    pub unit_id: u64,
+    pub semester_id: i64,
+    pub unit_id: i64,
     pub algorithm: Option<String>,
     pub total_slots_needed: Option<i32>,
     pub total_slots_filled: Option<i32>,
@@ -23,54 +23,10 @@ pub struct Model {
     pub status: Option<Status>,
     #[sea_orm(column_type = "Text", nullable)]
     pub error_message: Option<String>,
-    pub created_by: Option<u64>,
-    pub created_at: Option<DateTimeUtc>,
+    pub created_by: Option<i64>,
+    pub created_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::semesters::Entity",
-        from = "Column::SemesterId",
-        to = "super::semesters::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Semesters,
-    #[sea_orm(
-        belongs_to = "super::units::Entity",
-        from = "Column::UnitId",
-        to = "super::units::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Units,
-    #[sea_orm(
-        belongs_to = "super::users::Entity",
-        from = "Column::CreatedBy",
-        to = "super::users::Column::Id",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    Users,
-}
-
-impl Related<super::semesters::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Semesters.def()
-    }
-}
-
-impl Related<super::units::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Units.def()
-    }
-}
-
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Users.def()
-    }
-}
-
+pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}

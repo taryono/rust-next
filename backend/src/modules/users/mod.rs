@@ -1,5 +1,7 @@
 pub mod docs;
-pub mod models;
+pub mod dto;
+pub mod handler;
+pub mod repository;
 pub mod routes;
-pub mod services;
+pub mod service;
 pub mod user;
