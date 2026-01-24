@@ -1,15 +1,15 @@
 // ============================================
 // 2. src/docs/auth_docs.rs
 // ============================================
-use crate::modules::auth::{auth, dto};
+use crate::modules::auth::{dto, handler};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        auth::register,
-        auth::login,
-        auth::refresh,
+        handler::register,
+        handler::login,
+        handler::refresh,
     ),
     components(
         schemas(

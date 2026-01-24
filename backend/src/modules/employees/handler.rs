@@ -1,12 +1,16 @@
+// backend/src/modules/employees/handler.rs
 // ============================================================================
 // handler.rs - HTTP Handlers
 // ============================================================================
-use super::dto::{CreateEmployeeRequest, EmployeeResponse, UpdateEmployeeRequest};
-use super::service::EmployeeService;
+use super::dto::{CreateEmployeeRequest, EmployeeFilters, EmployeeResponse, UpdateEmployeeRequest};
+use crate::app_state::AppState;
 use crate::errors::AppError;
-use crate::utils::pagination::{PaginatedResponse, PaginationParams};
+use crate::utils::{
+    pagination::{PaginatedResponse, PaginationParams},
+    response::ApiResponse,
+};
 use actix_web::{web, HttpResponse};
-
+use std::collections::HashMap;
 /// Create employee
 #[utoipa::path(
     post,
@@ -20,10 +24,13 @@ use actix_web::{web, HttpResponse};
     tag = "Employee "
 )]
 pub async fn create(
-    service: web::Data<EmployeeService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreateEmployeeRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state
+        .employee_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -41,10 +48,13 @@ pub async fn create(
     tag = "Employee "
 )]
 pub async fn get_by_id(
-    service: web::Data<EmployeeService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .employee_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -65,16 +75,21 @@ pub async fn get_by_id(
     tag = "Employee "
 )]
 pub async fn get_all(
-    service: web::Data<EmployeeService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
+    filters: web::Query<EmployeeFilters>,
     // Optional: foundation_id dari auth/context
-    // foundation_id: web::ReqData<i64>,
+    foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, None).await?;
-
-    Ok(HttpResponse::Ok().json(result))
+    print!("params: {:#?}\n", params);
+    match app_state.employee_service.get_all(params, None).await {
+        Ok(roles) => Ok(HttpResponse::Ok().json(ApiResponse::success(roles))),
+        Err(e) => {
+            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
+        }
+    }
 }
 
 /// Update employee
@@ -93,11 +108,12 @@ pub async fn get_all(
     tag = "Employee "
 )]
 pub async fn update(
-    service: web::Data<EmployeeService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
     request: web::Json<UpdateEmployeeRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .employee_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -117,9 +133,31 @@ pub async fn update(
     tag = "Employee "
 )]
 pub async fn delete(
-    service: web::Data<EmployeeService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state.employee_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
+}
+
+pub async fn get_all_with_dynamic_params(
+    app_state: web::Data<AppState>,
+    query: web::Query<HashMap<String, String>>,
+) -> Result<HttpResponse, Error> {
+    let page = query
+        .get("page")
+        .and_then(|p| p.parse::<u64>().ok())
+        .unwrap_or(1);
+
+    let per_page = query
+        .get("per_page")
+        .and_then(|p| p.parse::<u64>().ok())
+        .unwrap_or(10);
+
+    let status = query.get("status").cloned();
+    let sort_order = query.get("sort_order").cloned();
+
+    // ... rest of your logic
+
+    Ok(HttpResponse::Ok().json(()))
 }

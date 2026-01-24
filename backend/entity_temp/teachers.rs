@@ -8,11 +8,11 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "teachers")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
+    pub id: i64,
     #[sea_orm(unique)]
-    pub user_id: u64,
-    pub foundation_id: u64,
-    pub unit_id: Option<u64>,
+    pub user_id: i64,
+    pub foundation_id: i64,
+    pub unit_id: Option<i64>,
     pub nik: Option<String>,
     pub employee_number: String,
     pub specialization: Option<String>,
@@ -39,7 +39,7 @@ pub enum Relation {
         belongs_to = "super::foundations::Entity",
         from = "Column::FoundationId",
         to = "super::foundations::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Restrict"
     )]
     Foundations,
@@ -51,7 +51,7 @@ pub enum Relation {
         belongs_to = "super::units::Entity",
         from = "Column::UnitId",
         to = "super::units::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "SetNull"
     )]
     Units,
@@ -59,7 +59,7 @@ pub enum Relation {
         belongs_to = "super::users::Entity",
         from = "Column::UserId",
         to = "super::users::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Users,

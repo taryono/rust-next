@@ -1,8 +1,8 @@
 // backend/src/errors/app_error.rs
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
+use bcrypt::BcryptError;
 use serde::Serialize;
 use std::fmt;
-
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
     pub error: String,
@@ -53,6 +53,18 @@ pub enum AppError {
     SerdeError(serde_json::Error),
     #[warn(unused_imports)]
     IOError(std::io::Error),
+
+    // `AppError` needs to implement `From<jsonwebtoken::errors::Error>`
+
+    // 500 Internal Server Error
+    #[warn(unused_imports)]
+    JWTError(jsonwebtoken::errors::Error),
+
+    // 500 Internal Server Error
+    #[warn(unused_imports)]
+    ActixWebError(actix_web::Error),
+
+    BcryptError(bcrypt::BcryptError),
 }
 
 impl fmt::Display for AppError {
@@ -71,6 +83,9 @@ impl fmt::Display for AppError {
             AppError::SeaORMError(err) => write!(f, "Database error: {}", err),
             AppError::SerdeError(err) => write!(f, "Serialization error: {}", err),
             AppError::IOError(err) => write!(f, "IO error: {}", err),
+            AppError::JWTError(err) => write!(f, "JWT error: {}", err),
+            AppError::ActixWebError(err) => write!(f, "ActixWeb error: {}", err),
+            AppError::BcryptError(err) => write!(f, "Bcrypt error: {}", err),
         }
     }
 }
@@ -95,6 +110,8 @@ impl ResponseError for AppError {
             | AppError::SeaORMError(_)
             | AppError::SerdeError(_)
             | AppError::IOError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::JWTError(_) | AppError::ActixWebError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::BcryptError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -175,6 +192,42 @@ impl ResponseError for AppError {
                     },
                 }
             }
+
+            AppError::JWTError(err) => {
+                log::error!("JWT error: {}", err);
+                ErrorResponse {
+                    error: "A JWT error occurred".to_string(),
+                    details: if cfg!(debug_assertions) {
+                        Some(err.to_string())
+                    } else {
+                        None
+                    },
+                }
+            }
+
+            AppError::ActixWebError(err) => {
+                log::error!("ActixWeb error: {}", err);
+                ErrorResponse {
+                    error: "An ActixWeb error occurred".to_string(),
+                    details: if cfg!(debug_assertions) {
+                        Some(err.to_string())
+                    } else {
+                        None
+                    },
+                }
+            }
+
+            AppError::BcryptError(err) => {
+                log::error!("Bcrypt error: {}", err);
+                ErrorResponse {
+                    error: "A Bcrypt error occurred".to_string(),
+                    details: if cfg!(debug_assertions) {
+                        Some(err.to_string())
+                    } else {
+                        None
+                    },
+                }
+            }
         };
 
         HttpResponse::build(status).json(error_response)
@@ -203,6 +256,26 @@ impl From<std::io::Error> for AppError {
 impl From<validator::ValidationErrors> for AppError {
     fn from(err: validator::ValidationErrors) -> Self {
         AppError::ValidationError(err.to_string())
+    }
+}
+
+impl From<jsonwebtoken::errors::Error> for AppError {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        AppError::JWTError(err)
+    }
+}
+
+impl From<actix_web::Error> for AppError {
+    fn from(err: actix_web::Error) -> Self {
+        AppError::ActixWebError(err)
+    }
+}
+
+impl From<BcryptError> for AppError {
+    fn from(err: BcryptError) -> Self {
+        // Jangan bocorin detail crypto ke client
+        log::error!("Bcrypt error: {}", err);
+        AppError::InternalServerError("Password verification failed".into())
     }
 }
 

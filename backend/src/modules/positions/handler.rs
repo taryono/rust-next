@@ -2,9 +2,12 @@
 // handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{CreatePositionRequest, PositionResponse, UpdatePositionRequest};
-use super::service::PositionService;
+use crate::app_state::AppState;
 use crate::errors::AppError;
-use crate::utils::pagination::{PaginatedResponse, PaginationParams};
+use crate::utils::{
+    pagination::{PaginatedResponse, PaginationParams},
+    response::ApiResponse,
+};
 use actix_web::{web, HttpResponse};
 
 /// Create position
@@ -20,10 +23,13 @@ use actix_web::{web, HttpResponse};
     tag = "Position "
 )]
 pub async fn create(
-    service: web::Data<PositionService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreatePositionRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state
+        .position_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -41,10 +47,13 @@ pub async fn create(
     tag = "Position "
 )]
 pub async fn get_by_id(
-    service: web::Data<PositionService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .position_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -65,16 +74,19 @@ pub async fn get_by_id(
     tag = "Position "
 )]
 pub async fn get_all(
-    service: web::Data<PositionService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
     // foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, None).await?;
-
-    Ok(HttpResponse::Ok().json(result))
+    match app_state.position_service.get_all(params, None).await {
+        Ok(positions) => Ok(HttpResponse::Ok().json(ApiResponse::success(positions))),
+        Err(e) => {
+            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
+        }
+    }
 }
 
 /// Update position
@@ -93,11 +105,12 @@ pub async fn get_all(
     tag = "Position "
 )]
 pub async fn update(
-    service: web::Data<PositionService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
     request: web::Json<UpdatePositionRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .position_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -117,9 +130,9 @@ pub async fn update(
     tag = "Position "
 )]
 pub async fn delete(
-    service: web::Data<PositionService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state.position_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }

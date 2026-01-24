@@ -1,5 +1,5 @@
-use sea_orm::entity::prelude::*; // ← Import dari entity crate
-
+// backend/entity/src/users.rs
+use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "users")]
 pub struct Model {

@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "notifications")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
-    pub user_id: u64,
+    pub id: i64,
+    pub user_id: i64,
     pub title: String,
     #[sea_orm(column_type = "Text")]
     pub message: String,

@@ -1,27 +1,27 @@
+// src/modules/auth/dto.rs
+use crate::modules::users::dto::UserResponse;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
 
-use crate::modules::users::dto::UserResponse;
-
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct RegisterRequest {
-    #[validate(length(min = 3, max = 50))]
+    #[validate(length(min = 3, message = "Name is required"))]
     pub name: String,
 
-    #[validate(email)]
+    #[validate(email(message = "Invalid email format"))]
     pub email: String,
 
-    #[validate(length(min = 6))]
+    #[validate(length(min = 6, message = "Password must be at least 6 characters"))]
     pub password: String,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct LoginRequest {
-    #[validate(email)]
+    #[validate(email(message = "Invalid email format"))]
     pub email: String,
 
-    #[validate(length(min = 1))]
+    #[validate(length(min = 6, message = "Password is required"))]
     pub password: String,
 }
 
@@ -43,7 +43,7 @@ pub struct UserInfo {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct RefreshTokenRequest {
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Refresh token is required"))]
     pub refresh_token: String,
 }
 

@@ -1,5 +1,6 @@
 use actix_web::web;
 pub fn init(cfg: &mut web::ServiceConfig) {
+    crate::modules::auth::routes::configure(cfg);
     crate::modules::users::routes::configure(cfg);
     crate::modules::roles::routes::configure(cfg);
     crate::modules::foundations::routes::configure(cfg);

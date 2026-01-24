@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "attendances")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub class_subject_id: u64,
+    pub id: i64,
+    pub student_id: i64,
+    pub class_subject_id: i64,
     pub date: Date,
     pub status: Status,
     #[sea_orm(column_type = "Text", nullable)]
@@ -24,7 +24,7 @@ pub enum Relation {
         belongs_to = "super::class_subjects::Entity",
         from = "Column::ClassSubjectId",
         to = "super::class_subjects::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     ClassSubjects,
@@ -32,7 +32,7 @@ pub enum Relation {
         belongs_to = "super::students::Entity",
         from = "Column::StudentId",
         to = "super::students::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Students,

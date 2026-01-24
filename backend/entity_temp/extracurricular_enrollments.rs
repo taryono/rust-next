@@ -8,10 +8,10 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "extracurricular_enrollments")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub extracurricular_id: u64,
-    pub semester_id: u64,
+    pub id: i64,
+    pub student_id: i64,
+    pub extracurricular_id: i64,
+    pub semester_id: i64,
     pub grade: Option<Grade>,
     #[sea_orm(column_type = "Text", nullable)]
     pub notes: Option<String>,
@@ -25,7 +25,7 @@ pub enum Relation {
         belongs_to = "super::extracurricular_activities::Entity",
         from = "Column::ExtracurricularId",
         to = "super::extracurricular_activities::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     ExtracurricularActivities,
@@ -33,7 +33,7 @@ pub enum Relation {
         belongs_to = "super::semesters::Entity",
         from = "Column::SemesterId",
         to = "super::semesters::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Semesters,
@@ -41,7 +41,7 @@ pub enum Relation {
         belongs_to = "super::students::Entity",
         from = "Column::StudentId",
         to = "super::students::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Students,

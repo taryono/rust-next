@@ -78,7 +78,7 @@ pub async fn get_all(
     let params = query.into_inner();
 
     // Jika pakai multi-tenant by foundation
-    // let result = app_state.academic_year_service.get_all(params, Some(*foundation_id)).await?;
+    // let result = app_state.academic_year_app_state.permission_serviceget_all(params, Some(*foundation_id)).await?;
 
     // Untuk admin (semua foundation)
     let result = app_state

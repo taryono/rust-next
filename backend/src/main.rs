@@ -13,6 +13,7 @@ use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer};
 use actix_web_httpauth::middleware::HttpAuthentication;
 use config::database::Database;
 use dotenv::dotenv;
+mod states;
 use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -42,9 +43,18 @@ async fn main() -> std::io::Result<()> {
     // init service here
 
     log::info!("Starting server at http://{}", server_addr);
-    let academic_year_service = modules::academic_years::init_service(db.clone());
-    // ✨ Create AppState
-    let app_state = web::Data::new(AppState::new(academic_year_service));
+    // let auth_service = modules::auth::init_service(db.clone());
+    // let academic_year_service = modules::academic_years::init_service(db.clone());
+    // let permission_service = modules::permissions::init_service(db.clone());
+    // let position_service = modules::positions::init_service(db.clone());
+    // // ✨ Create AppState
+    // let app_state = web::Data::new(AppState::new(
+    //     academic_year_service,
+    //     auth_service,
+    //     permission_service,
+    //     position_service,
+    // ));
+    let app_state = states::states::init_app(db.clone()).unwrap();
     if enable_swagger {
         if swagger_auth {
             log::info!(

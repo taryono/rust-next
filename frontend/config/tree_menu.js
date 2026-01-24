@@ -86,7 +86,7 @@ const treeMenuConfig = [
       {
         key:'position',
         label: 'Positions',
-        href: '/dashboard/foundations',
+        href: '/dashboard/positions',
         icon: 'ti ti-list'
       },
       {
@@ -104,17 +104,17 @@ const treeMenuConfig = [
           {
             key:'permanent',
             label: 'Permanent Employee',
-            href: '/dashboard/permanent'
+            href: '/dashboard/employees/permanent',
           },
           {
             key:'contract',
             label: 'Contract Employee',
-            href: '/dashboard/department'
+            href: '/dashboard/employees/contract',
           },
           {
             key:'freelance',
             label: 'Freelancer Employee',
-            href: '/dashboard/department'
+            href: '/dashboard/employees/freelance',
           }
         ]
       }

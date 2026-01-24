@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "class_subjects")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub class_id: u64,
-    pub subject_id: u64,
-    pub semester_id: u64,
-    pub teacher_id: Option<u64>,
+    pub id: i64,
+    pub class_id: i64,
+    pub subject_id: i64,
+    pub semester_id: i64,
+    pub teacher_id: Option<i64>,
     pub credit_hours: Option<i32>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
@@ -28,7 +28,7 @@ pub enum Relation {
         belongs_to = "super::classes::Entity",
         from = "Column::ClassId",
         to = "super::classes::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Classes,
@@ -38,7 +38,7 @@ pub enum Relation {
         belongs_to = "super::semesters::Entity",
         from = "Column::SemesterId",
         to = "super::semesters::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Semesters,
@@ -46,7 +46,7 @@ pub enum Relation {
         belongs_to = "super::subjects::Entity",
         from = "Column::SubjectId",
         to = "super::subjects::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Subjects,
@@ -54,7 +54,7 @@ pub enum Relation {
         belongs_to = "super::teachers::Entity",
         from = "Column::TeacherId",
         to = "super::teachers::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "SetNull"
     )]
     Teachers,

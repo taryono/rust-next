@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "rooms")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub unit_id: u64,
+    pub id: i64,
+    pub unit_id: i64,
     pub name: String,
     pub room_type_id: Option<i64>,
     pub capacity: i32,
@@ -27,7 +27,7 @@ pub enum Relation {
         belongs_to = "super::units::Entity",
         from = "Column::UnitId",
         to = "super::units::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Units,

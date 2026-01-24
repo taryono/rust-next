@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "subject_room_requirements")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub subject_id: u64,
+    pub id: i64,
+    pub subject_id: i64,
     pub required_room_type: RequiredRoomType,
     pub required_facilities: Option<Json>,
     pub created_at: Option<DateTimeUtc>,
@@ -21,7 +21,7 @@ pub enum Relation {
         belongs_to = "super::subjects::Entity",
         from = "Column::SubjectId",
         to = "super::subjects::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Subjects,

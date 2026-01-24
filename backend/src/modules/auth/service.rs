@@ -1,122 +1,87 @@
+// src/modules/auth/service.rs
 use crate::{
-    modules::auth::dto::{AuthResponse, LoginRequest, RefreshTokenResponse, RegisterRequest},
+    errors::AppError,
+    modules::auth::{
+        dto::{AuthResponse, LoginRequest, RefreshTokenResponse, RegisterRequest},
+        repository::AuthRepository,
+    },
     modules::users::dto::UserResponse,
     utils::{jwt, password},
 };
-use entity::roles::Entity as Roles;
-use entity::users::{self as users, Entity as User};
-use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use std::env;
 
-pub async fn register_user(
-    db: &DatabaseConnection,
-    register_data: RegisterRequest,
-) -> Result<AuthResponse, Box<dyn std::error::Error>> {
-    // Check if email already exists
-    let existing_user = User::find()
-        .filter(users::Column::Email.eq(&register_data.email))
-        .one(db)
-        .await?;
-
-    if existing_user.is_some() {
-        return Err("Email already exists".into());
+#[derive(Clone)]
+pub struct AuthService {
+    repository: AuthRepository,
+}
+impl AuthService {
+    pub fn new(repository: AuthRepository) -> Self {
+        Self { repository }
     }
 
-    // Hash password
-    let hashed_password = password::hash(&register_data.password)?;
+    pub async fn register(&self, body: RegisterRequest) -> Result<UserResponse, AppError> {
+        let existing_user = self.repository.find_by_email(&body.email).await?;
 
-    // Create new user
-    let new_user = users::ActiveModel {
-        name: Set(register_data.name),
-        email: Set(register_data.email),
-        password: Set(hashed_password),
-        ..Default::default()
-    };
+        if existing_user.is_some() {
+            return Err(AppError::NotFoundError("Email already exists".into()));
+        }
 
-    let user = new_user.insert(db).await?;
+        let user = self
+            .repository
+            .create_user(body.name, body.email, body.password)
+            .await?;
 
-    // Generate tokens
-    let access_token = jwt::create_token(user.id.to_string())?;
-    let refresh_token = jwt::create_refresh_token(user.id.to_string())?;
-
-    let expires_in = env::var("JWT_EXPIRATION")
-        .unwrap_or_else(|_| "900".to_string())
-        .parse::<i64>()
-        .unwrap_or(900);
-
-    Ok(AuthResponse {
-        access_token,
-        refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in,
-        user: UserResponse::from_entity(&user),
-    })
-}
-
-pub async fn login_user(
-    db: &DatabaseConnection,
-    login_data: LoginRequest,
-) -> Result<AuthResponse, Box<dyn std::error::Error>> {
-    // Find user by email
-    let user = User::find()
-        .filter(users::Column::Email.eq(&login_data.email))
-        .one(db)
-        .await?
-        .ok_or("Invalid email or password")?;
-
-    // Verify password
-    if !password::verify(&login_data.password, &user.password)? {
-        return Err("Invalid email or password".into());
+        Ok(UserResponse::from_entity(&user))
     }
 
-    // Generate tokens
-    let access_token = jwt::create_token(user.id.to_string())?;
-    let refresh_token = jwt::create_refresh_token(user.id.to_string())?;
+    pub async fn login(&self, body: LoginRequest) -> Result<AuthResponse, AppError> {
+        let user = self
+            .repository
+            .find_by_email(&body.email)
+            .await?
+            .ok_or(AppError::Unauthorized("Invalid credentials".into()))?;
 
-    let expires_in = env::var("JWT_EXPIRATION")
-        .unwrap_or_else(|_| "900".to_string())
-        .parse::<i64>()
-        .unwrap_or(900);
+        let valid = password::verify(&body.password, &user.password)?;
+        if !valid {
+            return Err(AppError::Unauthorized("Invalid credentials".into()));
+        }
 
-    // Query roles user
-    let (user, roles) = User::find_by_id(user.id)
-        .find_with_related(Roles)
-        .all(db)
-        .await?
-        .into_iter()
-        .next()
-        .ok_or("User not found")?;
-    println!("Roles: {:?}", roles);
-    // atau
-    dbg!(&roles);
-    Ok(AuthResponse {
-        access_token,
-        refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in,
-        user: UserResponse::from_user_with_roles(&user, &roles),
-    })
-}
+        let access_token = jwt::create_token(user.id.to_string())?;
+        let refresh_token = jwt::create_refresh_token(user.id.to_string())?;
 
-pub async fn refresh_token(
-    refresh_token: String,
-) -> Result<RefreshTokenResponse, Box<dyn std::error::Error>> {
-    // Verify refresh token
-    let claims = jwt::verify_refresh_token(&refresh_token)?;
+        let (user, roles) = self
+            .repository
+            .find_by_email_with_roles(&body.email)
+            .await?
+            .ok_or(AppError::Unauthorized("Invalid credentials".into()))?;
 
-    // Generate new tokens
-    let new_access_token = jwt::create_token(claims.sub.clone())?;
-    let new_refresh_token = jwt::create_refresh_token(claims.sub)?;
+        Ok(AuthResponse {
+            user: UserResponse::from_user_with_roles(&user, &roles),
+            access_token,
+            refresh_token,
+            token_type: "Bearer".into(),
+            expires_in: self.get_token_expiration(),
+        })
+    }
 
-    let expires_in = env::var("JWT_EXPIRATION")
-        .unwrap_or_else(|_| "900".to_string())
-        .parse::<i64>()
-        .unwrap_or(900);
+    pub async fn refresh_token(&self, token: String) -> Result<RefreshTokenResponse, AppError> {
+        let claims = jwt::verify_refresh_token(&token)?;
 
-    Ok(RefreshTokenResponse {
-        access_token: new_access_token,
-        refresh_token: new_refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in,
-    })
+        let user_id = claims.sub.clone();
+
+        let access_token = jwt::create_token(user_id.clone())?;
+        let refresh_token = jwt::create_refresh_token(user_id)?;
+
+        Ok(RefreshTokenResponse {
+            access_token,
+            refresh_token,
+            token_type: "Bearer".into(),
+            expires_in: self.get_token_expiration(),
+        })
+    }
+
+    fn get_token_expiration(&self) -> i64 {
+        let expiration = env::var("JWT_EXPIRATION").unwrap_or("3600".to_string());
+        expiration.parse().unwrap()
+    }
 }

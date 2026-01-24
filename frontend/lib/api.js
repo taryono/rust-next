@@ -134,14 +134,14 @@ export const api = {
     deleteUser: (id) => axiosInstance.delete(`/api/users/${id}`),
  
     // Foundations 
-    getFoundations: () => axiosInstance.get('/api/foundations'),
+    getFoundations: (params = '') => axiosInstance.get(`/api/foundations${params}`),
     getFoundationById: (id) => axiosInstance.get(`/api/foundation/${id}`),
     createFoundation: (data) => axiosInstance.post('/api/foundation', data),
     updateFoundation: (id, data) => axiosInstance.put(`/api/foundation/${id}`, data),
     deleteFoundation: (id) => axiosInstance.delete(`/api/foundation/${id}`),
 
     // Units 
-    getUnits: () => axiosInstance.get('/api/units'),
+    getUnits: (params = '') => axiosInstance.get(`/api/units${params}`),
     getUnitById: (id) => axiosInstance.get(`/api/unit/${id}`),
     createUnit: (data) => axiosInstance.post('/api/unit', data),
     updateUnit: (id, data) => axiosInstance.put(`/api/unit/${id}`, data),
@@ -155,7 +155,7 @@ export const api = {
     deleteUnitType: (id) => axiosInstance.delete(`/api/unit-type/${id}`),
 
      // Employees 
-    getEmployees: () => axiosInstance.get('/api/employees'),
+    getEmployees: (params = '') => axiosInstance.get(`/api/employees${params}`),
     getEmployeeById: (id) => axiosInstance.get(`/api/employee/${id}`),
     createEmployee: (data) => axiosInstance.post('/api/employee', data),
     updateEmployee: (id, data) => axiosInstance.put(`/api/employee/${id}`, data),
@@ -190,11 +190,17 @@ export const api = {
     deleteRole: (id) => axiosInstance.delete(`/api/role/${id}`),
 
      // Permissions 
-    getPermissions: () => axiosInstance.get('/api/permissions'),
+    getPermissions: (params = '') => axiosInstance.get(`/api/permissions${params}`),
     getPermissionById: (id) => axiosInstance.get(`/api/permission/${id}`),
     createPermission: (data) => axiosInstance.post('/api/permission', data),
     updatePermission: (id, data) => axiosInstance.put(`/api/permission/${id}`, data),
     deletePermission: (id) => axiosInstance.delete(`/api/permission/${id}`),
+
+    getPositions: (params = '') => axiosInstance.get(`/api/positions${params}`),
+    getPositionById: (id) => axiosInstance.get(`/api/position/${id}`),
+    createPosition: (data) => axiosInstance.post('/api/position', data),
+    updatePosition: (id, data) => axiosInstance.put(`/api/position/${id}`, data),
+    deletePosition: (id) => axiosInstance.delete(`/api/position/${id}`),
 
      // Rooms 
     getRooms: () => axiosInstance.get('/api/rooms'),

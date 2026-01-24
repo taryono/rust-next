@@ -1,8 +1,8 @@
 // backend/src/modules/employees/dto.rs
 use chrono::NaiveDate;
 use entity::sea_orm_active_enums::EmploymentType;
-
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use utoipa::ToSchema;
 use validator::Validate;
 
@@ -100,4 +100,27 @@ impl EmployeeResponse {
     pub fn from_vec(dto: Vec<entity::employees::Model>) -> Vec<Self> {
         dto.into_iter().map(Self::from).collect()
     }
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct EmployeeFilters {
+    // Pagination fields
+    #[validate(range(min = 1))]
+    pub page: Option<u64>,
+    #[validate(range(min = 1, max = 100))]
+    pub per_page: Option<u64>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+
+    // Known filters
+    pub search: Option<String>,
+    pub status: Option<String>,
+    pub department: Option<String>,
+    pub foundation: Option<String>,
+    pub position: Option<String>,
+    pub unit: Option<String>,
+
+    // Catch-all untuk params lainnya
+    #[serde(flatten)]
+    pub extra: HashMap<String, String>,
 }

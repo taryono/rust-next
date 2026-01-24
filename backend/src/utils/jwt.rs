@@ -5,9 +5,9 @@ use std::env;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: String,  // Subject (user id)
-    pub exp: usize,   // Expiration time
-    pub iat: usize,   // Issued at
+    pub sub: String,        // Subject (user id)
+    pub exp: usize,         // Expiration time
+    pub iat: usize,         // Issued at
     pub token_type: String, // "access" or "refresh"
 }
 
@@ -42,7 +42,7 @@ impl Claims {
 pub fn create_token(user_id: String) -> Result<String, jsonwebtoken::errors::Error> {
     let claims = Claims::new(user_id, "access".to_string());
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    
+
     encode(
         &Header::default(),
         &claims,
@@ -54,7 +54,7 @@ pub fn create_refresh_token(user_id: String) -> Result<String, jsonwebtoken::err
     let claims = Claims::new(user_id, "refresh".to_string());
     let secret = env::var("JWT_REFRESH_SECRET")
         .unwrap_or_else(|_| env::var("JWT_SECRET").expect("JWT_SECRET must be set"));
-    
+
     encode(
         &Header::default(),
         &claims,
@@ -64,7 +64,7 @@ pub fn create_refresh_token(user_id: String) -> Result<String, jsonwebtoken::err
 
 pub fn verify_token(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    
+
     let token_data = decode::<Claims>(
         token,
         &DecodingKey::from_secret(secret.as_bytes()),
@@ -77,7 +77,7 @@ pub fn verify_token(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> 
 pub fn verify_refresh_token(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
     let secret = env::var("JWT_REFRESH_SECRET")
         .unwrap_or_else(|_| env::var("JWT_SECRET").expect("JWT_SECRET must be set"));
-    
+
     let token_data = decode::<Claims>(
         token,
         &DecodingKey::from_secret(secret.as_bytes()),
@@ -87,7 +87,7 @@ pub fn verify_refresh_token(token: &str) -> Result<Claims, jsonwebtoken::errors:
     // Verify it's a refresh token
     if token_data.claims.token_type != "refresh" {
         return Err(jsonwebtoken::errors::Error::from(
-            jsonwebtoken::errors::ErrorKind::InvalidToken
+            jsonwebtoken::errors::ErrorKind::InvalidToken,
         ));
     }
 

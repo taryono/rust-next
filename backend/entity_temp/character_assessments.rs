@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "character_assessments")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub student_id: u64,
-    pub semester_id: u64,
-    pub character_trait_id: u64,
+    pub id: i64,
+    pub student_id: i64,
+    pub semester_id: i64,
+    pub character_trait_id: i64,
     pub grade: Grade,
     #[sea_orm(column_type = "Text", nullable)]
     pub notes: Option<String>,
-    pub assessed_by: Option<u64>,
+    pub assessed_by: Option<i64>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
 }
@@ -26,7 +26,7 @@ pub enum Relation {
         belongs_to = "super::character_traits::Entity",
         from = "Column::CharacterTraitId",
         to = "super::character_traits::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     CharacterTraits,
@@ -34,7 +34,7 @@ pub enum Relation {
         belongs_to = "super::semesters::Entity",
         from = "Column::SemesterId",
         to = "super::semesters::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Semesters,
@@ -42,7 +42,7 @@ pub enum Relation {
         belongs_to = "super::students::Entity",
         from = "Column::StudentId",
         to = "super::students::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Students,
@@ -50,7 +50,7 @@ pub enum Relation {
         belongs_to = "super::teachers::Entity",
         from = "Column::AssessedBy",
         to = "super::teachers::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "SetNull"
     )]
     Teachers,

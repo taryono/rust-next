@@ -8,13 +8,13 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "role_users")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub user_id: u64,
-    pub role_id: u64,
+    pub id: i64,
+    pub user_id: i64,
+    pub role_id: i64,
     pub scope_level: ScopeLevel,
-    pub foundation_id: Option<u64>,
+    pub foundation_id: Option<i64>,
     pub branch_id: Option<i32>,
-    pub unit_id: Option<u64>,
+    pub unit_id: Option<i64>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
     pub deleted_at: Option<DateTime>,
@@ -26,7 +26,7 @@ pub enum Relation {
         belongs_to = "super::foundations::Entity",
         from = "Column::FoundationId",
         to = "super::foundations::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Foundations,
@@ -34,7 +34,7 @@ pub enum Relation {
         belongs_to = "super::roles::Entity",
         from = "Column::RoleId",
         to = "super::roles::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Roles,
@@ -42,7 +42,7 @@ pub enum Relation {
         belongs_to = "super::units::Entity",
         from = "Column::UnitId",
         to = "super::units::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Units,
@@ -50,7 +50,7 @@ pub enum Relation {
         belongs_to = "super::users::Entity",
         from = "Column::UserId",
         to = "super::users::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Users,

@@ -8,10 +8,10 @@ import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
 
-export default function Units() {
+export default function Positions() {
   const { openModal } = useModalStore();
   const {
-    data: units,
+    data: positions,
     loading,
     error,
     pagination,
@@ -19,7 +19,7 @@ export default function Units() {
     goToPage,
     changePerPage,
     updateFilters,
-  } = usePagination(api.getUnits);
+  } = usePagination(api.getPositions);
  
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
@@ -32,10 +32,10 @@ export default function Units() {
   const [total, setTotal] = useState(0); 
 
   useEffect(() => {
-    fetchUnits();
+    fetchPositions();
   }, [currentPage, perPage, searchQuery, filterRole]);
 
-  const fetchUnits = async () => {
+  const fetchPositions = async () => {
     try {
        
       const params = new URLSearchParams({
@@ -46,14 +46,14 @@ export default function Units() {
       if (searchQuery) params.append('search', searchQuery);
       if (filterRole !== 'all') params.append('role', filterRole);
       
-      const response = await api.getUnits(`?${params.toString()}`);
+      const response = await api.getPositions(`?${params.toString()}`);
       const data = response.data || response; 
       setTotal(data.total || 0);
       setTotalPages(data.total_pages || 1);
       
     } catch (err) {
       console.error('Error:', err);
-      alertError('Failed to fetch units');
+      alertError('Failed to fetch positions');
     } finally { 
     }
   };
@@ -97,7 +97,7 @@ export default function Units() {
               <div className="row g-2 align-items-center">
                 <div className="col">
                   <div className="page-pretitle">Overview</div>
-                  <h2 className="page-title">Units Management</h2>
+                  <h2 className="page-title">Positions Management</h2>
                 </div>
                 
                 <div className="col-auto ms-auto d-print-none">
@@ -108,7 +108,7 @@ export default function Units() {
                         <path d="M12 5l0 14" />
                         <path d="M5 12l14 0" />
                       </svg>
-                      Add new unit
+                      Add new position
                     </button>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export default function Units() {
             <div className="container-xl">
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">Units List</h3>
+                  <h3 className="card-title">Positions List</h3>
                   <div className="ms-auto">
                       <div className="btn-group" role="group">
                         <button 
@@ -165,7 +165,7 @@ export default function Units() {
                         <input 
                           type="text" 
                           className="form-control form-control-sm" 
-                          placeholder="Search units..."
+                          placeholder="Search positions..."
                           value={filters.search}
                           onChange={(e) => updateFilters({ search: e.target.value })}
                         />
@@ -176,17 +176,17 @@ export default function Units() {
                   {viewMode === 'grid' && (
                       <div className="card-body">
                         <div className="row row-cards">
-                          {units.map((unit, index) => (
-                            <div key={unit.id} className="col-md-6 col-lg-4">
+                          {positions.map((position, index) => (
+                            <div key={position.id} className="col-md-6 col-lg-4">
                               <div className="card card-sm">
                                 <div className="card-body">
                                   <div className="d-flex align-items-center mb-3">
                                     <span className={`avatar avatar-lg rounded me-3 ${getAvatarColor(index)}`}>
-                                      {getInitials(unit.name)}
+                                      {getInitials(position.name)}
                                     </span>
                                     <div className="flex-fill">
-                                      <div className="font-weight-medium">{unit.name}</div>
-                                      <div className="text-secondary small">{unit.email}</div>
+                                      <div className="font-weight-medium">{position.name}</div>
+                                      <div className="text-secondary small">{position.email}</div>
                                     </div>
                                   </div> 
                                 </div>
@@ -202,26 +202,26 @@ export default function Units() {
                         <table className="table table-vcenter card-table table-striped">
                           <thead>
                             <tr>
-                              <th>Unit</th>
+                              <th>Position</th>
                               <th>Email</th>
                               <th>Roles</th>
                               <th className="w-1"></th>
                             </tr>
                           </thead>
                           <tbody>
-                            {units.map((unit, index) => (
-                              <tr key={unit.id}>
+                            {positions.map((position, index) => (
+                              <tr key={position.id}>
                                 <td>
                                   <div className="d-flex py-1 align-items-center">
                                     <span className={`avatar avatar-sm me-2 ${getAvatarColor(index)}`}>
-                                      {getInitials(unit.name)}
+                                      {getInitials(position.name)}
                                     </span>
                                     <div className="flex-fill">
-                                      <div className="font-weight-medium">{unit.name}</div>
+                                      <div className="font-weight-medium">{position.name}</div>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{unit.email}</td> 
+                                <td className="text-secondary">{position.email}</td> 
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

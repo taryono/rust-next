@@ -2,11 +2,13 @@
 // handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{CreatePermissionRequest, PermissionResponse, UpdatePermissionRequest};
-use super::service::PermissionService;
+use crate::app_state::AppState;
 use crate::errors::AppError;
-use crate::utils::pagination::{PaginatedResponse, PaginationParams};
+use crate::utils::{
+    pagination::{PaginatedResponse, PaginationParams},
+    response::ApiResponse,
+};
 use actix_web::{web, HttpResponse};
-
 /// Create permission
 #[utoipa::path(
     post,
@@ -20,10 +22,13 @@ use actix_web::{web, HttpResponse};
     tag = "Permission "
 )]
 pub async fn create(
-    service: web::Data<PermissionService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreatePermissionRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state
+        .permission_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -41,10 +46,13 @@ pub async fn create(
     tag = "Permission "
 )]
 pub async fn get_by_id(
-    service: web::Data<PermissionService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .permission_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -64,17 +72,21 @@ pub async fn get_by_id(
     ),
     tag = "Permission "
 )]
+
 pub async fn get_all(
-    service: web::Data<PermissionService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
     // foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, None).await?;
-
-    Ok(HttpResponse::Ok().json(result))
+    match app_state.permission_service.get_all(params, None).await {
+        Ok(roles) => Ok(HttpResponse::Ok().json(ApiResponse::success(roles))),
+        Err(e) => {
+            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
+        }
+    }
 }
 
 /// Update permission
@@ -93,11 +105,12 @@ pub async fn get_all(
     tag = "Permission "
 )]
 pub async fn update(
-    service: web::Data<PermissionService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
     request: web::Json<UpdatePermissionRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .permission_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -117,9 +130,9 @@ pub async fn update(
     tag = "Permission "
 )]
 pub async fn delete(
-    service: web::Data<PermissionService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state.permission_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }

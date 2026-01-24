@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "room_facilities")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub room_id: u64,
-    pub facility_id: u64,
-    pub foundation_id: Option<u64>,
+    pub id: i64,
+    pub room_id: i64,
+    pub facility_id: i64,
+    pub foundation_id: Option<i64>,
     pub qty: Option<i32>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
@@ -23,16 +23,16 @@ pub enum Relation {
         belongs_to = "super::facilities::Entity",
         from = "Column::FacilityId",
         to = "super::facilities::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Restrict",
+        on_delete = "Restrict"
     )]
     Facilities,
     #[sea_orm(
         belongs_to = "super::rooms::Entity",
         from = "Column::RoomId",
         to = "super::rooms::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Restrict",
+        on_delete = "Restrict"
     )]
     Rooms,
 }

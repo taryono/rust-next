@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "time_slots")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub foundation_id: u64,
+    pub id: i64,
+    pub foundation_id: i64,
     pub name: String,
     pub day_of_week: i8,
     pub start_time: Time,
@@ -29,7 +29,7 @@ pub enum Relation {
         belongs_to = "super::foundations::Entity",
         from = "Column::FoundationId",
         to = "super::foundations::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Foundations,

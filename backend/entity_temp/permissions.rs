@@ -7,12 +7,13 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "permissions")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub id: u64,
+    pub id: i64,
     #[sea_orm(unique)]
     pub name: String,
-    pub foundation_id: Option<i32>,
+    pub foundation_id: i64,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

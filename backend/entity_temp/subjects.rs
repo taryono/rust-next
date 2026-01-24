@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "subjects")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub foundation_id: u64,
+    pub id: i64,
+    pub foundation_id: i64,
     pub code: Option<String>,
     pub name: String,
     #[sea_orm(column_type = "Text", nullable)]
@@ -27,7 +27,7 @@ pub enum Relation {
         belongs_to = "super::foundations::Entity",
         from = "Column::FoundationId",
         to = "super::foundations::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     Foundations,

@@ -1,14 +1,14 @@
-use crate::{
-    config::database::Database,
-    modules::auth::dto::{
-        AuthResponse, LoginRequest, RefreshTokenRequest, RefreshTokenResponse, RegisterRequest,
-    },
-    modules::auth::service,
-    utils::response::ApiResponse,
+// src/modules/auth/handler.rs
+use crate::app_state::AppState;
+use crate::modules::auth::dto::{
+    AuthResponse, LoginRequest, RefreshTokenRequest, RefreshTokenResponse, RegisterRequest,
 };
-use actix_web::{web, HttpResponse};
+use crate::utils::response::ApiResponse;
+use actix_web::{web, HttpResponse, Responder};
+use serde_json::json;
 use validator::Validate;
 
+/// Register new user handler
 #[utoipa::path(
     post,
     path = "/api/auth/register",
@@ -20,21 +20,25 @@ use validator::Validate;
         (status = 409, description = "Email already exists")
     )
 )]
-pub async fn register(db: web::Data<Database>, body: web::Json<RegisterRequest>) -> HttpResponse {
+pub async fn register(
+    app_state: web::Data<AppState>,
+    payload: web::Json<RegisterRequest>,
+) -> impl Responder {
     // Validate input
-    if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
-            "Validation error: {}",
-            errors
-        )));
+    if let Err(e) = payload.validate() {
+        return HttpResponse::BadRequest().json(json!({
+            "success": false,
+            "error": format!("Validation error: {}", e)
+        }));
     }
 
-    match service::register_user(db.get_connection(), body.into_inner()).await {
+    match app_state.auth_service.register(payload.into_inner()).await {
         Ok(response) => HttpResponse::Created().json(ApiResponse::success(response)),
         Err(e) => HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())),
     }
 }
 
+/// Login user handler
 #[utoipa::path(
     post,
     path = "/api/auth/login",
@@ -46,21 +50,25 @@ pub async fn register(db: web::Data<Database>, body: web::Json<RegisterRequest>)
         (status = 401, description = "Invalid credentials")
     )
 )]
-pub async fn login(db: web::Data<Database>, body: web::Json<LoginRequest>) -> HttpResponse {
+pub async fn login(
+    app_state: web::Data<AppState>,
+    payload: web::Json<LoginRequest>,
+) -> impl Responder {
     // Validate input
-    if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
-            "Validation error: {}",
-            errors
-        )));
+    if let Err(e) = payload.validate() {
+        return HttpResponse::BadRequest().json(json!({
+            "success": false,
+            "error": format!("Validation error: {}", e)
+        }));
     }
 
-    match service::login_user(db.get_connection(), body.into_inner()).await {
+    match app_state.auth_service.login(payload.into_inner()).await {
         Ok(response) => HttpResponse::Ok().json(ApiResponse::success(response)),
         Err(e) => HttpResponse::Unauthorized().json(ApiResponse::<()>::error(e.to_string())),
     }
 }
 
+/// Refresh token handler
 #[utoipa::path(
     post,
     path = "/api/auth/refresh",
@@ -71,16 +79,15 @@ pub async fn login(db: web::Data<Database>, body: web::Json<LoginRequest>) -> Ht
         (status = 401, description = "Invalid refresh token")
     )
 )]
-pub async fn refresh(body: web::Json<RefreshTokenRequest>) -> HttpResponse {
-    // Validate input
-    if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(ApiResponse::<()>::error(format!(
-            "Validation error: {}",
-            errors
-        )));
-    }
-
-    match service::refresh_token(body.refresh_token.clone()).await {
+pub async fn refresh(
+    app_state: web::Data<AppState>,
+    payload: web::Json<RefreshTokenRequest>,
+) -> impl Responder {
+    match app_state
+        .auth_service
+        .refresh_token(payload.refresh_token.clone())
+        .await
+    {
         Ok(response) => HttpResponse::Ok().json(ApiResponse::success(response)),
         Err(e) => HttpResponse::Unauthorized().json(ApiResponse::<()>::error(e.to_string())),
     }

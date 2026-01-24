@@ -7,9 +7,10 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
+import TableHeader from '@/components/ui/TableHeader';
 
 export default function Permissions() {
-  const { openModal } = useModalStore();
+  const { openModal } = useModalStore(); 
   const {
     data: permissions,
     loading,
@@ -86,7 +87,27 @@ export default function Permissions() {
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
-  };  
+  }; 
+
+  if (loading && permissions.length === 0) {
+    return (
+      <AuthLayout>
+        <div className="page">
+          <div className="page-wrapper">
+            <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
+              <div className="text-center">
+                <div className="spinner-border text-white" role="status"></div>
+                  <div>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  </div>
+                    Loading permissions... 
+              </div>
+            </div>
+          </div>
+        </div>
+      </AuthLayout>
+    );
+  } 
   return (
     <AuthLayout>
       <div className="page">
@@ -119,27 +140,7 @@ export default function Permissions() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Permissions List</h3>
-                  <div className="ms-auto">
-                      <div className="btn-group" role="group">
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('grid')}
-                        >
-                          Grid
-                        </button>
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('table')}
-                        >
-                          Table
-                        </button>
-                      </div>
-                    </div>
-                </div>
+                <TableHeader title={"USer List"} viewMode={viewMode}/>
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">
@@ -188,7 +189,19 @@ export default function Permissions() {
                                       <div className="font-weight-medium">{permission.name}</div>
                                       <div className="text-secondary small">{permission.email}</div>
                                     </div>
-                                  </div> 
+                                  </div>
+                                
+                                  <div className="mb-2">
+                                    {permission.roles && permission.roles.length > 0 ? (
+                                      permission.roles.map((role, idx) => (
+                                        <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
+                                          {role}
+                                        </span>
+                                      ))
+                                    ) : (
+                                      <span className="badge bg-primary-outline">No roles</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -221,7 +234,18 @@ export default function Permissions() {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{permission.email}</td> 
+                                <td className="text-secondary">{permission.email}</td>
+                                <td>
+                                  {permission.roles && permission.roles.length > 0 ? (
+                                    permission.roles.map((role, idx) => (
+                                      <span key={idx} className={`badge ${getRoleBadgeColor(role)} me-1`}>
+                                        {role}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="badge bg-secondary-outline">No roles</span>
+                                  )}
+                                </td>
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

@@ -5,9 +5,11 @@ import Navbar from './Navbar';
 // import Sidebar from './Sidebar';
 import SidebarTree from './SidebarTree';
 import useUIStore from '@/store/uiStore'; 
+
+
 export default function AuthLayout({ children }) {
   const { sidebarCollapsed } = useUIStore();
-
+  
   return (
     <>
       <Navbar />

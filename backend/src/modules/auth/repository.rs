@@ -1,122 +1,98 @@
-use crate::{
-    modules::auth::dto::{AuthResponse, LoginRequest, RefreshTokenResponse, RegisterRequest},
-    modules::users::dto::UserResponse,
-    utils::{jwt, password},
-};
-use entity::roles::Entity as Roles;
+// src/modules/auth/repository.rs
+use crate::config::database::Database;
+use crate::errors::AppError;
+use crate::utils::password;
+use entity::roles::{self as roles, Entity as Roles};
 use entity::users::{self as users, Entity as User};
-use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
-use std::env;
-
-pub async fn register_user(
-    db: &DatabaseConnection,
-    register_data: RegisterRequest,
-) -> Result<AuthResponse, Box<dyn std::error::Error>> {
-    // Check if email already exists
-    let existing_user = User::find()
-        .filter(users::Column::Email.eq(&register_data.email))
-        .one(db)
-        .await?;
-
-    if existing_user.is_some() {
-        return Err("Email already exists".into());
-    }
-
-    // Hash password
-    let hashed_password = password::hash(&register_data.password)?;
-
-    // Create new user
-    let new_user = users::ActiveModel {
-        name: Set(register_data.name),
-        email: Set(register_data.email),
-        password: Set(hashed_password),
-        ..Default::default()
-    };
-
-    let user = new_user.insert(db).await?;
-
-    // Generate tokens
-    let access_token = jwt::create_token(user.id.to_string())?;
-    let refresh_token = jwt::create_refresh_token(user.id.to_string())?;
-
-    let expires_in = env::var("JWT_EXPIRATION")
-        .unwrap_or_else(|_| "900".to_string())
-        .parse::<i64>()
-        .unwrap_or(900);
-
-    Ok(AuthResponse {
-        access_token,
-        refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in,
-        user: UserResponse::from_entity(&user),
-    })
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, Set};
+#[derive(Clone)]
+pub struct AuthRepository {
+    db: Database,
 }
 
-pub async fn login_user(
-    db: &DatabaseConnection,
-    login_data: LoginRequest,
-) -> Result<AuthResponse, Box<dyn std::error::Error>> {
-    // Find user by email
-    let user = User::find()
-        .filter(users::Column::Email.eq(&login_data.email))
-        .one(db)
-        .await?
-        .ok_or("Invalid email or password")?;
-
-    // Verify password
-    if !password::verify(&login_data.password, &user.password)? {
-        return Err("Invalid email or password".into());
+impl AuthRepository {
+    pub fn new(db: Database) -> Self {
+        Self { db }
     }
 
-    // Generate tokens
-    let access_token = jwt::create_token(user.id.to_string())?;
-    let refresh_token = jwt::create_refresh_token(user.id.to_string())?;
+    fn conn(&self) -> &sea_orm::DatabaseConnection {
+        self.db.get_connection()
+    }
 
-    let expires_in = env::var("JWT_EXPIRATION")
-        .unwrap_or_else(|_| "900".to_string())
-        .parse::<i64>()
-        .unwrap_or(900);
+    /// Find user by email
+    pub async fn find_by_email(&self, email: &str) -> Result<Option<users::Model>, AppError> {
+        User::find()
+            .filter(users::Column::Email.eq(email))
+            .one(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))
+    }
 
-    // Query roles user
-    let (user, roles) = User::find_by_id(user.id)
-        .find_with_related(Roles)
-        .all(db)
-        .await?
-        .into_iter()
-        .next()
-        .ok_or("User not found")?;
-    println!("Roles: {:?}", roles);
-    // atau
-    dbg!(&roles);
-    Ok(AuthResponse {
-        access_token,
-        refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in,
-        user: UserResponse::from_user_with_roles(&user, &roles),
-    })
-}
+    /// Find user by ID
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<users::Model>, AppError> {
+        User::find_by_id(id)
+            .one(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))
+    }
 
-pub async fn refresh_token(
-    refresh_token: String,
-) -> Result<RefreshTokenResponse, Box<dyn std::error::Error>> {
-    // Verify refresh token
-    let claims = jwt::verify_refresh_token(&refresh_token)?;
+    /// Find user by ID with roles
+    pub async fn find_by_id_with_roles(
+        &self,
+        id: i64,
+    ) -> Result<Option<(users::Model, Vec<roles::Model>)>, AppError> {
+        User::find_by_id(id)
+            .find_with_related(Roles)
+            .all(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))
+            .map(|mut res| res.pop())
+    }
 
-    // Generate new tokens
-    let new_access_token = jwt::create_token(claims.sub.clone())?;
-    let new_refresh_token = jwt::create_refresh_token(claims.sub)?;
+    /// Find user by email with roles
+    pub async fn find_by_email_with_roles(
+        &self,
+        email: &str,
+    ) -> Result<Option<(users::Model, Vec<roles::Model>)>, AppError> {
+        User::find()
+            .filter(users::Column::Email.eq(email))
+            .find_with_related(Roles)
+            .all(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))
+            .map(|mut res| res.pop())
+    }
 
-    let expires_in = env::var("JWT_EXPIRATION")
-        .unwrap_or_else(|_| "900".to_string())
-        .parse::<i64>()
-        .unwrap_or(900);
+    /// Create new user
+    pub async fn create_user(
+        &self,
+        name: String,
+        email: String,
+        password: String,
+    ) -> Result<users::Model, AppError> {
+        // Hash password
+        let hashed_password = password::hash(&password)?;
 
-    Ok(RefreshTokenResponse {
-        access_token: new_access_token,
-        refresh_token: new_refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in,
-    })
+        let new_user = users::ActiveModel {
+            name: Set(name),
+            email: Set(email),
+            password: Set(hashed_password),
+            ..Default::default()
+        };
+
+        new_user
+            .insert(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))
+    }
+
+    /// Check if email exists
+    pub async fn email_exists(&self, email: &str) -> Result<bool, AppError> {
+        User::find()
+            .filter(users::Column::Email.eq(email))
+            .count(self.conn())
+            .await
+            .map(|count| count > 0)
+            .map_err(AppError::from)
+    }
 }

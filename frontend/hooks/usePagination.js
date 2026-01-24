@@ -41,7 +41,7 @@ export function usePagination(fetchFunction, initialParams = {}) {
           params.append(key, value);
         }
       });
-      
+      console.log(params.toString())
       const response = await fetchFunction(`?${params.toString()}`);
       const result = response.data || response;
       

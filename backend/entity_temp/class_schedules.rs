@@ -8,11 +8,11 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "class_schedules")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
-    pub class_subject_id: u64,
-    pub time_slot_id: u64,
-    pub room_id: Option<u64>,
-    pub teacher_id: Option<u64>,
+    pub id: i64,
+    pub class_subject_id: i64,
+    pub time_slot_id: i64,
+    pub room_id: Option<i64>,
+    pub teacher_id: Option<i64>,
     pub is_auto_generated: Option<i8>,
     pub generation_batch_id: Option<String>,
     pub conflict_score: Option<i32>,
@@ -27,7 +27,7 @@ pub enum Relation {
         belongs_to = "super::class_subjects::Entity",
         from = "Column::ClassSubjectId",
         to = "super::class_subjects::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     ClassSubjects,
@@ -35,7 +35,7 @@ pub enum Relation {
         belongs_to = "super::rooms::Entity",
         from = "Column::RoomId",
         to = "super::rooms::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "SetNull"
     )]
     Rooms,
@@ -43,7 +43,7 @@ pub enum Relation {
         belongs_to = "super::teachers::Entity",
         from = "Column::TeacherId",
         to = "super::teachers::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "SetNull"
     )]
     Teachers,
@@ -51,7 +51,7 @@ pub enum Relation {
         belongs_to = "super::time_slots::Entity",
         from = "Column::TimeSlotId",
         to = "super::time_slots::Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Cascade"
     )]
     TimeSlots,

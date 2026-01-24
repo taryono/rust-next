@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "foundations")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u64,
+    pub id: i64,
     pub name: String,
     #[sea_orm(unique)]
     pub code: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
     pub foundation_type: Option<FoundationType>,
-    pub parent_id: Option<u64>,
+    pub parent_id: Option<i64>,
     #[sea_orm(column_type = "Text", nullable)]
     pub address: Option<String>,
     pub city: Option<String>,
@@ -40,7 +40,7 @@ pub enum Relation {
         belongs_to = "Entity",
         from = "Column::ParentId",
         to = "Column::Id",
-        on_update = "NoAction",
+        on_update = "Restrict",
         on_delete = "Restrict"
     )]
     SelfRef,

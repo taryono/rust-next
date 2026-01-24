@@ -19,7 +19,7 @@ export default function RegisterPage() {
     useEffect(() => {
         if (isAuthenticated) {
             router.push('/dashboard');
-        }
+        } 
     }, [isAuthenticated, router]);
 
     const handleSubmit = async (e) => {
@@ -46,7 +46,7 @@ export default function RegisterPage() {
         const result = await register(name, email, password);
 
         if (result.success) {
-            router.push('/dashboard');
+            router.push('/login');
         }
     };
 
