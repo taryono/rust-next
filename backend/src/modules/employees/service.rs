@@ -54,7 +54,7 @@ impl EmployeeService {
             hire_date: Set(request.hire_date),
             end_date: Set(request.end_date),
             salary: Set(request.salary),
-            employment_type: Set(Some(request.employment_type)),
+            employment_type: Set(request.employment_type),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()

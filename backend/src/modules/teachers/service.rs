@@ -49,24 +49,17 @@ impl TeacherService {
             ..Default::default()
         };
 
-        // pub foundation_id: i64,
-        // #[validate(length(min = 3, max = 100))]
-        // pub name: String,
-        // pub user_id: i64,
-        // pub unit_id: Option<i64>,
-        // pub nik: Option<String>,
-        // pub employee_number: String,
-        // pub specialization: Option<String>,
-        // pub qualification: Option<String>,
-        // pub hire_date: Option<NaiveDate>,
-        // pub salary: Option<String>,
-        // pub employment_status: Option<EmploymentStatus>,
-        // pub end_date: Option<NaiveDate>, // ← Tambah ini (good practice)
-        // pub created_at: String,
-        // pub updated_at: String,
         active_model.unit_id = Set(request.unit_id);
         active_model.nik = Set(request.nik);
-
+        active_model.employee_number = Set(request.employee_number);
+        active_model.specialization = Set(request.specialization);
+        active_model.qualification = Set(request.qualification);
+        active_model.salary = Set(request.salary);
+        active_model.employment_status = Set(request.employment_status);
+        active_model.end_date = Set(request.end_date); // ← Tambah ini (good practice)
+        active_model.hire_date = Set(request.hire_date);
+        active_model.created_at = Set(chrono::Utc::now());
+        active_model.updated_at = Set(chrono::Utc::now());
         // Delegate to repository
         let created = self.repository.create(active_model).await?;
 
@@ -147,8 +140,16 @@ impl TeacherService {
             ..Default::default()
         };
 
-        active_model.name = Set(request.name);
-        active_model.foundation_id = Set(request.foundation_id);
+        active_model.unit_id = Set(request.unit_id);
+        active_model.nik = Set(request.nik);
+        active_model.employee_number = Set(request.employee_number);
+        active_model.specialization = Set(request.specialization);
+        active_model.qualification = Set(request.qualification);
+        active_model.salary = Set(request.salary);
+        active_model.employment_status = Set(request.employment_status);
+        active_model.end_date = Set(request.end_date); // ← Tambah ini (good practice)
+        active_model.hire_date = Set(request.hire_date);
+        active_model.created_at = Set(chrono::Utc::now());
         active_model.updated_at = Set(chrono::Utc::now());
 
         // Delegate to repository

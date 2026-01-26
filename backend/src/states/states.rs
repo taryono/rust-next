@@ -17,6 +17,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
     let role_service = crate::modules::roles::init_service(db.clone());
     let room_service = crate::modules::rooms::init_service(db.clone());
     let semester_service = crate::modules::semesters::init_service(db.clone());
+    let student_service = crate::modules::students::init_service(db.clone());
     let subject_service = crate::modules::subjects::init_service(db.clone());
     let teacher_service = crate::modules::teachers::init_service(db.clone());
     let unit_service = crate::modules::units::init_service(db.clone());
@@ -40,6 +41,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
         role_service,
         room_service,
         semester_service,
+        student_service,
         subject_service,
         teacher_service,
         unit_service,
