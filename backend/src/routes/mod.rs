@@ -24,6 +24,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
     crate::modules::employees::routes::configure(cfg);
     crate::modules::positions::routes::configure(cfg);
     crate::modules::unit_types::routes::configure(cfg);
+    crate::modules::user_profiles::routes::configure(cfg);
 }
 
 pub fn configure(cfg: &mut web::ServiceConfig) {

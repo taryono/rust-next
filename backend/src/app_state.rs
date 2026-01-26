@@ -18,6 +18,8 @@ use crate::modules::subjects::SubjectService;
 use crate::modules::teachers::TeacherService;
 use crate::modules::unit_types::UnitTypeService;
 use crate::modules::units::UnitService;
+use crate::modules::user_profiles::UserProfileService;
+
 use crate::modules::users::UserService;
 use std::sync::Arc;
 pub struct AppState {
@@ -40,6 +42,7 @@ pub struct AppState {
     pub teacher_service: Arc<TeacherService>,
     pub unit_service: Arc<UnitService>,
     pub unit_type_service: Arc<UnitTypeService>,
+    pub user_profile_service: Arc<UserProfileService>,
     pub user_service: Arc<UserService>,
 }
 impl AppState {
@@ -63,6 +66,7 @@ impl AppState {
         teacher_service: TeacherService,
         unit_service: UnitService,
         unit_type_service: UnitTypeService,
+        user_profile_service: UserProfileService,
         user_service: UserService,
     ) -> Self {
         Self {
@@ -85,6 +89,7 @@ impl AppState {
             teacher_service: Arc::new(teacher_service),
             unit_service: Arc::new(unit_service),
             unit_type_service: Arc::new(unit_type_service),
+            user_profile_service: Arc::new(user_profile_service),
             user_service: Arc::new(user_service),
         }
     }

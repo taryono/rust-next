@@ -22,7 +22,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
     let teacher_service = crate::modules::teachers::init_service(db.clone());
     let unit_service = crate::modules::units::init_service(db.clone());
     let unit_type_service = crate::modules::unit_types::init_service(db.clone());
-
+    let user_profile_service = crate::modules::user_profiles::init_service(db.clone());
     let user_service = crate::modules::users::init_service(db.clone());
     // ✨ Create AppState
 
@@ -46,6 +46,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
         teacher_service,
         unit_service,
         unit_type_service,
+        user_profile_service,
         user_service,
     )))
 }
