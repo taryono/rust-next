@@ -25,7 +25,7 @@ impl StudentService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check duplicate name
         if let Some(_) = self
@@ -61,7 +61,7 @@ impl StudentService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
 
         Ok(StudentResponse::from(student))
     }
@@ -75,7 +75,7 @@ impl StudentService {
         // Validate pagination params
         params
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
@@ -99,14 +99,14 @@ impl StudentService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
 
         // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
@@ -145,7 +145,7 @@ impl StudentService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related students

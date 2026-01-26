@@ -19,8 +19,16 @@ pub struct Model {
     pub is_active: Option<i8>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}
+// ✅ Implementasi trait SoftDelete
+impl crate::traits::soft_delete::SoftDelete for Entity {
+    fn deleted_at_col() -> Column {
+        Column::DeletedAt
+    }
+}

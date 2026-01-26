@@ -2,7 +2,7 @@
 // handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{AttendanceResponse, CreateAttendanceRequest, UpdateAttendanceRequest};
-use super::service::AttendanceService;
+use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use actix_web::{web, HttpResponse};
@@ -20,10 +20,13 @@ use actix_web::{web, HttpResponse};
     tag = "Attendance "
 )]
 pub async fn create(
-    service: web::Data<AttendanceService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreateAttendanceRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state
+        .attendance_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -41,10 +44,13 @@ pub async fn create(
     tag = "Attendance "
 )]
 pub async fn get_by_id(
-    service: web::Data<AttendanceService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .attendance_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -65,14 +71,17 @@ pub async fn get_by_id(
     tag = "Attendance "
 )]
 pub async fn get_all(
-    service: web::Data<AttendanceService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
     foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, foundation_id.into_inner()).await?;
+    let result = app_state
+        .attendance_service
+        .get_all(params, foundation_id.into_inner())
+        .await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -93,11 +102,12 @@ pub async fn get_all(
     tag = "Attendance "
 )]
 pub async fn update(
-    service: web::Data<AttendanceService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
     request: web::Json<UpdateAttendanceRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .attendance_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -117,9 +127,9 @@ pub async fn update(
     tag = "Attendance "
 )]
 pub async fn delete(
-    service: web::Data<AttendanceService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state.attendance_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }

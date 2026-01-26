@@ -29,7 +29,7 @@ impl AcademicYearService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Parse dates
         let start_date =
@@ -109,7 +109,7 @@ impl AcademicYearService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Academic year not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Academic year not found".to_string()))?;
 
         Ok(AcademicYearResponse::from(academic_year))
     }
@@ -123,7 +123,7 @@ impl AcademicYearService {
         // Validate pagination params
         params
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
@@ -156,14 +156,14 @@ impl AcademicYearService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Academic year not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Academic year not found".to_string()))?;
         // Parse dates if provided
         let start_date = match request.start_date.as_ref() {
             Some(date_str) => NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
@@ -258,7 +258,7 @@ impl AcademicYearService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Academic year not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Academic year not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related semesters

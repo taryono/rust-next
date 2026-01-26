@@ -7,6 +7,7 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
+import TableHeader from '@/components/ui/TableHeader';
 
 export default function Foundations() {
   const { openModal } = useModalStore();
@@ -139,27 +140,7 @@ export default function Foundations() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Foundations List</h3>
-                  <div className="ms-auto">
-                      <div className="btn-group" role="group">
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('grid')}
-                        >
-                          Grid
-                        </button>
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('table')}
-                        >
-                          Table
-                        </button>
-                      </div>
-                    </div>
-                </div>
+                <TableHeader title={"Foundation List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">

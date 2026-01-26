@@ -112,7 +112,7 @@ impl PermissionRepository {
     ) -> Result<Option<permissions::Model>, AppError> {
         Permission::find()
             .filter(permissions::Column::FoundationId.eq(foundation_id))
-            .filter(permissions::Column::Name.eq(name))
+            .filter(permissions::Column::Name.contains(name))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))

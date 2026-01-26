@@ -25,7 +25,7 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
-  
+  const [isLoading, setIsLoading] = useState(false);
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -38,7 +38,9 @@ export default function Users() {
 
   const fetchUsers = async () => {
     try {
-       
+       if (isLoading) return; // Prevent multiple calls
+  
+      setIsLoading(true);
       const params = new URLSearchParams({
         page: currentPage.toString(),
         per_page: perPage.toString(),
@@ -140,7 +142,7 @@ export default function Users() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <TableHeader title={"USer List"} viewMode={viewMode}/>
+                <TableHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">

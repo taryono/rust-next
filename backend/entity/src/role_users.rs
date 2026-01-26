@@ -9,7 +9,6 @@ pub struct Model {
     pub role_id: i64,
     pub scope_level: ScopeLevel,
     pub foundation_id: Option<i64>,
-    pub unit_id: Option<i64>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub deleted_at: Option<DateTimeUtc>,
@@ -39,25 +38,11 @@ pub enum Relation {
         to = "super::roles::Column::Id"
     )]
     Roles,
-    #[sea_orm(
-        belongs_to = "super::units::Entity",
-        from = "Column::UnitId",
-        to = "super::units::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Units,
 }
 
 impl Related<super::foundations::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Foundations.def()
-    }
-}
-
-impl Related<super::units::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Units.def()
     }
 }
 

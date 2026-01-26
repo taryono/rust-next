@@ -2,7 +2,7 @@
 // handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{ClassLevelResponse, CreateClassLevelRequest, UpdateClassLevelRequest};
-use super::service::ClassLevelService;
+use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use actix_web::{web, HttpResponse};
@@ -20,10 +20,13 @@ use actix_web::{web, HttpResponse};
     tag = "Class Level"
 )]
 pub async fn create(
-    service: web::Data<ClassLevelService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreateClassLevelRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state
+        .class_level_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -32,19 +35,22 @@ pub async fn create(
     get,
     path = "/api/class_levels/{id}",
     params(
-        ("id" = i64, Path, description = "Class LevelID")
+        ("id" = i64, Path, description = "Class Level ID")
     ),
     responses(
-        (status = 200, description = "Class Levelfound", body = ClassLevelResponse),
-        (status = 404, description = "Class Levelnot found")
+        (status = 200, description = "Class Level found", body = ClassLevelResponse),
+        (status = 404, description = "Class Level not found")
     ),
     tag = "Class Level"
 )]
 pub async fn get_by_id(
-    service: web::Data<ClassLevelService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .class_level_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -65,14 +71,14 @@ pub async fn get_by_id(
     tag = "Class Level"
 )]
 pub async fn get_all(
-    service: web::Data<ClassLevelService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
     // foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, None).await?;
+    let result = app_state.class_level_service.get_all(params, None).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -82,22 +88,23 @@ pub async fn get_all(
     put,
     path = "/api/class_levels/{id}",
     params(
-        ("id" = i64, Path, description = "Class LevelID")
+        ("id" = i64, Path, description = "Class Level ID")
     ),
     request_body = UpdateClassLevelRequest,
     responses(
         (status = 200, description = "Class Levelupdated", body = ClassLevelResponse),
-        (status = 404, description = "Class Levelnot found"),
+        (status = 404, description = "Class Level not found"),
         (status = 409, description = "Conflict")
     ),
     tag = "Class Level"
 )]
 pub async fn update(
-    service: web::Data<ClassLevelService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
     request: web::Json<UpdateClassLevelRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .class_level_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -108,18 +115,21 @@ pub async fn update(
     delete,
     path = "/api/class_levels/{id}",
     params(
-        ("id" = i64, Path, description = "Class LevelID")
+        ("id" = i64, Path, description = "Class Level ID")
     ),
     responses(
         (status = 204, description = "Class Leveldeleted"),
-        (status = 404, description = "Class Levelnot found")
+        (status = 404, description = "Class Level not found")
     ),
     tag = "Class Level"
 )]
 pub async fn delete(
-    service: web::Data<ClassLevelService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state
+        .class_level_service
+        .delete(id.into_inner())
+        .await?;
     Ok(HttpResponse::NoContent().finish())
 }

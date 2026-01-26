@@ -84,7 +84,12 @@ pub async fn get_all(
     let params = query.into_inner();
     // Untuk admin (semua foundation)
     print!("params: {:#?}\n", params);
-    match app_state.employee_service.get_all(params, None).await {
+
+    match app_state
+        .employee_service
+        .get_all(params, Some(foundation_id.into_inner()))
+        .await
+    {
         Ok(roles) => Ok(HttpResponse::Ok().json(ApiResponse::success(roles))),
         Err(e) => {
             Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
@@ -142,8 +147,8 @@ pub async fn delete(
 
 pub async fn get_all_with_dynamic_params(
     app_state: web::Data<AppState>,
-    query: web::Query<HashMap<String, String>>,
-) -> Result<HttpResponse, Error> {
+    query: web::Query<HashMap<String, String>>, // <-- ini jika parameter dinamis tanpa membuat struct untuk parameter
+) -> Result<HttpResponse, AppError> {
     let page = query
         .get("page")
         .and_then(|p| p.parse::<u64>().ok())

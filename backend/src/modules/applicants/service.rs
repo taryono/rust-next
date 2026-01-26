@@ -28,7 +28,7 @@ impl ApplicantService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check duplicate name
         if let Some(_) = self
@@ -70,7 +70,7 @@ impl ApplicantService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Applicant not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Applicant not found".to_string()))?;
 
         Ok(ApplicantResponse::from(applicant))
     }
@@ -84,7 +84,7 @@ impl ApplicantService {
         // Validate pagination params
         params
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         let (items, total) = self
             .repository
@@ -111,7 +111,14 @@ impl ApplicantService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
+
+        // Check if exists
+        self.repository
+            .find_by_id(id)
+            .await?
+            .ok_or_else(|| AppError::not_found("Applicant not found".to_string()))?;
+
         // Build update model
         let mut active_model = applicants::ActiveModel {
             id: Set(id),
@@ -126,6 +133,7 @@ impl ApplicantService {
         active_model.email = Set(request.email);
         active_model.phone = Set(request.phone);
         active_model.address = Set(request.address);
+        active_model.updated_at = Set(chrono::Utc::now());
 
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
@@ -139,7 +147,7 @@ impl ApplicantService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Applicant not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Applicant not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related semesters

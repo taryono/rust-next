@@ -6,7 +6,9 @@ use sea_orm::entity::prelude::*; // ← Import dari entity crate
 pub struct Model {
     #[sea_orm(primary_key, unique)]
     pub id: i64,
+    pub foundation_id: i64,
     #[sea_orm(unique)]
+    pub code: String,
     pub name: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
@@ -20,11 +22,27 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_many = "super::role_users::Entity")]
     RoleUsers,
+    #[sea_orm(has_many = "super::role_permissions::Entity")]
+    RolePermissions,
 }
 
-impl Related<super::role_users::Entity> for Entity {
+impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::RoleUsers.def()
+        super::role_users::Relation::Users.def()
+    }
+
+    fn via() -> Option<RelationDef> {
+        Some(super::users::Relation::RoleUsers.def().rev())
+    }
+}
+
+impl Related<super::permissions::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::role_permissions::Relation::Permissions.def()
+    }
+
+    fn via() -> Option<RelationDef> {
+        Some(super::permissions::Relation::RolePermissions.def().rev())
     }
 }
 
@@ -35,13 +53,3 @@ impl crate::traits::soft_delete::SoftDelete for Entity {
         Column::DeletedAt
     }
 }
-
-// ini saya matikan karena di line 19 sudah ada #[derive(DeriveRelation)]
-// DeriveRelation artinya tidak perlu membuat impl RelationTrait manual
-// impl RelationTrait for Relation {
-//     fn def(&self) -> RelationDef {
-//         match self {
-//             Self::RoleUsers => Entity::has_many(super::role_users::Entity).into(),
-//         }
-//     }
-// }

@@ -2,7 +2,7 @@
 // handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{ClassResponse, CreateClassRequest, UpdateClassRequest};
-use super::service::ClassService;
+use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use actix_web::{web, HttpResponse};
@@ -20,10 +20,10 @@ use actix_web::{web, HttpResponse};
     tag = "Class "
 )]
 pub async fn create(
-    service: web::Data<ClassService>,
+    app_state: web::Data<AppState>,
     request: web::Json<CreateClassRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.create(request.into_inner()).await?;
+    let result = app_state.class_service.create(request.into_inner()).await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -41,10 +41,10 @@ pub async fn create(
     tag = "Class "
 )]
 pub async fn get_by_id(
-    service: web::Data<ClassService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service.get_by_id(id.into_inner()).await?;
+    let result = app_state.class_service.get_by_id(id.into_inner()).await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -65,14 +65,14 @@ pub async fn get_by_id(
     tag = "Class "
 )]
 pub async fn get_all(
-    service: web::Data<ClassService>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
     // foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = service.get_all(params, None).await?;
+    let result = app_state.class_service.get_all(params, None).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -93,11 +93,12 @@ pub async fn get_all(
     tag = "Class "
 )]
 pub async fn update(
-    service: web::Data<ClassService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
     request: web::Json<UpdateClassRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = service
+    let result = app_state
+        .class_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -117,9 +118,9 @@ pub async fn update(
     tag = "Class "
 )]
 pub async fn delete(
-    service: web::Data<ClassService>,
+    app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    service.delete(id.into_inner()).await?;
+    app_state.class_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }

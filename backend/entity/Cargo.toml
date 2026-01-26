@@ -1,13 +1,13 @@
+# backend/entity/Cargo.toml
 [package]
 edition = "2021"
 name = "entity"
 version = "0.1.0"
 
 [dependencies]
-# async-trait = "0.1" # ← Tambahkan ini
+async-trait = "0.1"
 chrono = {workspace = true}
 sea-orm = {workspace = true}
 serde = {workspace = true}
-utoipa = {version = "5.3", features = ["chrono"]}# ← Tambah ini
-# [build-dependencies]
-# sea-orm-codegen = {workspace = true}# ← Perbaiki, pakai workspace
+utoipa = {version = "5.3", features = ["chrono"]}
+uuid = {version = "1.0", features = ["serde", "v4"]}

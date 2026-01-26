@@ -19,12 +19,12 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 // ✨ Tambahkan import ini
 use crate::app_state::AppState;
-// mod macros;
+// use tracing_subscriber;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
-
+    // tracing_subscriber::fmt::init();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let db = Database::new(&database_url)

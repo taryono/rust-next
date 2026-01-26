@@ -1,7 +1,7 @@
 'use client'; 
 import { useState, useEffect, use } from 'react';
-export default function TableHeader({ title }) {  
-const [viewMode, setViewMode] = useState('grid'); 
+export default function TableHeader({ title , viewMode, onViewModeChange }) {  
+ 
   return (
     <>
       <div className="card-header">
@@ -11,14 +11,14 @@ const [viewMode, setViewMode] = useState('grid');
             <button 
                 type="button" 
                 className={`btn btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => setViewMode('grid')}
+                onClick={() => onViewModeChange('grid')}
             >
                 Grid
             </button>
             <button 
                 type="button" 
                 className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => setViewMode('table')}
+                onClick={() => onViewModeChange('table')}
             >
                 Table
             </button>

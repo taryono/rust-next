@@ -1,28 +1,31 @@
-// src/docs/role_docs.rs
-use crate::modules::roles::{dto, role};
+// ============================================================================
+// docs.rs - OpenAPI Documentation
+// ============================================================================
+use super::dto::{CreateRoleRequest, RoleResponse, UpdateRoleRequest};
+use super::handler;
+use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        role::get_roles,
-        role::get_role_by_id,
-        role::get_current_role,
-        role::update_current_role,
-        role::delete_role,
-        role::restore_role,
-        role::force_delete_role,
-        role::get_deleted_roles,
+        handler::get_all,
+        handler::get_by_id, 
+        handler::create,
+        handler::update,
+        handler::delete,
     ),
     components(
         schemas(
-            dto::RoleResponse,
-            dto::RoleListResponse,
-            dto::UpdateRoleRequest,
+            RoleResponse,
+            CreateRoleRequest,
+            UpdateRoleRequest,
+            PaginatedResponse<RoleResponse>,
+            PaginationParams,
         )
     ),
     tags(
-        (name = "roles", description = "Role management endpoints")
+        (name = "Role ", description = "Role management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

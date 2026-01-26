@@ -1,4 +1,5 @@
 // src/modules/auth/service.rs
+use crate::modules::permissions::PermissionService;
 use crate::{
     errors::AppError,
     modules::auth::{
@@ -9,7 +10,6 @@ use crate::{
     utils::{jwt, password},
 };
 use std::env;
-
 #[derive(Clone)]
 pub struct AuthService {
     repository: AuthRepository,
@@ -33,7 +33,6 @@ impl AuthService {
 
         Ok(UserResponse::from_entity(&user))
     }
-
     pub async fn login(&self, body: LoginRequest) -> Result<AuthResponse, AppError> {
         let user = self
             .repository
@@ -46,8 +45,16 @@ impl AuthService {
             return Err(AppError::Unauthorized("Invalid credentials".into()));
         }
 
-        let access_token = jwt::create_token(user.id.to_string())?;
-        let refresh_token = jwt::create_refresh_token(user.id.to_string())?;
+        // 🔑 RESOLVE PERMISSIONS
+        let permissions =
+            PermissionService::resolve_user_permissions(self.repository.conn(), user.id)
+                .await?
+                .into_iter()
+                .collect::<Vec<_>>();
+
+        let claims = jwt::Claims::new(user.id.to_string(), "access".into(), permissions);
+        let access_token = jwt::create_token(&claims)?;
+        let refresh_token = jwt::create_refresh_token(&claims)?;
 
         let (user, roles) = self
             .repository
@@ -66,11 +73,8 @@ impl AuthService {
 
     pub async fn refresh_token(&self, token: String) -> Result<RefreshTokenResponse, AppError> {
         let claims = jwt::verify_refresh_token(&token)?;
-
-        let user_id = claims.sub.clone();
-
-        let access_token = jwt::create_token(user_id.clone())?;
-        let refresh_token = jwt::create_refresh_token(user_id)?;
+        let access_token = jwt::create_token(&claims)?;
+        let refresh_token = jwt::create_refresh_token(&claims)?;
 
         Ok(RefreshTokenResponse {
             access_token,

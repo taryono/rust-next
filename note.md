@@ -1,6 +1,6 @@
 <!-- jalankan ini untuk generate entity dari database -->
 ### 1. generate entity
-sea-orm-cli generate entity -u mysql://taryono:password@localhost/actix_db -o entity_temp --with-serde both
+sea-orm-cli generate entity -u mysql://taryono:password@localhost/actix_db -o entity_temp --with-serde both --date-time-crate chrono
 
 
 cd /home/taryono/rust/silsilah/backend
@@ -252,4 +252,46 @@ Aku sarankan script Rust (binary)
 Cara Pakai
 cargo run --bin gen_module users
 cargo run --bin gen_module employees
-cargo run --bin gen_module positions
+cargo run --bin gen_module positions 
+
+Di Rust ada beberapa cara untuk "dump and die" seperti dd() di Laravel:🎯 Opsi Debug di Rust:1. dbg!() Macro (Paling Mirip dd())
+
+let user = User::find_by_id(1).one(db).await?;
+
+// ✅ Print value dan continue
+dbg!(&user);
+
+// ✅ Print value dan assign ke variable
+let user = dbg!(user);
+
+// ✅ Print multiple values
+dbg!(&user, &roles, &permissions);
+
+// Output:
+// [src/main.rs:42] &user = Some(
+//     Model {
+//         id: 1,
+//         name: "John",
+//         email: "john@example.com",
+//     }
+// )
+
+ // Load roles via many-to-many relation
+let roles = user.find_related(Roles).all(self.repository.conn()).await?;
+
+
+find_related ini akan muncul error 
+
+no method named find_related found for struct entity::users::Model in the current scope --> src/modules/users/service.rs:352:26 | 352 | let roles = user.find_related(Roles).all(self.repository.conn()).await?;
+
+selama belum di import 
+
+use tracing::{debug, info, warn, error};
+
+let user = User::find_by_id(1).one(db).await?;
+
+// ✅ Log dengan level berbeda
+debug!("User: {:?}", user);
+info!("User found: {:#?}", user);
+warn!("Checking user: {:?}", user);
+error!("User error: {:?}", user);

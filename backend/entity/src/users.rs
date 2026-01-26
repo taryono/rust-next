@@ -11,6 +11,8 @@ pub struct Model {
     pub username: Option<String>,
     pub password: String,
     pub is_verified: Option<i8>,
+    pub is_active: Option<i8>,
+    pub foundation_id: i64,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     #[sea_orm(column_type = "Text", nullable)]
@@ -24,6 +26,8 @@ pub enum Relation {
 
     #[sea_orm(has_many = "super::role_users::Entity")]
     RoleUsers,
+    #[sea_orm(has_many = "super::user_permissions::Entity")]
+    UserPermissions,
 }
 
 impl Related<super::notifications::Entity> for Entity {
@@ -35,11 +39,14 @@ impl Related<super::notifications::Entity> for Entity {
 // Relasi many-to-many ke Roles melalui RoleUsers
 impl Related<super::roles::Entity> for Entity {
     fn to() -> RelationDef {
-        super::role_users::Relation::Roles.def()
+        super::roles::Relation::RoleUsers.def()
     }
+}
 
-    fn via() -> Option<RelationDef> {
-        Some(super::role_users::Relation::Users.def().rev())
+// Relasi many-to-many ke Roles melalui RoleUsers
+impl Related<super::permissions::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::permissions::Relation::RolePermissions.def()
     }
 }
 

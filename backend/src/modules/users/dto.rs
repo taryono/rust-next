@@ -3,15 +3,52 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
 
+#[derive(Debug, Serialize, ToSchema, Validate)]
+pub struct CreateUserRequest {
+    pub id: i64,
+
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    pub foundation_id: i64,
+    pub created_at: String,
+    pub updated_at: String,
+    pub is_active: i8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub roles: Option<Vec<String>>,
+}
+
 #[derive(Debug, Serialize, ToSchema)]
 pub struct UserResponse {
     pub id: i64,
     pub name: String,
     pub email: String,
+    pub foundation_id: i64,
     pub created_at: String,
     pub updated_at: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct UserWithRolesResponse {
+    pub id: i64,
+    pub name: String,
+    pub email: String,
+    pub username: Option<String>,
+    pub is_active: Option<i8>,
+    pub is_verified: Option<i8>,
+    pub foundation_id: i64,
+    pub created_at: String,
+    pub updated_at: String,
+    pub roles: Vec<RoleResponse>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RoleResponse {
+    pub id: i64,
+    pub name: String,
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -26,7 +63,7 @@ pub struct UserListResponse {
 pub struct UpdateUserRequest {
     #[validate(length(min = 3, max = 50))]
     pub name: Option<String>,
-
+    pub is_active: Option<i8>,
     #[validate(email)]
     pub email: Option<String>,
 }
@@ -49,6 +86,7 @@ impl UserResponse {
             id: user.id,
             name: user.name.clone(),
             email: user.email.clone(),
+            foundation_id: user.foundation_id.clone(),
             created_at: user.created_at.to_string(),
             //  Dipakai jika updated_at adalah Option (tipe: Option<DateTime>)
             // user.updated_at.as_ref().map(|dt| dt.to_string()),
@@ -63,11 +101,26 @@ impl UserResponse {
             id: user.id,
             name: user.name.clone(),
             email: user.email.clone(),
+            foundation_id: user.foundation_id.clone(),
             created_at: user.created_at.to_string(),
             //  Dipakai jika updated_at adalah Option (tipe: Option<DateTime>)
             // user.updated_at.as_ref().map(|dt| dt.to_string()),
             // Dipakai jika updated_at bukan Option (tipe: DateTime)
             updated_at: user.updated_at.to_string(),
+            roles: None,
+        }
+    }
+}
+
+impl From<entity::users::Model> for UserResponse {
+    fn from(model: entity::users::Model) -> Self {
+        Self {
+            id: model.id,
+            foundation_id: model.foundation_id,
+            name: model.name,
+            email: model.email,
+            created_at: model.created_at.to_string(),
+            updated_at: model.updated_at.to_string(),
             roles: None,
         }
     }

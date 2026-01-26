@@ -7,6 +7,7 @@ use validator::Validate;
 pub struct PermissionResponse {
     pub id: i64,
     pub foundation_id: i64,
+    pub code: String,
     pub name: String,
     pub created_at: String, // ← Tambah ini (good practice)
     pub updated_at: String, // ← Tambah ini
@@ -15,6 +16,8 @@ pub struct PermissionResponse {
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreatePermissionRequest {
     pub foundation_id: i64,
+    #[validate(length(min = 3, max = 100))]
+    pub code: String,
     #[validate(length(min = 3, max = 100))]
     pub name: String,
 }
@@ -40,6 +43,7 @@ impl From<entity::permissions::Model> for PermissionResponse {
         Self {
             id: model.id,
             foundation_id: model.foundation_id,
+            code: model.code,
             name: model.name,
             created_at: model.created_at.to_string(),
             updated_at: model.updated_at.to_string(),

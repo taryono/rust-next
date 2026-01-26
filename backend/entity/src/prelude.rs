@@ -38,4 +38,5 @@ pub use super::teachers::Entity as Teachers;
 pub use super::time_slots::Entity as Timeslots;
 pub use super::unit_types::Entity as UnitTypes;
 pub use super::units::Entity as Units;
+pub use super::user_permissions::Entity as UserPermissions;
 pub use super::users::Entity as Users;

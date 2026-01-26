@@ -183,7 +183,7 @@ export const api = {
     deleteStudent: (id) => axiosInstance.delete(`/api/student/${id}`),
 
      // Roles 
-    getRoles: () => axiosInstance.get('/api/roles'),
+    getRoles: (params = '') => axiosInstance.get(`/api/roles${params}`),
     getRoleById: (id) => axiosInstance.get(`/api/role/${id}`),
     createRole: (data) => axiosInstance.post('/api/role', data),
     updateRole: (id, data) => axiosInstance.put(`/api/role/${id}`, data),

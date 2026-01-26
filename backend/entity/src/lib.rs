@@ -46,4 +46,5 @@ pub mod time_slots;
 pub mod traits;
 pub mod unit_types;
 pub mod units;
+pub mod user_permissions;
 pub mod user_profiles;

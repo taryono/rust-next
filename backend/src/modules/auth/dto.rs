@@ -20,7 +20,6 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     #[validate(email(message = "Invalid email format"))]
     pub email: String,
-
     #[validate(length(min = 6, message = "Password is required"))]
     pub password: String,
 }

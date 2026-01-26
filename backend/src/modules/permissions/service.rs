@@ -6,10 +6,14 @@ use super::dto::{CreatePermissionRequest, PermissionResponse, UpdatePermissionRe
 use super::repository::PermissionRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
-use entity::permissions;
-use sea_orm::Set;
+use entity::{permissions, role_permissions, role_users, user_permissions};
+use sea_orm::prelude::Expr;
+use sea_orm::{
+    ColumnTrait, DatabaseConnection, EntityTrait, ExprTrait, QueryFilter, RelationTrait,
+};
+use sea_orm::{FromQueryResult, QuerySelect, Set};
+use std::collections::HashSet;
 use validator::Validate;
-
 #[derive(Clone)]
 pub struct PermissionService {
     repository: PermissionRepository,
@@ -28,7 +32,7 @@ impl PermissionService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check duplicate name
         if let Some(_) = self
@@ -64,7 +68,7 @@ impl PermissionService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Permission not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Permission not found".to_string()))?;
 
         Ok(PermissionResponse::from(permission))
     }
@@ -78,7 +82,7 @@ impl PermissionService {
         // Validate pagination params
         params
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
@@ -102,14 +106,14 @@ impl PermissionService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Permission not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Permission not found".to_string()))?;
 
         // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
@@ -148,12 +152,121 @@ impl PermissionService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Permission not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Permission not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related semesters
         // You can add repository method to check relations
 
         self.repository.delete(id).await
+    }
+
+    pub async fn resolve_user_permissions(
+        db: &DatabaseConnection,
+        user_id: i64,
+    ) -> Result<HashSet<String>, AppError> {
+        let mut permissions: HashSet<String> = HashSet::new();
+
+        // 1️⃣ Permissions from roles
+        // let role_permission_codes = Self::get_permissions_from_roles(db, user_id).await?;
+        // permissions.extend(role_permission_codes);
+
+        // 2️⃣ Permissions from user_permissions
+        // let user_permission_codes = Self::get_permissions_from_user(db, user_id).await?;
+        // permissions.extend(user_permission_codes);
+        permissions.extend(Self::get_permissions_from_roles(db, user_id).await?);
+        // from user
+        permissions.extend(Self::get_permissions_from_user(db, user_id).await?);
+
+        Ok(permissions)
+    }
+
+    /// Get permissions via roles
+    // async fn get_permissions_from_roles(
+    //     db: &DatabaseConnection,
+    //     user_id: i64,
+    // ) -> Result<Vec<String>, AppError> {
+    //     let rows = permissions::Entity::find()
+    //         // 1. Join ke role_permissions
+    //         .join_rev(
+    //             sea_orm::JoinType::InnerJoin,
+    //             role_permissions::Relation::Permissions.def(),
+    //         )
+    //         // 2. Join ke role_users secara manual pada kolom role_id
+    //         // Ini menghindari error "Unknown column roles.id" karena kita tidak memanggil tabel roles
+    //         .join(
+    //             sea_orm::JoinType::InnerJoin,
+    //             role_permissions::Entity::belongs_to(role_users::Entity)
+    //                 .from(role_permissions::Column::RoleId)
+    //                 .to(role_users::Column::RoleId)
+    //                 .into(),
+    //         )
+    //         .filter(role_users::Column::UserId.eq(user_id))
+    //         .all(db)
+    //         .await?
+    //         .build(DbBackend::MySql);
+
+    //     // Cetak query ke terminal (mirip dd() tapi hanya untuk SQL string)
+    //     println!("DEBUG SQL: {}", rows.to_string());
+
+    //     Ok(rows.into_iter().map(|p| p.code).collect())
+    // }
+
+    async fn get_permissions_from_roles(
+        db: &DatabaseConnection,
+        user_id: i64,
+    ) -> Result<Vec<String>, AppError> {
+        #[derive(FromQueryResult)]
+        struct PermCode {
+            code: String,
+        }
+
+        // Gunakan sea_query untuk build query dengan benar
+        let mut query = sea_orm::sea_query::Query::select();
+
+        query
+            .distinct()
+            .column((permissions::Entity, permissions::Column::Code))
+            .from(permissions::Entity)
+            .inner_join(
+                role_permissions::Entity,
+                Expr::col((permissions::Entity, permissions::Column::Id)).equals((
+                    role_permissions::Entity,
+                    role_permissions::Column::PermissionId,
+                )),
+            )
+            .inner_join(
+                role_users::Entity,
+                Expr::col((role_permissions::Entity, role_permissions::Column::RoleId))
+                    .equals((role_users::Entity, role_users::Column::RoleId)),
+            )
+            .and_where(Expr::col((role_users::Entity, role_users::Column::UserId)).eq(user_id));
+
+        let builder = db.get_database_backend();
+        let statement = builder.build(&query);
+
+        println!("DEBUG SQL: {}", statement.to_string());
+
+        let results = PermCode::find_by_statement(statement).all(db).await?;
+
+        Ok(results.into_iter().map(|r| r.code).collect())
+    }
+
+    /// Get direct permissions from user_permissions
+    async fn get_permissions_from_user(
+        db: &DatabaseConnection,
+        user_id: i64,
+    ) -> Result<Vec<String>, AppError> {
+        let rows = permissions::Entity::find()
+            // Gunakan join_rev untuk menyambung dari permissions ke user_permissions
+            .join_rev(
+                sea_orm::JoinType::InnerJoin,
+                user_permissions::Relation::Permissions.def(),
+            )
+            .filter(user_permissions::Column::UserId.eq(user_id))
+            .all(db)
+            .await?;
+
+        Ok(rows.into_iter().map(|p| p.code).collect())
     }
 }

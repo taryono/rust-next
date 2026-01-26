@@ -7,6 +7,7 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
+import TableHeader from '@/components/ui/TableHeader';
 
 export default function Positions() {
   const { openModal } = useModalStore();
@@ -24,7 +25,7 @@ export default function Positions() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
-  
+    const [isLoading, setIsLoading] = useState(false);
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -119,27 +120,7 @@ export default function Positions() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Positions List</h3>
-                  <div className="ms-auto">
-                      <div className="btn-group" role="group">
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('grid')}
-                        >
-                          Grid
-                        </button>
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('table')}
-                        >
-                          Table
-                        </button>
-                      </div>
-                    </div>
-                </div>
+                <TableHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">

@@ -24,7 +24,10 @@ pub struct EmployeeResponse {
     pub department_id: i32,
     pub employment_type: Option<EmploymentType>,
     pub hire_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
     pub salary: Option<String>,
+    pub specialization: Option<String>,
+    pub qualification: Option<String>,
     pub created_at: String, // ← Tambah ini (good practice)
     pub updated_at: String,
 }
@@ -42,7 +45,10 @@ pub struct CreateEmployeeRequest {
     pub department_id: Option<i32>,
     pub employment_type: Option<EmploymentType>,
     pub hire_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
     pub salary: Option<String>,
+    pub specialization: Option<String>,
+    pub qualification: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
@@ -56,7 +62,10 @@ pub struct UpdateEmployeeRequest {
     pub department_id: Option<i32>,
     pub employment_type: Option<EmploymentType>,
     pub hire_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
     pub salary: Option<String>,
+    pub specialization: Option<String>,
+    pub qualification: Option<String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -85,7 +94,13 @@ impl From<entity::employees::Model> for EmployeeResponse {
                 .hire_date
                 .is_some()
                 .then(|| model.hire_date.unwrap().to_string().parse().unwrap()),
+            end_date: model
+                .end_date
+                .is_some()
+                .then(|| model.end_date.unwrap().to_string().parse().unwrap()),
             salary: model.salary.map(|s| s.to_string()),
+            specialization: model.specialization,
+            qualification: model.qualification,
             created_at: model.created_at.to_string(),
             updated_at: model.updated_at.to_string(),
         }
@@ -119,7 +134,11 @@ pub struct EmployeeFilters {
     pub foundation: Option<String>,
     pub position: Option<String>,
     pub unit: Option<String>,
-
+    pub employment_type: Option<String>,
+    pub hire_date: Option<String>,
+    pub end_date: Option<String>,
+    pub specialization: Option<String>,
+    pub qualification: Option<String>,
     // Catch-all untuk params lainnya
     #[serde(flatten)]
     pub extra: HashMap<String, String>,

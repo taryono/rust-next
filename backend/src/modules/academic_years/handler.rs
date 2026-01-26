@@ -112,7 +112,7 @@ pub async fn get_active(
         .await?;
     match result {
         Some(data) => Ok(HttpResponse::Ok().json(data)),
-        None => Err(AppError::NotFoundError(
+        None => Err(AppError::not_found(
             "No active academic year found".to_string(),
         )),
     }

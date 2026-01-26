@@ -28,7 +28,7 @@ impl EmployeeService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check duplicate name
         if let Some(_) = self
@@ -46,6 +46,15 @@ impl EmployeeService {
         let active_model = employees::ActiveModel {
             foundation_id: Set(request.foundation_id),
             name: Set(request.name),
+            unit_id: Set(request.unit_id),
+            nik: Set(request.nik),
+            employee_number: Set(request.employee_number),
+            specialization: Set(request.specialization),
+            qualification: Set(request.qualification),
+            hire_date: Set(request.hire_date),
+            end_date: Set(request.end_date),
+            salary: Set(request.salary),
+            employment_type: Set(Some(request.employment_type)),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
@@ -64,7 +73,7 @@ impl EmployeeService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Employee not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Employee not found".to_string()))?;
 
         Ok(EmployeeResponse::from(employee))
     }
@@ -78,7 +87,7 @@ impl EmployeeService {
         // Validate pagination params
         params
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
@@ -102,14 +111,14 @@ impl EmployeeService {
         // Validate request
         request
             .validate()
-            .map_err(|e| AppError::ValidationError(e.to_string()))?;
+            .map_err(|e| AppError::validation(e.to_string()))?;
 
         // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Employee not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Employee not found".to_string()))?;
         let name = request.name.clone();
         // Business rule: check duplicate name if changing
         if name != existing.name {
@@ -151,7 +160,7 @@ impl EmployeeService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::NotFoundError("Employee not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Employee not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related semesters

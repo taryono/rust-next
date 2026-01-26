@@ -3,11 +3,10 @@
 // ============================================
 use crate::utils::pagination::PaginationParams;
 use crate::{
-    config::database::Database,
+    app_state::AppState,
     modules::users::dto::{
         ChangePasswordRequest, UpdateUserRequest, UserListResponse, UserResponse,
     },
-    modules::users::service,
     utils::{jwt::Claims, response::ApiResponse},
 };
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, Result};
@@ -33,10 +32,14 @@ use validator::Validate;
     )
 )]
 pub async fn get_users(
-    db: web::Data<Database>,
+    app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse> {
-    match service::get_all_users(db.get_connection(), query.into_inner()).await {
+    match app_state
+        .user_service
+        .get_all(query.into_inner(), None)
+        .await
+    {
         Ok(users) => Ok(HttpResponse::Ok().json(ApiResponse::success(users))),
         Err(e) => {
             Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
@@ -60,10 +63,13 @@ pub async fn get_users(
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_by_id(db: web::Data<Database>, path: web::Path<i64>) -> Result<HttpResponse> {
+pub async fn get_by_id(
+    app_state: web::Data<AppState>,
+    path: web::Path<i64>,
+) -> Result<HttpResponse> {
     let user_id = path.into_inner();
 
-    match service::get_by_id(db.get_connection(), user_id).await {
+    match app_state.user_service.get_by_id(user_id).await {
         Ok(user) => Ok(HttpResponse::Ok().json(ApiResponse::success(user))),
         Err(e) => Ok(HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string()))),
     }
@@ -82,14 +88,17 @@ pub async fn get_by_id(db: web::Data<Database>, path: web::Path<i64>) -> Result<
         ("bearer_auth" = [])
     )
 )]
-pub async fn get_current_user(db: web::Data<Database>, req: HttpRequest) -> Result<HttpResponse> {
+pub async fn get_current_user(
+    app_state: web::Data<AppState>,
+    req: HttpRequest,
+) -> Result<HttpResponse> {
     let claims = req.extensions().get::<Claims>().cloned();
 
     match claims {
         Some(claims) => {
             let user_id: i64 = claims.sub.parse().unwrap_or(0);
 
-            match service::get_by_id(db.get_connection(), user_id).await {
+            match app_state.user_service.get_by_id(user_id).await {
                 Ok(user) => Ok(HttpResponse::Ok().json(ApiResponse::success(user))),
                 Err(e) => {
                     Ok(HttpResponse::NotFound().json(ApiResponse::<()>::error(e.to_string())))
@@ -117,8 +126,8 @@ pub async fn get_current_user(db: web::Data<Database>, req: HttpRequest) -> Resu
         ("bearer_auth" = [])
     )
 )]
-pub async fn update_current_user(
-    db: web::Data<Database>,
+pub async fn update_user(
+    app_state: web::Data<AppState>,
     req: HttpRequest,
     body: web::Json<UpdateUserRequest>,
 ) -> Result<HttpResponse> {
@@ -138,7 +147,11 @@ pub async fn update_current_user(
         Some(claims) => {
             let user_id: i64 = claims.sub.parse().unwrap_or(0);
 
-            match service::update_user(db.get_connection(), user_id, body.into_inner()).await {
+            match app_state
+                .user_service
+                .update(user_id, body.into_inner())
+                .await
+            {
                 Ok(user) => Ok(HttpResponse::Ok().json(ApiResponse::success(user))),
                 Err(e) => {
                     Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string())))
@@ -167,7 +180,7 @@ pub async fn update_current_user(
     )
 )]
 pub async fn change_password(
-    db: web::Data<Database>,
+    app_state: web::Data<AppState>,
     req: HttpRequest,
     body: web::Json<ChangePasswordRequest>,
 ) -> Result<HttpResponse> {
@@ -187,7 +200,11 @@ pub async fn change_password(
         Some(claims) => {
             let user_id: i64 = claims.sub.parse().unwrap_or(0);
 
-            match service::change_password(db.get_connection(), user_id, body.into_inner()).await {
+            match app_state
+                .user_service
+                .change_password(user_id, body.into_inner())
+                .await
+            {
                 Ok(_) => {
                     Ok(HttpResponse::Ok()
                         .json(ApiResponse::success("Password changed successfully")))
@@ -219,10 +236,13 @@ pub async fn change_password(
     ),
     security(("bearer_auth" = []))
 )]
-pub async fn delete_user(db: web::Data<Database>, path: web::Path<i64>) -> Result<HttpResponse> {
+pub async fn delete_user(
+    app_state: web::Data<AppState>,
+    path: web::Path<i64>,
+) -> Result<HttpResponse> {
     let user_id = path.into_inner();
 
-    match service::soft_delete(db.get_connection(), user_id).await {
+    match app_state.user_service.soft_delete(user_id).await {
         Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User deleted successfully"))),
         Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
     }
@@ -243,10 +263,13 @@ pub async fn delete_user(db: web::Data<Database>, path: web::Path<i64>) -> Resul
     ),
     security(("bearer_auth" = []))
 )]
-pub async fn restore_user(db: web::Data<Database>, path: web::Path<i64>) -> Result<HttpResponse> {
+pub async fn restore_user(
+    app_state: web::Data<AppState>,
+    path: web::Path<i64>,
+) -> Result<HttpResponse> {
     let user_id = path.into_inner();
 
-    match service::restore(db.get_connection(), user_id).await {
+    match app_state.user_service.restore(user_id).await {
         Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User restored successfully"))),
         Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
     }
@@ -268,41 +291,13 @@ pub async fn restore_user(db: web::Data<Database>, path: web::Path<i64>) -> Resu
     security(("bearer_auth" = []))
 )]
 pub async fn force_delete_user(
-    db: web::Data<Database>,
+    app_state: web::Data<AppState>,
     path: web::Path<i64>,
 ) -> Result<HttpResponse> {
     let user_id = path.into_inner();
 
-    match service::force_delete(db.get_connection(), user_id).await {
+    match app_state.user_service.delete(user_id).await {
         Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User permanently deleted"))),
         Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
-    }
-}
-
-/// Get deleted users
-#[utoipa::path(
-    get,
-    path = "/api/users/deleted",
-    tag = "users",
-    params(
-        ("page" = Option<i64>, Query, description = "Page number, default 1"),
-        ("per_page" = Option<i64>, Query, description = "Items per page, default 10, max 100"),
-    ),
-    responses(
-        (status = 200, description = "List of deleted users"),
-        (status = 401, description = "Unauthorized"),
-        (status = 500, description = "Internal server error")
-    ),
-    security(("bearer_auth" = []))
-)]
-pub async fn get_deleted_users(
-    db: web::Data<Database>,
-    query: web::Query<PaginationParams>,
-) -> Result<HttpResponse> {
-    match service::get_deleted_users(db.get_connection(), query.into_inner()).await {
-        Ok(users) => Ok(HttpResponse::Ok().json(ApiResponse::success(users))),
-        Err(e) => {
-            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
-        }
     }
 }

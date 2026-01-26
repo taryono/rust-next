@@ -12,6 +12,7 @@ pub struct Model {
     pub name: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
     pub deleted_at: Option<DateTimeUtc>,
 }
 
@@ -19,3 +20,9 @@ pub struct Model {
 pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
+// ✅ Implementasi trait SoftDelete
+impl crate::traits::soft_delete::SoftDelete for Entity {
+    fn deleted_at_col() -> Column {
+        Column::DeletedAt
+    }
+}

@@ -17,6 +17,10 @@ const modalRegistry = {
         ssr: false,
         loading: () => <div className="p-4 text-center">Loading...</div>,
     }),
+    'add-role': dynamic(() => import('./AddRoleModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
 };
 
 export default modalRegistry;

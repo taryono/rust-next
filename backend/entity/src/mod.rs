@@ -44,5 +44,6 @@ pub mod teachers;
 pub mod time_slots;
 pub mod unit_types;
 pub mod units;
+pub mod user_permissions;
 pub mod user_profiles;
 pub mod users;

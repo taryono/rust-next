@@ -15,7 +15,7 @@ impl AuthRepository {
         Self { db }
     }
 
-    fn conn(&self) -> &sea_orm::DatabaseConnection {
+    pub fn conn(&self) -> &sea_orm::DatabaseConnection {
         self.db.get_connection()
     }
 
