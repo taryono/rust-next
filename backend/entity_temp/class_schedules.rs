@@ -11,12 +11,16 @@ pub struct Model {
     pub id: i64,
     pub class_subject_id: i64,
     pub time_slot_id: i64,
-    pub room_id: Option<i64>,
+    pub classroom_id: Option<i64>,
     pub teacher_id: Option<i64>,
     pub is_auto_generated: Option<i8>,
     pub generation_batch_id: Option<String>,
     pub conflict_score: Option<i32>,
+    pub day_of_week: Option<i32>,
+    pub start_time: Option<Time>,
+    pub end_time: Option<Time>,
     pub status: Option<Status>,
+    pub room_id: Option<i32>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
 }
@@ -33,7 +37,7 @@ pub enum Relation {
     ClassSubjects,
     #[sea_orm(
         belongs_to = "super::rooms::Entity",
-        from = "Column::RoomId",
+        from = "Column::ClassroomId",
         to = "super::rooms::Column::Id",
         on_update = "Restrict",
         on_delete = "SetNull"

@@ -34,12 +34,18 @@ pub enum Relation {
     ClassSubjects,
     #[sea_orm(has_many = "super::extracurricular_enrollments::Entity")]
     ExtracurricularEnrollments,
+    #[sea_orm(has_many = "super::extracurricular_grades::Entity")]
+    ExtracurricularGrades,
     #[sea_orm(has_many = "super::grades::Entity")]
     Grades,
+    #[sea_orm(has_many = "super::homeroom_teachers::Entity")]
+    HomeroomTeachers,
     #[sea_orm(has_many = "super::report_cards::Entity")]
     ReportCards,
     #[sea_orm(has_many = "super::schedule_generation_logs::Entity")]
     ScheduleGenerationLogs,
+    #[sea_orm(has_many = "super::teacher_subjects::Entity")]
+    TeacherSubjects,
 }
 
 impl Related<super::academic_years::Entity> for Entity {
@@ -66,9 +72,21 @@ impl Related<super::extracurricular_enrollments::Entity> for Entity {
     }
 }
 
+impl Related<super::extracurricular_grades::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ExtracurricularGrades.def()
+    }
+}
+
 impl Related<super::grades::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Grades.def()
+    }
+}
+
+impl Related<super::homeroom_teachers::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::HomeroomTeachers.def()
     }
 }
 
@@ -81,6 +99,12 @@ impl Related<super::report_cards::Entity> for Entity {
 impl Related<super::schedule_generation_logs::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::ScheduleGenerationLogs.def()
+    }
+}
+
+impl Related<super::teacher_subjects::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherSubjects.def()
     }
 }
 

@@ -13,6 +13,7 @@ use crate::modules::positions::PositionService;
 use crate::modules::roles::RoleService;
 use crate::modules::rooms::RoomService;
 use crate::modules::semesters::SemesterService;
+use crate::modules::settings::SettingService;
 use crate::modules::students::StudentService;
 use crate::modules::subjects::SubjectService;
 use crate::modules::teachers::TeacherService;
@@ -37,6 +38,7 @@ pub struct AppState {
     pub role_service: Arc<RoleService>,
     pub room_service: Arc<RoomService>,
     pub semester_service: Arc<SemesterService>,
+    pub setting_service: Arc<SettingService>,
     pub student_service: Arc<StudentService>,
     pub subject_service: Arc<SubjectService>,
     pub teacher_service: Arc<TeacherService>,
@@ -61,6 +63,7 @@ impl AppState {
         role_service: RoleService,
         room_service: RoomService,
         semester_service: SemesterService,
+        setting_service: SettingService,
         student_service: StudentService,
         subject_service: SubjectService,
         teacher_service: TeacherService,
@@ -84,6 +87,7 @@ impl AppState {
             role_service: Arc::new(role_service),
             room_service: Arc::new(room_service),
             semester_service: Arc::new(semester_service),
+            setting_service: Arc::new(setting_service),
             student_service: Arc::new(student_service),
             subject_service: Arc::new(subject_service),
             teacher_service: Arc::new(teacher_service),

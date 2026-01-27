@@ -10,6 +10,7 @@ pub struct Model {
     pub id: i64,
     #[sea_orm(unique)]
     pub name: String,
+    pub code: Option<String>,
     pub foundation_id: i64,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,

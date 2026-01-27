@@ -49,6 +49,7 @@ impl PermissionService {
         // Build entity with parsed dates
         let active_model = permissions::ActiveModel {
             foundation_id: Set(request.foundation_id),
+            code: Set(request.code),
             name: Set(request.name),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
@@ -160,24 +161,17 @@ impl PermissionService {
 
         self.repository.delete(id).await
     }
-
     pub async fn resolve_user_permissions(
         db: &DatabaseConnection,
         user_id: i64,
+        foundation_id: i64,
     ) -> Result<HashSet<String>, AppError> {
-        let mut permissions: HashSet<String> = HashSet::new();
+        let mut permissions = HashSet::new();
 
-        // 1️⃣ Permissions from roles
-        // let role_permission_codes = Self::get_permissions_from_roles(db, user_id).await?;
-        // permissions.extend(role_permission_codes);
+        permissions.extend(Self::get_permissions_from_roles(db, user_id, foundation_id).await?);
 
-        // 2️⃣ Permissions from user_permissions
-        // let user_permission_codes = Self::get_permissions_from_user(db, user_id).await?;
-        // permissions.extend(user_permission_codes);
-        permissions.extend(Self::get_permissions_from_roles(db, user_id).await?);
-        // from user
-        permissions.extend(Self::get_permissions_from_user(db, user_id).await?);
-
+        permissions.extend(Self::get_permissions_from_user(db, user_id, foundation_id).await?);
+        dbg!(permissions.iter().clone());
         Ok(permissions)
     }
 
@@ -215,6 +209,7 @@ impl PermissionService {
     async fn get_permissions_from_roles(
         db: &DatabaseConnection,
         user_id: i64,
+        foundation_id: i64,
     ) -> Result<Vec<String>, AppError> {
         #[derive(FromQueryResult)]
         struct PermCode {
@@ -240,8 +235,24 @@ impl PermissionService {
                 Expr::col((role_permissions::Entity, role_permissions::Column::RoleId))
                     .equals((role_users::Entity, role_users::Column::RoleId)),
             )
-            .and_where(Expr::col((role_users::Entity, role_users::Column::UserId)).eq(user_id));
-
+            .and_where(Expr::col((role_users::Entity, role_users::Column::UserId)).eq(user_id))
+            .and_where(Expr::col((permissions::Entity, permissions::Column::DeletedAt)).is_null())
+            .and_where(
+                Expr::col((
+                    role_permissions::Entity,
+                    role_permissions::Column::DeletedAt,
+                ))
+                .is_null(),
+            )
+            .and_where(Expr::col((role_users::Entity, role_users::Column::DeletedAt)).is_null())
+            .and_where(Expr::col((
+                role_permissions::Entity,
+                role_permissions::Column::FoundationId,
+            )))
+            .and_where(
+                Expr::col((permissions::Entity, permissions::Column::FoundationId))
+                    .eq(foundation_id),
+            );
         let builder = db.get_database_backend();
         let statement = builder.build(&query);
 
@@ -256,6 +267,7 @@ impl PermissionService {
     async fn get_permissions_from_user(
         db: &DatabaseConnection,
         user_id: i64,
+        foundation_id: i64,
     ) -> Result<Vec<String>, AppError> {
         let rows = permissions::Entity::find()
             // Gunakan join_rev untuk menyambung dari permissions ke user_permissions
@@ -264,6 +276,7 @@ impl PermissionService {
                 user_permissions::Relation::Permissions.def(),
             )
             .filter(user_permissions::Column::UserId.eq(user_id))
+            .filter(permissions::Column::FoundationId.eq(foundation_id))
             .all(db)
             .await?;
 

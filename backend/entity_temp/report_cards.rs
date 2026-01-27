@@ -49,6 +49,8 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Classes,
+    #[sea_orm(has_many = "super::report_card_details::Entity")]
+    ReportCardDetails,
     #[sea_orm(
         belongs_to = "super::semesters::Entity",
         from = "Column::SemesterId",
@@ -84,6 +86,12 @@ impl Related<super::academic_years::Entity> for Entity {
 impl Related<super::classes::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Classes.def()
+    }
+}
+
+impl Related<super::report_card_details::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ReportCardDetails.def()
     }
 }
 

@@ -81,7 +81,7 @@ impl UserResponse {
         user: &entity::users::Model,
         roles: &[entity::roles::Model],
     ) -> Self {
-        let role_names: Vec<String> = roles.iter().map(|r| r.name.clone()).collect();
+        let codes: Vec<String> = roles.iter().map(|r| r.code.clone()).collect();
         Self {
             id: user.id,
             name: user.name.clone(),
@@ -92,7 +92,7 @@ impl UserResponse {
             // user.updated_at.as_ref().map(|dt| dt.to_string()),
             // Dipakai jika updated_at bukan Option (tipe: DateTime)
             updated_at: user.updated_at.to_string(),
-            roles: Some(role_names),
+            roles: Some(codes),
         }
     }
 

@@ -60,6 +60,7 @@
             crate::modules::roles::docs::RolesApiDoc,
             crate::modules::rooms::docs::RoomsApiDoc,
             crate::modules::semesters::docs::SemestersApiDoc,
+            crate::modules::settings::docs::SettingsApiDoc,
             crate::modules::students::docs::StudentsApiDoc,
             crate::modules::subjects::docs::SubjectsApiDoc,
             crate::modules::teachers::docs::TeachersApiDoc,

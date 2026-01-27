@@ -7,7 +7,9 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
-import TableHeader from '@/components/ui/TableHeader';
+import CardHeader from '@/components/ui/CardHeader';
+import Loader from '@/components/ui/Loader';
+
 
 export default function Positions() {
   const { openModal } = useModalStore();
@@ -88,6 +90,15 @@ export default function Positions() {
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   };  
+
+  if (loading && roles.length === 0) {
+      return (
+        <AuthLayout>
+          <Loader title={"Loading Positions...."} /> 
+        </AuthLayout>
+      );
+    } 
+
   return (
     <AuthLayout>
       <div className="page">
@@ -120,7 +131,7 @@ export default function Positions() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <TableHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
+                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">
@@ -202,7 +213,7 @@ export default function Positions() {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{position.email}</td> 
+                                <td className="text-secondary">{position.description}</td> 
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

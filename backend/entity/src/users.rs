@@ -36,17 +36,25 @@ impl Related<super::notifications::Entity> for Entity {
     }
 }
 
-// Relasi many-to-many ke Roles melalui RoleUsers
+// users ↔ roles (via role_users)
 impl Related<super::roles::Entity> for Entity {
     fn to() -> RelationDef {
-        super::roles::Relation::RoleUsers.def()
+        super::role_users::Relation::Roles.def()
+    }
+
+    fn via() -> Option<RelationDef> {
+        Some(super::role_users::Relation::Users.def().rev())
     }
 }
 
-// Relasi many-to-many ke Roles melalui RoleUsers
+// users ↔ permissions (direct)
 impl Related<super::permissions::Entity> for Entity {
     fn to() -> RelationDef {
-        super::permissions::Relation::RolePermissions.def()
+        super::user_permissions::Relation::Permissions.def()
+    }
+
+    fn via() -> Option<RelationDef> {
+        Some(super::user_permissions::Relation::Users.def().rev())
     }
 }
 

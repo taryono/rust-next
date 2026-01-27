@@ -11,12 +11,22 @@ pub struct Model {
     #[sea_orm(unique)]
     pub name: String,
     pub foundation_id: Option<i32>,
+    pub unit_id: Option<i32>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::teacher_assignments::Entity")]
+    TeacherAssignments,
+}
+
+impl Related<super::teacher_assignments::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherAssignments.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

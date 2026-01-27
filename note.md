@@ -295,3 +295,259 @@ debug!("User: {:?}", user);
 info!("User found: {:#?}", user);
 warn!("Checking user: {:?}", user);
 error!("User error: {:?}", user);
+
+// src/handlers/teacher_handler.rs
+use actix_web::{web, HttpResponse, Result};
+use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter, ColumnTrait, Related};
+use serde::{Deserialize, Serialize};
+
+use crate::entities::{teacher, teacher_assignment, teacher_salary, prelude::*};
+
+#[derive(Deserialize)]
+pub struct GetTeachersQuery {
+    pub school_id: Option<i64>,
+    pub employment_status: Option<String>,
+    pub is_active: Option<bool>,
+    pub page: Option<u64>,
+    pub per_page: Option<u64>,
+}
+
+#[derive(Serialize)]
+pub struct TeacherResponse {
+    pub id: i64,
+    pub nip: Option<String>,
+    pub name: String,
+    pub email: Option<String>,
+    pub phone: Option<String>,
+    pub is_active: bool,
+    pub assignments: Vec<AssignmentResponse>,
+}
+
+#[derive(Serialize)]
+pub struct AssignmentResponse {
+    pub school_name: String,
+    pub employment_status: String,
+    pub position: String,
+    pub teaching_hours: i32,
+    pub subjects: Vec<SubjectResponse>,
+}
+
+// GET /api/teachers
+pub async fn get_teachers(
+    db: web::Data<DatabaseConnection>,
+    query: web::Query<GetTeachersQuery>,
+) -> Result<HttpResponse> {
+    let page = query.page.unwrap_or(1);
+    let per_page = query.per_page.unwrap_or(20);
+    
+    let mut query_builder = Teacher::find();
+    
+    if let Some(is_active) = query.is_active {
+        query_builder = query_builder.filter(teacher::Column::IsActive.eq(is_active));
+    }
+    
+    // Join with assignments if school_id filter is present
+    if let Some(school_id) = query.school_id {
+        query_builder = query_builder
+            .find_also_related(TeacherAssignment)
+            .filter(teacher_assignment::Column::SchoolId.eq(school_id));
+    }
+    
+    let teachers = query_builder
+        .paginate(&**db, per_page)
+        .fetch_page(page - 1)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    
+    Ok(HttpResponse::Ok().json(teachers))
+}
+
+// GET /api/teachers/:id
+pub async fn get_teacher_detail(
+    db: web::Data<DatabaseConnection>,
+    teacher_id: web::Path<i64>,
+) -> Result<HttpResponse> {
+    let teacher = Teacher::find_by_id(*teacher_id)
+        .one(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?
+        .ok_or_else(|| actix_web::error::ErrorNotFound("Teacher not found"))?;
+    
+    // Load assignments with related data
+    let assignments = teacher
+        .find_related(TeacherAssignment)
+        .find_with_related(School)
+        .all(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    
+    Ok(HttpResponse::Ok().json(teacher))
+}
+
+// POST /api/teachers
+#[derive(Deserialize)]
+pub struct CreateTeacherRequest {
+    pub foundation_id: i64,
+    pub nip: Option<String>,
+    pub nik: String,
+    pub name: String,
+    pub email: Option<String>,
+    pub phone: Option<String>,
+    pub birth_date: Option<String>,
+    pub gender: Option<String>,
+    pub join_date: String,
+}
+
+pub async fn create_teacher(
+    db: web::Data<DatabaseConnection>,
+    req: web::Json<CreateTeacherRequest>,
+) -> Result<HttpResponse> {
+    let teacher = teacher::ActiveModel {
+        foundation_id: Set(req.foundation_id),
+        nip: Set(req.nip.clone()),
+        nik: Set(req.nik.clone()),
+        name: Set(req.name.clone()),
+        email: Set(req.email.clone()),
+        phone: Set(req.phone.clone()),
+        is_active: Set(true),
+        join_date: Set(req.join_date.parse().unwrap()),
+        ..Default::default()
+    };
+    
+    let result = teacher
+        .insert(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    
+    Ok(HttpResponse::Created().json(result))
+}
+
+// POST /api/teachers/:id/assignments
+#[derive(Deserialize)]
+pub struct CreateAssignmentRequest {
+    pub school_id: i64,
+    pub academic_year_id: i64,
+    pub employment_status: String,
+    pub employment_type: String,
+    pub position: String,
+    pub department_id: Option<i64>,
+    pub assignment_start_date: String,
+}
+
+pub async fn create_teacher_assignment(
+    db: web::Data<DatabaseConnection>,
+    teacher_id: web::Path<i64>,
+    req: web::Json<CreateAssignmentRequest>,
+) -> Result<HttpResponse> {
+    let assignment = teacher_assignment::ActiveModel {
+        teacher_id: Set(*teacher_id),
+        school_id: Set(req.school_id),
+        academic_year_id: Set(req.academic_year_id),
+        employment_status: Set(req.employment_status.clone()),
+        employment_type: Set(req.employment_type.clone()),
+        position: Set(req.position.clone()),
+        department_id: Set(req.department_id),
+        assignment_start_date: Set(req.assignment_start_date.parse().unwrap()),
+        is_active: Set(true),
+        teaching_hours_per_week: Set(0),
+        max_teaching_hours: Set(24),
+        ..Default::default()
+    };
+    
+    let result = assignment
+        .insert(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    
+    Ok(HttpResponse::Created().json(result))
+}
+
+// GET /api/teachers/:id/salary
+pub async fn get_teacher_salary(
+    db: web::Data<DatabaseConnection>,
+    teacher_id: web::Path<i64>,
+) -> Result<HttpResponse> {
+    // Get active assignment
+    let assignment = TeacherAssignment::find()
+        .filter(teacher_assignment::Column::TeacherId.eq(*teacher_id))
+        .filter(teacher_assignment::Column::IsActive.eq(true))
+        .one(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?
+        .ok_or_else(|| actix_web::error::ErrorNotFound("Active assignment not found"))?;
+    
+    // Get salary info
+    let salary = assignment
+        .find_related(TeacherSalary)
+        .one(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    
+    Ok(HttpResponse::Ok().json(salary))
+}
+
+// POST /api/salary-payments
+#[derive(Deserialize)]
+pub struct CreateSalaryPaymentRequest {
+    pub teacher_salary_id: i64,
+    pub payment_period_month: i32,
+    pub payment_period_year: i32,
+    pub working_days: i32,
+    pub present_days: i32,
+    pub bonus: Option<Decimal>,
+}
+
+pub async fn create_salary_payment(
+    db: web::Data<DatabaseConnection>,
+    req: web::Json<CreateSalaryPaymentRequest>,
+) -> Result<HttpResponse> {
+    // Get salary configuration
+    let salary = TeacherSalary::find_by_id(req.teacher_salary_id)
+        .one(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?
+        .ok_or_else(|| actix_web::error::ErrorNotFound("Salary not found"))?;
+    
+    // Calculate attendance-based salary
+    let attendance_ratio = req.present_days as f64 / req.working_days as f64;
+    let calculated_base = salary.base_salary * Decimal::from_f64(attendance_ratio).unwrap();
+    
+    let payment = salary_payment::ActiveModel {
+        teacher_salary_id: Set(req.teacher_salary_id),
+        payment_period_month: Set(req.payment_period_month),
+        payment_period_year: Set(req.payment_period_year),
+        base_salary: Set(calculated_base),
+        total_allowances: Set(salary.gross_salary - salary.base_salary),
+        total_deductions: Set(salary.tax_deduction + salary.insurance_deduction),
+        gross_salary: Set(salary.gross_salary),
+        net_salary: Set(salary.net_salary + req.bonus.unwrap_or(Decimal::ZERO)),
+        working_days: Set(req.working_days),
+        present_days: Set(req.present_days),
+        bonus: Set(req.bonus.unwrap_or(Decimal::ZERO)),
+        payment_status: Set("PENDING".to_string()),
+        ..Default::default()
+    };
+    
+    let result = payment
+        .insert(&**db)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    
+    Ok(HttpResponse::Created().json(result))
+}
+
+// Configure routes
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/api/teachers")
+            .route("", web::get().to(get_teachers))
+            .route("", web::post().to(create_teacher))
+            .route("/{id}", web::get().to(get_teacher_detail))
+            .route("/{id}/assignments", web::post().to(create_teacher_assignment))
+            .route("/{id}/salary", web::get().to(get_teacher_salary))
+    )
+    .service(
+        web::scope("/api/salary-payments")
+            .route("", web::post().to(create_salary_payment))
+    );
+}

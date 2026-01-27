@@ -4,6 +4,16 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "category")]
+pub enum Category {
+    #[sea_orm(string_value = "harian")]
+    Harian,
+    #[sea_orm(string_value = "tengah_semester")]
+    TengahSemester,
+    #[sea_orm(string_value = "akhir_semester")]
+    AkhirSemester,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "employment_status")]
 pub enum EmploymentStatus {
     #[sea_orm(string_value = "permanent")]
@@ -110,6 +120,18 @@ pub enum ScopeLevel {
     Foundation,
     #[sea_orm(string_value = "unit")]
     Unit,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "score")]
+pub enum Score {
+    #[sea_orm(string_value = "A")]
+    A,
+    #[sea_orm(string_value = "B")]
+    B,
+    #[sea_orm(string_value = "C")]
+    C,
+    #[sea_orm(string_value = "D")]
+    D,
 }
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "slot_type")]

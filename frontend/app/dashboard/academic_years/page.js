@@ -7,8 +7,8 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
-import TableHeader from '@/components/ui/TableHeader';
-
+import CardHeader from '@/components/ui/CardHeader';
+import Loader from '@/components/ui/Loader';
 export default function Units() {
   const { openModal } = useModalStore();
   const {
@@ -88,6 +88,15 @@ export default function Units() {
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   };  
+
+  if (loading && class_levels.length === 0) {
+    return (
+      <AuthLayout>
+        <Loader title={"Loading Levels...."} /> 
+      </AuthLayout>
+    );
+  } 
+  
   return (
     <AuthLayout>
       <div className="page">
@@ -120,7 +129,7 @@ export default function Units() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <TableHeader title={"Tahun Ajaran"} viewMode={viewMode} onViewModeChange={setViewMode} />
+                <CardHeader title={"Tahun Ajaran"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">

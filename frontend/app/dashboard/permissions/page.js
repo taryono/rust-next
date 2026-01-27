@@ -7,8 +7,8 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
-import TableHeader from '@/components/ui/TableHeader';
-
+import CardHeader from '@/components/ui/CardHeader';
+import Loader from '@/components/ui/Loader';
 export default function Permissions() {
   const { openModal } = useModalStore(); 
   const {
@@ -87,24 +87,12 @@ export default function Permissions() {
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
-  }; 
+  };  
 
   if (loading && permissions.length === 0) {
     return (
       <AuthLayout>
-        <div className="page">
-          <div className="page-wrapper">
-            <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
-              <div className="text-center">
-                <div className="spinner-border text-white" role="status"></div>
-                  <div>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  </div>
-                    Loading permissions... 
-              </div>
-            </div>
-          </div>
-        </div>
+        <Loader title={"Loading Permission...."} /> 
       </AuthLayout>
     );
   } 
@@ -140,7 +128,7 @@ export default function Permissions() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <TableHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
+                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">
@@ -183,11 +171,11 @@ export default function Permissions() {
                                 <div className="card-body">
                                   <div className="d-flex align-items-center mb-3">
                                     <span className={`avatar avatar-lg rounded me-3 ${getAvatarColor(index)}`}>
-                                      {getInitials(permission.name)}
+                                      {getInitials(permission.code)}
                                     </span>
                                     <div className="flex-fill">
-                                      <div className="font-weight-medium">{permission.name}</div>
-                                      <div className="text-secondary small">{permission.email}</div>
+                                      <div className="text-secondary small">{permission.name}</div>
+                                      <div className="font-weight-medium">{permission.description}</div>
                                     </div>
                                   </div>
                                 

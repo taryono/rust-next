@@ -307,6 +307,13 @@ export const api = {
     createAttendance: (data) => axiosInstance.post('/api/attendance', data),
     updateAttendance: (id, data) => axiosInstance.put(`/api/attendance/${id}`, data),
     deleteAttendance: (id) => axiosInstance.delete(`/api/attendance/${id}`),
+
+    // Settings 
+    getSettings: (params = '') => axiosInstance.get(`/api/settings${params}`),
+    getSettingById: (id) => axiosInstance.get(`/api/setting/${id}`),
+    createSetting: (data) => axiosInstance.post('/api/setting', data),
+    updateSetting: (id, data) => axiosInstance.put(`/api/setting/${id}`, data),
+    deleteSetting: (id) => axiosInstance.delete(`/api/setting/${id}`),
 };
 
 export default axiosInstance;

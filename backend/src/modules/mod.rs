@@ -12,6 +12,7 @@ pub mod positions;
 pub mod roles;
 pub mod rooms;
 pub mod semesters;
+pub mod settings;
 pub mod students;
 pub mod subjects;
 pub mod teachers;

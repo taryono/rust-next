@@ -20,6 +20,10 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::classrooms::Entity")]
+    Classrooms,
+    #[sea_orm(has_many = "super::extracurriculars::Entity")]
+    Extracurriculars,
     #[sea_orm(
         belongs_to = "super::foundations::Entity",
         from = "Column::FoundationId",
@@ -28,15 +32,39 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Foundations,
+    #[sea_orm(has_many = "super::homeroom_teachers::Entity")]
+    HomeroomTeachers,
     #[sea_orm(has_many = "super::report_cards::Entity")]
     ReportCards,
     #[sea_orm(has_many = "super::semesters::Entity")]
     Semesters,
+    #[sea_orm(has_many = "super::teacher_assignments::Entity")]
+    TeacherAssignments,
+    #[sea_orm(has_many = "super::teacher_subjects::Entity")]
+    TeacherSubjects,
+}
+
+impl Related<super::classrooms::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Classrooms.def()
+    }
+}
+
+impl Related<super::extracurriculars::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Extracurriculars.def()
+    }
 }
 
 impl Related<super::foundations::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Foundations.def()
+    }
+}
+
+impl Related<super::homeroom_teachers::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::HomeroomTeachers.def()
     }
 }
 
@@ -49,6 +77,18 @@ impl Related<super::report_cards::Entity> for Entity {
 impl Related<super::semesters::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Semesters.def()
+    }
+}
+
+impl Related<super::teacher_assignments::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherAssignments.def()
+    }
+}
+
+impl Related<super::teacher_subjects::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherSubjects.def()
     }
 }
 

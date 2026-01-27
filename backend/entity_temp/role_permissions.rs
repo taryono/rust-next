@@ -9,8 +9,10 @@ pub struct Model {
     #[sea_orm(primary_key, unique)]
     pub id: i64,
     pub role_id: i32,
-    pub permission_id: i32,
+    pub permission_id: i64,
+    pub foundation_id: Option<i64>,
     pub created_at: DateTimeUtc,
+    pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

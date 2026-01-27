@@ -7,7 +7,8 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
-import TableHeader from '@/components/ui/TableHeader';
+import CardHeader from '@/components/ui/CardHeader';
+import Loader from '@/components/ui/Loader';
 
 export default function Foundations() {
   const { openModal } = useModalStore();
@@ -92,19 +93,7 @@ export default function Foundations() {
   if (loading && foundations.length === 0) {
     return (
       <AuthLayout>
-        <div className="page">
-          <div className="page-wrapper">
-            <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
-              <div className="text-center">
-                <div className="spinner-border text-white" role="status"></div>
-                  <div>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  </div>
-                    Loading foundations... 
-              </div>
-            </div>
-          </div>
-        </div>
+        <Loader title={"Loading Foundations...."} /> 
       </AuthLayout>
     );
   } 
@@ -140,7 +129,7 @@ export default function Foundations() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <TableHeader title={"Foundation List"} viewMode={viewMode} onViewModeChange={setViewMode} />
+                <CardHeader title={"Foundation List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">

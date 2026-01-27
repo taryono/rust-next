@@ -7,8 +7,8 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
-import TableHeader from '@/components/ui/TableHeader';
-
+import CardHeader from '@/components/ui/CardHeader';
+import Loader from '@/components/ui/Loader';
 export default function Roles() {
   const { openModal } = useModalStore();
   const {
@@ -93,19 +93,7 @@ export default function Roles() {
   if (loading && roles.length === 0) {
     return (
       <AuthLayout>
-        <div className="page">
-          <div className="page-wrapper">
-            <div className="container-xl d-flex flex-column justify-content-center" style={{minHeight: '100vh'}}>
-              <div className="text-center">
-                <div className="spinner-border text-white" role="status"></div>
-                  <div>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  </div>
-                    Loading roles... 
-              </div>
-            </div>
-          </div>
-        </div>
+        <Loader title={"Loading Roles...."} /> 
       </AuthLayout>
     );
   } 
@@ -141,7 +129,7 @@ export default function Roles() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <TableHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
+                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">
@@ -184,9 +172,9 @@ export default function Roles() {
                                 <div className="card-body">
                                   <div className="d-flex align-items-center mb-3">
                                     <span className={`avatar avatar-lg rounded me-3 ${getAvatarColor(index)}`}>
-                                      {getInitials(role.name)}
+                                      {getInitials(role.code)}
                                     </span>
-                                    <div className="flex-fill">
+                                    <div className="flex-fill"> 
                                       <div className="font-weight-medium">{role.name}</div>
                                       <div className="text-secondary small">{role.description}</div>
                                     </div>
@@ -204,7 +192,8 @@ export default function Roles() {
                         <table className="table table-vcenter card-table table-striped">
                           <thead>
                             <tr>
-                              <th>Role</th>
+                              <th>Code</th>
+                              <th>Name</th>
                               <th>Description</th> 
                               <th className="w-1"></th>
                             </tr>
@@ -212,6 +201,7 @@ export default function Roles() {
                           <tbody>
                             {roles.map((role, index) => (
                               <tr key={role.id}>
+                                <td className="text-secondary">{role.code}</td>
                                 <td>
                                   <div className="d-flex py-1 align-items-center">
                                     <span className={`avatar avatar-sm me-2 ${getAvatarColor(index)}`}>

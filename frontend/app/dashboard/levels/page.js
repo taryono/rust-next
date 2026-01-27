@@ -7,6 +7,9 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
+import Loader from '@/components/ui/Loader';
+import CardHeader from '@/components/ui/CardHeader';
+import Filter from '@/components/ui/Filter';
 
 export default function Units() {
   const { openModal } = useModalStore();
@@ -87,6 +90,15 @@ export default function Units() {
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   };  
+
+  if (loading && levels.length === 0) {
+    return (
+      <AuthLayout>
+        <Loader title={"Loading Levels...."} /> 
+      </AuthLayout>
+    );
+  } 
+
   return (
     <AuthLayout>
       <div className="page">
@@ -119,59 +131,11 @@ export default function Units() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Units List</h3>
-                  <div className="ms-auto">
-                      <div className="btn-group" role="group">
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('grid')}
-                        >
-                          Grid
-                        </button>
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('table')}
-                        >
-                          Table
-                        </button>
-                      </div>
-                    </div>
-                </div>
+                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode}/>
 
                   {/* Filters */}
-                  <div className="card-body border-bottom py-3">
-                    <div className="d-flex">
-                      <div className="text-secondary">
-                        Show
-                        <div className="mx-2 d-inline-block">
-                          <select 
-                            className="form-select form-select-sm" 
-                            value={pagination.perPage}
-                            onChange={(e) => changePerPage(Number(e.target.value))}
-                          >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                          </select>
-                        </div>
-                        entries
-                      </div>
-                      
-                      <div className="ms-auto">
-                        <input 
-                          type="text" 
-                          className="form-control form-control-sm" 
-                          placeholder="Search units..."
-                          value={filters.search}
-                          onChange={(e) => updateFilters({ search: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <Filter pagination={pagination} filters={filters} changePerPage={(e) => changePerPage(Number(e.target.value))} /> 
+                   
 
                   {viewMode === 'grid' && (
                       <div className="card-body">

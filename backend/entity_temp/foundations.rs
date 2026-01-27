@@ -46,6 +46,8 @@ pub enum Relation {
     SelfRef,
     #[sea_orm(has_many = "super::role_users::Entity")]
     RoleUsers,
+    #[sea_orm(has_many = "super::salary_grades::Entity")]
+    SalaryGrades,
     #[sea_orm(has_many = "super::students::Entity")]
     Students,
     #[sea_orm(has_many = "super::subjects::Entity")]
@@ -77,6 +79,12 @@ impl Related<super::extracurricular_activities::Entity> for Entity {
 impl Related<super::role_users::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::RoleUsers.def()
+    }
+}
+
+impl Related<super::salary_grades::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::SalaryGrades.def()
     }
 }
 

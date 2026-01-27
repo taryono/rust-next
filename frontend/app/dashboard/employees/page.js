@@ -7,6 +7,8 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
+import Loader from '@/components/ui/Loader';
+import CardHeader from '@/components/ui/CardHeader';
 
 export default function Employees() {
   const { openModal } = useModalStore();
@@ -87,6 +89,15 @@ export default function Employees() {
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   };  
+
+  if (loading && employees.length === 0) {
+    return (
+      <AuthLayout>
+        <Loader title={"Loading Employees...."} /> 
+      </AuthLayout>
+    );
+  } 
+  
   return (
     <AuthLayout>
       <div className="page">
@@ -119,27 +130,7 @@ export default function Employees() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Employees List</h3>
-                  <div className="ms-auto">
-                      <div className="btn-group" role="group">
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('grid')}
-                        >
-                          Grid
-                        </button>
-                        <button 
-                          type="button" 
-                          className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('table')}
-                        >
-                          Table
-                        </button>
-                      </div>
-                    </div>
-                </div>
+                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
 
                   {/* Filters */}
                   <div className="card-body border-bottom py-3">

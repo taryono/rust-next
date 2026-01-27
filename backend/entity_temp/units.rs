@@ -31,6 +31,8 @@ pub enum Relation {
     ScheduleGenerationLogs,
     #[sea_orm(has_many = "super::students::Entity")]
     Students,
+    #[sea_orm(has_many = "super::teacher_assignments::Entity")]
+    TeacherAssignments,
     #[sea_orm(has_many = "super::teachers::Entity")]
     Teachers,
 }
@@ -62,6 +64,12 @@ impl Related<super::schedule_generation_logs::Entity> for Entity {
 impl Related<super::students::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Students.def()
+    }
+}
+
+impl Related<super::teacher_assignments::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherAssignments.def()
     }
 }
 

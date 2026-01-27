@@ -1,3 +1,4 @@
+// backend/entity/src/role_users.rs
 use crate::sea_orm_active_enums::ScopeLevel;
 use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
@@ -11,6 +12,7 @@ pub struct Model {
     pub foundation_id: Option<i64>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
     pub deleted_at: Option<DateTimeUtc>,
 }
 

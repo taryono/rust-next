@@ -5,7 +5,6 @@ use utoipa::ToSchema;
 use validator::Validate;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct SemesterResponse {
-    pub id: i64,
     pub foundation_id: i64,
     pub academic_calendar_id: i64,
     pub semester_number: i8,
@@ -33,14 +32,14 @@ pub struct CreateSemesterRequest {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateSemesterRequest {
+    #[validate(length(min = 3, max = 100))]
+    pub name: String,
     pub academic_calendar_id: i64,
     pub semester_number: i8,
     pub year: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
     pub is_active: bool,
-    #[validate(length(min = 3, max = 100))]
-    pub name: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -55,7 +54,6 @@ pub struct SemesterListResponse {
 impl From<entity::semesters::Model> for SemesterResponse {
     fn from(model: entity::semesters::Model) -> Self {
         Self {
-            id: model.id,
             foundation_id: model.foundation_id,
             name: model.name,
             academic_calendar_id: model.academic_calendar_id,

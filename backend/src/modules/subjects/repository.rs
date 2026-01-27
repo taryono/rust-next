@@ -21,7 +21,7 @@ impl SubjectRepository {
     }
 
     // Helper method untuk akses connection
-    fn conn(&self) -> &sea_orm::DatabaseConnection {
+    pub fn conn(&self) -> &sea_orm::DatabaseConnection {
         self.db.get_connection()
     }
 
@@ -49,7 +49,7 @@ impl SubjectRepository {
         &self,
         params: &PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<(Vec<subjects::Model>,  u64), AppError> {
+    ) -> Result<(Vec<subjects::Model>, u64), AppError> {
         let mut query = Subject::find();
 
         // Filter by foundation_id if provided

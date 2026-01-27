@@ -50,7 +50,7 @@ const useAuthStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await api.login({ email, password });
-
+            console.log(response);
             if (response.success && response.data) {
                 const { access_token, refresh_token, user } = response.data;
 

@@ -17,6 +17,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
     crate::modules::departments::routes::configure(cfg);
     crate::modules::user_profiles::routes::configure(cfg);
     crate::modules::semesters::routes::configure(cfg);
+    crate::modules::settings::routes::configure(cfg);
     // crate::modules::character_traits::routes::configure(cfg);
     // crate::modules::report_cards::routes::configure(cfg);
     // crate::modules::schedule_generation_logs::routes::configure(cfg);

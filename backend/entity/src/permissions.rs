@@ -15,6 +15,7 @@ pub struct Model {
     pub code: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
     pub deleted_at: Option<DateTimeUtc>,
 }
 
@@ -55,14 +56,14 @@ impl Related<super::users::Entity> for Entity {
 }
 
 // Tambahkan ini jika belum ada untuk memudahkan join manual
-impl Related<super::role_permissions::Entity> for Entity {
-    fn to() -> RelationDef {
-        super::role_permissions::Relation::Permissions.def()
-    }
-    fn via() -> Option<RelationDef> {
-        Some(super::role_permissions::Relation::Permissions.def().rev())
-    }
-}
+// impl Related<super::role_permissions::Entity> for Entity {
+//     fn to() -> RelationDef {
+//         super::role_permissions::Relation::Permissions.def()
+//     }
+//     fn via() -> Option<RelationDef> {
+//         Some(super::role_permissions::Relation::Permissions.def().rev())
+//     }
+// }
 
 impl Related<super::user_permissions::Entity> for Entity {
     fn to() -> RelationDef {

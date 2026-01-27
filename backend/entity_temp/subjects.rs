@@ -31,10 +31,14 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Foundations,
+    #[sea_orm(has_many = "super::report_card_details::Entity")]
+    ReportCardDetails,
     #[sea_orm(has_many = "super::subject_preferences::Entity")]
     SubjectPreferences,
     #[sea_orm(has_many = "super::subject_room_requirements::Entity")]
     SubjectRoomRequirements,
+    #[sea_orm(has_many = "super::teacher_subjects::Entity")]
+    TeacherSubjects,
 }
 
 impl Related<super::class_subjects::Entity> for Entity {
@@ -49,6 +53,12 @@ impl Related<super::foundations::Entity> for Entity {
     }
 }
 
+impl Related<super::report_card_details::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ReportCardDetails.def()
+    }
+}
+
 impl Related<super::subject_preferences::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SubjectPreferences.def()
@@ -58,6 +68,12 @@ impl Related<super::subject_preferences::Entity> for Entity {
 impl Related<super::subject_room_requirements::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SubjectRoomRequirements.def()
+    }
+}
+
+impl Related<super::teacher_subjects::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherSubjects.def()
     }
 }
 

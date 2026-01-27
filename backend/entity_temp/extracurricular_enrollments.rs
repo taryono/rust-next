@@ -29,6 +29,8 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     ExtracurricularActivities,
+    #[sea_orm(has_many = "super::extracurricular_grades::Entity")]
+    ExtracurricularGrades,
     #[sea_orm(
         belongs_to = "super::semesters::Entity",
         from = "Column::SemesterId",
@@ -50,6 +52,12 @@ pub enum Relation {
 impl Related<super::extracurricular_activities::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::ExtracurricularActivities.def()
+    }
+}
+
+impl Related<super::extracurricular_grades::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ExtracurricularGrades.def()
     }
 }
 

@@ -11,6 +11,7 @@ pub struct Model {
     pub foundation_id: Option<i64>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    #[sea_orm(column_type = "Text", nullable)]
     pub deleted_at: Option<DateTimeUtc>,
 }
 

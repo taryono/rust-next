@@ -18,6 +18,7 @@ pub struct Model {
     pub employee_number: String,
     pub specialization: Option<String>,
     pub qualification: Option<String>,
+    pub teacher_assignment_id: Option<i64>,
     // Date
     // "2024-01-15"
     // └─ tahun─┘ │ └─ hari
@@ -39,6 +40,18 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::teacher_assignments::Entity",
+        from = "Column::TeacherAssignmentId",
+        to = "super::teacher_assignments::Column::Id"
+    )]
+    TeacherAssignment,
+}
 
+impl Related<super::teacher_assignments::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TeacherAssignment.def()
+    }
+}
 impl ActiveModelBehavior for ActiveModel {}

@@ -22,7 +22,7 @@ impl UserProfileRepository {
     }
 
     // Helper method untuk akses connection
-    fn conn(&self) -> &sea_orm::DatabaseConnection {
+    pub fn conn(&self) -> &sea_orm::DatabaseConnection {
         self.db.get_connection()
     }
 

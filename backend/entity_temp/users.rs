@@ -11,7 +11,7 @@ pub struct Model {
     pub name: String,
     #[sea_orm(unique)]
     pub email: String,
-    pub foundation_id: Option<i32>,
+    pub foundation_id: Option<i64>,
     pub username: Option<String>,
     pub password: String,
     pub is_verified: Option<i8>,

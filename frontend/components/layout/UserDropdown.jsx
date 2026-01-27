@@ -8,6 +8,7 @@ export default function UserDropdown() {
   const { user, logout } = useAuthStore();
   const { openModal } = useModalStore();
   const [isMobile, setIsMobile] = useState(false);
+  console.log(user);
   if (!user) return null;
   useEffect(() => {
     const checkMobile = () => {
