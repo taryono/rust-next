@@ -7,6 +7,8 @@ use std::env;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
+    pub user_id: i64,       // ✅ Tambahkan user_id sebagai i64
+    pub foundation_id: i64, // ✅ Tambahkan foundation_id
     pub exp: usize,
     pub iat: usize,
     pub token_type: String,
@@ -14,7 +16,12 @@ pub struct Claims {
 }
 
 impl Claims {
-    pub fn new(user_id: String, token_type: String, permissions: Vec<String>) -> Self {
+    pub fn new(
+        user_id: i64,
+        foundation_id: i64,
+        token_type: String,
+        permissions: Vec<String>,
+    ) -> Self {
         let expiration = if token_type == "refresh" {
             env::var("JWT_REFRESH_EXPIRATION")
                 .unwrap_or_else(|_| "604800".to_string())
@@ -31,7 +38,9 @@ impl Claims {
         let exp = iat + Duration::seconds(expiration);
 
         Self {
-            sub: user_id,
+            sub: user_id.to_string(),
+            user_id,       // ✅ Simpan sebagai i64
+            foundation_id, // ✅ Simpan foundation_id
             iat: iat.timestamp() as usize,
             exp: exp.timestamp() as usize,
             token_type,

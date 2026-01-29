@@ -21,7 +21,7 @@ export default function UserDropdown() {
   }, []);
   return (
     <> 
-    <div className="dropdown">
+    <div className="dropdown dropdown-account">
       <button
         className="btn btn-dark dropdown-toggle"
         data-bs-toggle="dropdown"

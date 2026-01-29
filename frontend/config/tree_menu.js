@@ -93,7 +93,7 @@ const treeMenuConfig = [
         key:'employee',
         key:'dashboard',
         label: 'Employee',
-        href: '/dashboard/employee',
+        href: '/dashboard/employees',
         icon: 'ti ti-list'
       },
       {

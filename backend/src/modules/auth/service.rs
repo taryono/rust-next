@@ -62,10 +62,15 @@ impl AuthService {
         .collect::<Vec<_>>();
 
         // 4. Create JWT claims dengan permissions
-        let access_claims =
-            jwt::Claims::new(user.id.to_string(), "access".into(), permissions.clone());
+        let access_claims = jwt::Claims::new(
+            user.id,
+            user.foundation_id,
+            "access".into(),
+            permissions.clone(),
+        );
 
-        let refresh_claims = jwt::Claims::new(user.id.to_string(), "refresh".into(), permissions);
+        let refresh_claims =
+            jwt::Claims::new(user.id, user.foundation_id, "refresh".into(), permissions);
 
         // 5. Generate tokens (TANPA .await karena bukan async function)
         let access_token = jwt::create_token(&access_claims)?;
@@ -87,12 +92,18 @@ impl AuthService {
 
         // Create new claims dengan permissions yang sama
         let new_access_claims = jwt::Claims::new(
-            claims.sub.clone(),
+            claims.user_id,
+            claims.foundation_id.clone(),
             "access".into(),
             claims.permissions.clone(),
         );
 
-        let new_refresh_claims = jwt::Claims::new(claims.sub, "refresh".into(), claims.permissions);
+        let new_refresh_claims = jwt::Claims::new(
+            claims.user_id,
+            claims.foundation_id,
+            "refresh".into(),
+            claims.permissions,
+        );
 
         // Generate new tokens (TANPA .await)
         let access_token = jwt::create_token(&new_access_claims)?;

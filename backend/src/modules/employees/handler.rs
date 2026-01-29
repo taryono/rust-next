@@ -5,6 +5,7 @@
 use super::dto::{CreateEmployeeRequest, EmployeeFilters, EmployeeResponse, UpdateEmployeeRequest};
 use crate::app_state::AppState;
 use crate::errors::AppError;
+use crate::middleware::auth::AuthContext; // ✅ Import AuthContext
 use crate::utils::{
     pagination::{PaginatedResponse, PaginationParams},
     response::ApiResponse,
@@ -79,15 +80,17 @@ pub async fn get_all(
     query: web::Query<PaginationParams>,
     filters: web::Query<EmployeeFilters>,
     // Optional: foundation_id dari auth/context
-    foundation_id: web::ReqData<i64>,
+    auth: web::ReqData<AuthContext>, // ✅ Extract AuthContext, // ✅ Extract full Claims
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
+    let foundation_id = auth.foundation_id;
     // Untuk admin (semua foundation)
     print!("params: {:#?}\n", params);
+    print!("Foundation ID: {}\n", foundation_id);
 
     match app_state
         .employee_service
-        .get_all(params, Some(foundation_id.into_inner()))
+        .get_all(params, Some(foundation_id))
         .await
     {
         Ok(roles) => Ok(HttpResponse::Ok().json(ApiResponse::success(roles))),
