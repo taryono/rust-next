@@ -17,7 +17,7 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
-
+package-lock.json
 # Logs
 *.log
 npm-debug.log*
@@ -29,3 +29,4 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+node_modules

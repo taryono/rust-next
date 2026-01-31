@@ -1,3 +1,4 @@
+// backend/src/modules/users/routes.rs
 use crate::{middleware::auth::JwtMiddleware, modules::users::handler};
 use actix_web::web;
 
@@ -6,6 +7,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
         web::scope("/api/users")
             .wrap(JwtMiddleware)
             .route("", web::get().to(handler::get_users))
+            .route("/create", web::post().to(handler::create))
             .route("/me", web::get().to(handler::get_current_user))
             .route("/me", web::put().to(handler::update_user))
             .route("/change-password", web::post().to(handler::change_password))

@@ -8,32 +8,42 @@ const treeMenuConfig = [
     menuContext: 'global',
   },
   {
-    key:'parent_user',
-    label: 'User',
-    icon: 'ti ti-users',
-    roles: ['system_owner'],
-    menuContext: 'system_owner',
-    children: [
-      { 
-        key:'user',
-        label: 'User',
-        href: '/dashboard/users',
-        icon: 'ti ti-list'
-      }, 
-      {
-        key:'role',
-        label: 'Role',
-        href: '/dashboard/roles',
-        icon: 'ti ti-shield'
-      },
-      {
-        key:'permission',
-        label: 'Permission',
-        href: '/dashboard/permissions',
-        icon: 'ti ti-shield'
-      }
-    ]
-  },
+  key:'parent_user',
+  label: 'Authentications',
+  icon: 'ti ti-users',
+  roles: ['system_owner', 'admin'],
+  menuContext: 'system_owner',
+  children: [
+    { 
+      key:'user',
+      label: 'User',
+      href: '/dashboard/users',
+      icon: 'ti ti-list',
+      permissions: ['users.view']
+    }, 
+    {
+      key:'role',
+      label: 'Role',
+      href: '/dashboard/roles',
+      icon: 'ti ti-shield',
+      permissions: ['roles.view']
+    },
+    {
+      key:'permission',
+      label: 'Permission',
+      href: '/dashboard/permissions',
+      icon: 'ti ti-key',
+      permissions: ['permissions.view']
+    },
+    {
+      key:'role_permission',
+      label: 'Role Permissions',
+      href: '/dashboard/role-permissions',
+      icon: 'ti ti-link',
+      permissions: ['role-permissions.view']
+    }
+  ]
+},
   {
     key:'foundation',
     label: 'Foundation',
@@ -44,7 +54,7 @@ const treeMenuConfig = [
       {
         key:'unit',
         label: 'Unit',
-        href: '/dashboard/users',
+        href: '/dashboard/units',
         icon: 'ti ti-list'
       }, 
       {
@@ -78,7 +88,7 @@ const treeMenuConfig = [
   },
   {
     key:'parent_employee',
-    label: 'Employee',
+    label: 'HR',
     icon: 'ti ti-package',
     roles: ['system_owner'],
     menuContext: 'system_owner',

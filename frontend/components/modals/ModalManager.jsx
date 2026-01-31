@@ -5,7 +5,7 @@ import useModalStore from '@/store/modalStore';
 import modalRegistry from './modalRegistry';
 
 export default function ModalManager() {
-    const { show, type, data, closeModal } = useModalStore();
+    const { show, type, data, onSuccess, closeModal } = useModalStore();
 
     if (!show || !type) return null;
 
@@ -18,7 +18,7 @@ export default function ModalManager() {
 
     return (
         <Modal show={show} onHide={closeModal} centered backdrop="static">
-            <ModalComponent data={data} onClose={closeModal} />
+            <ModalComponent data={data} onClose={closeModal} onSuccess={onSuccess}/>
         </Modal>
     );
 }

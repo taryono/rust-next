@@ -1,3 +1,4 @@
+// frontend/lib/cookies.js
 import Cookies from 'js-cookie';
 
 const TOKEN_KEY = 'access_token';

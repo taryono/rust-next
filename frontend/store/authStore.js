@@ -158,7 +158,7 @@ const useAuthStore = create((set, get) => ({
 
         // Redirect to login page
         if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+            // window.location.href = '/login';
         }
     },
 

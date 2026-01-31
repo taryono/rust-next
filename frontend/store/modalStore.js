@@ -4,12 +4,14 @@ const useModalStore = create((set) => ({
     show: false,
     type: null,
     data: null,
+    onSuccess: null, // ✅ Tambahkan
 
-    openModal: (type, data = null) =>
+    openModal: (type, data = null, onSuccess = null) =>
         set({
             show: true,
             type,
             data,
+            onSuccess
         }),
 
     closeModal: () =>
@@ -17,6 +19,7 @@ const useModalStore = create((set) => ({
             show: false,
             type: null,
             data: null,
+            onSuccess:null,
         }),
 }));
 

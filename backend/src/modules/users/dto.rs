@@ -3,16 +3,13 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
 
-#[derive(Debug, Serialize, ToSchema, Validate)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct CreateUserRequest {
-    pub id: i64,
-
     pub name: String,
     pub email: String,
     pub password: String,
     pub foundation_id: i64,
-    pub created_at: String,
-    pub updated_at: String,
+    #[serde(default = "default_is_active")]
     pub is_active: i8,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<String>>,
@@ -124,4 +121,8 @@ impl From<entity::users::Model> for UserResponse {
             roles: None,
         }
     }
+}
+
+fn default_is_active() -> i8 {
+    1 // default active
 }

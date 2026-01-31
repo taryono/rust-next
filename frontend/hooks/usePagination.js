@@ -1,3 +1,4 @@
+// frontend/hooks/usePagination.js
 import { useState, useEffect, useCallback } from 'react';
 
 export function usePagination(fetchFunction, initialParams = {}) {

@@ -1,3 +1,4 @@
+// frontend/lib/api.js
 import axios from 'axios';
 import { cookies } from './cookies';
 
@@ -5,6 +6,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 let isRefreshing = false;
 let failedQueue = [];
+
+// Store handleUnauthorized callback
+let unauthorizedHandler = null;
+
+export const setUnauthorizedHandler = (handler) => {
+    unauthorizedHandler = handler;
+};
 
 const processQueue = (error, token = null) => {
     failedQueue.forEach(prom => {
@@ -14,7 +22,6 @@ const processQueue = (error, token = null) => {
             prom.resolve(token);
         }
     });
-
     failedQueue = [];
 };
 
@@ -48,18 +55,36 @@ axiosInstance.interceptors.response.use(
 
         // If error is 401 and we haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
+            
+            // Check if this is a refresh token request that failed
+            if (originalRequest.url?.includes('/auth/refresh')) {
+                console.log('🚫 Refresh token expired - logging out...');
+                
+                // Clear tokens
+                cookies.clearAll();
+                
+                // Call unauthorized handler
+                if (unauthorizedHandler) {
+                    unauthorizedHandler();
+                } else if (typeof window !== 'undefined') {
+                    window.location.href = '/login';
+                }
+                
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 // If already refreshing, queue this request
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 })
-                    .then(token => {
-                        originalRequest.headers.Authorization = `Bearer ${token}`;
-                        return axiosInstance(originalRequest);
-                    })
-                    .catch(err => {
-                        return Promise.reject(err);
-                    });
+                .then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return axiosInstance(originalRequest);
+                })
+                .catch(err => {
+                    return Promise.reject(err);
+                });
             }
 
             originalRequest._retry = true;
@@ -68,25 +93,35 @@ axiosInstance.interceptors.response.use(
             const refreshToken = cookies.getRefreshToken();
 
             if (!refreshToken) {
-                // No refresh token, redirect to login
+                console.log('🚫 No refresh token - logging out...');
+                
+                // No refresh token, clear and redirect
                 cookies.clearAll();
-                if (typeof window !== 'undefined') {
+                
+                if (unauthorizedHandler) {
+                    unauthorizedHandler();
+                } else if (typeof window !== 'undefined') {
                     window.location.href = '/login';
                 }
+                
                 return Promise.reject(error);
             }
 
             try {
+                console.log('🔄 Refreshing token...');
+                
                 // Call refresh endpoint
                 const response = await axios.post(`${API_URL}/api/auth/refresh`, {
                     refresh_token: refreshToken
                 });
 
                 if (response.data.success && response.data.data) {
-                    const { access_token, refresh_token } = response.data.data;
+                    const { access_token, refresh_token: newRefreshToken } = response.data.data;
 
-                    // Save new tokens to cookies
-                    cookies.setTokens(access_token, refresh_token);
+                    console.log('✅ Token refreshed successfully');
+
+                    // Save new tokens
+                    cookies.setTokens(access_token, newRefreshToken);
 
                     // Update authorization header
                     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
@@ -97,13 +132,20 @@ axiosInstance.interceptors.response.use(
 
                     // Retry original request
                     return axiosInstance(originalRequest);
+                } else {
+                    throw new Error('Invalid refresh response');
                 }
             } catch (refreshError) {
+                console.log('❌ Refresh token failed:', refreshError);
+                
                 processQueue(refreshError, null);
 
                 // Refresh failed, clear tokens and redirect
                 cookies.clearAll();
-                if (typeof window !== 'undefined') {
+                
+                if (unauthorizedHandler) {
+                    unauthorizedHandler();
+                } else if (typeof window !== 'undefined') {
                     window.location.href = '/login';
                 }
 
@@ -132,6 +174,8 @@ export const api = {
     updateCurrentUser: (data) => axiosInstance.put('/api/users/me', data),
     changePassword: (data) => axiosInstance.post('/api/users/change-password', data),
     deleteUser: (id) => axiosInstance.delete(`/api/users/${id}`),
+    createUser: (data) => axiosInstance.post('/api/users/create', data),
+    updateUser: (data) => axiosInstance.put('/api/users/${id}', data),
  
     // Foundations 
     getFoundations: (params = '') => axiosInstance.get(`/api/foundations${params}`),

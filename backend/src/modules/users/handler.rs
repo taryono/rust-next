@@ -1,11 +1,12 @@
 // ============================================
-// backend/src/controllers/user_controller.rs
+// backend/src/modules/users/handler.rs
 // ============================================
 use crate::utils::pagination::PaginationParams;
 use crate::{
     app_state::AppState,
+    errors::AppError,
     modules::users::dto::{
-        ChangePasswordRequest, UpdateUserRequest, UserListResponse, UserResponse,
+        ChangePasswordRequest, CreateUserRequest, UpdateUserRequest, UserListResponse, UserResponse,
     },
     utils::{jwt::Claims, response::ApiResponse},
 };
@@ -20,7 +21,7 @@ use validator::Validate;
         ("page" = Option<i64>, Query, description = "Page number, default 1"),
         ("per_page" = Option<i64>, Query, description = "Items per page, default 10, max 100"),
         ("search" = Option<String>, Query, description = "Search by name or email"),
-         ("role" = Option<String>, Query, description = "Filter by role")
+        ("role" = Option<String>, Query, description = "Filter by role")
     ),
     responses(
         (status = 200, description = "List of users retrieved successfully", body = UserListResponse),
@@ -45,6 +46,33 @@ pub async fn get_users(
             Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
         }
     }
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/users/create",
+    request_body = CreateUserRequest,
+    responses(
+        (status = 201, description = "User created successfully", body = UserResponse),
+        (status = 400, description = "Bad request"),
+        (status = 409, description = "Conflict - duplicate email")
+    ),
+    tag = "Users",
+    security(
+        ("bearer_auth" = [])
+    )
+)]
+pub async fn create(
+    app_state: web::Data<AppState>,
+    request: web::Json<CreateUserRequest>,
+) -> Result<HttpResponse, AppError> {
+    // Validasi input
+    request
+        .validate()
+        .map_err(|e| AppError::ValidationError(format!("Validation failed: {}", e)))?;
+
+    let result = app_state.user_service.create(request.into_inner()).await?;
+    Ok(HttpResponse::Created().json(ApiResponse::success(result)))
 }
 
 #[utoipa::path(

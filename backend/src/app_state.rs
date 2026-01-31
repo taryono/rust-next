@@ -20,7 +20,6 @@ use crate::modules::teachers::TeacherService;
 use crate::modules::unit_types::UnitTypeService;
 use crate::modules::units::UnitService;
 use crate::modules::user_profiles::UserProfileService;
-
 use crate::modules::users::UserService;
 use std::sync::Arc;
 pub struct AppState {

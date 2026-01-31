@@ -2,47 +2,50 @@
 
 import { useState, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
-import useAuthStore from '@/store/authStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
+import { alertSuccess, alertError } from '@/lib/alert';
 
-export default function AddMemberModal({ data, onClose }) {
-    const { updateUser } = useAuthStore();
+export default function AddMemberModal({ data, onClose, onSuccess }) {
+    const { user } = useAuth();
     const [imagePreview, setImagePreview] = useState(null);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
     const [form, setForm] = useState({
-        name: '',
-        email: '',
-        dob: '',
-        pob: '',
-        password: '',
-        password_confirm: '',
-        role: 'member',
-        status: 'inactive',
+        name: 'Muhammad Syahdan Ksatria',
+        email: 'muhammad.syahdan@gmail.com',
+        dob: '2020-01-12', // ✅ Format YYYY-MM-DD
+        pob: 'Brebes',
+        password: 'password',
+        password_confirm: 'password',
+        role: 'teacher',
+        status: '1',
         image: null,
-        bio: '',
-        phone: '',
-        address: '',
-        city: '',
-        province: '',
+        bio: 'Syahdan anak yang cerdas,soleh,hebat,sehat',
+        phone: '087883732016',
+        address: 'slatri Utara RT/RW: 001/003',
+        city: 'Brebes',
+        province: 'Jawa Tengah',
         country: 'Indonesia',
-        postal_code: '',
-        latitude: '',
-        longitude: '',
-        timezone: 'Asia/Jakarta',
+        postal_code: '52262',
+        latitude: '-6.9175',
+        longitude: '107.9161',
+        timezone: 'Asia/Jakarta'
     });
 
     useEffect(() => {
         if (data) {
             setForm({
-                ...form,
                 name: data.name || '',
                 email: data.email || '',
                 dob: data.dob || '',
                 pob: data.pob || '',
+                password: '',
+                password_confirm: '',
                 role: data.role || 'member',
-                status: data.status || 'inactive',
+                status: data.status || 'active',
+                image: null,
                 bio: data.bio || '',
                 phone: data.phone || '',
                 address: data.address || '',
@@ -54,6 +57,7 @@ export default function AddMemberModal({ data, onClose }) {
                 longitude: data.longitude || '',
                 timezone: data.timezone || 'Asia/Jakarta',
             });
+            
             if (data.image) {
                 setImagePreview(data.image);
             }
@@ -63,7 +67,20 @@ export default function AddMemberModal({ data, onClose }) {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Validasi ukuran file (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alertError('Ukuran file maksimal 2MB');
+                return;
+            }
+
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                alertError('File harus berupa gambar');
+                return;
+            }
+
             setForm({ ...form, image: file });
+            
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
@@ -75,18 +92,45 @@ export default function AddMemberModal({ data, onClose }) {
     const validateForm = () => {
         const newErrors = {};
         
-        if (!form.name.trim()) newErrors.name = 'Nama wajib diisi';
-        if (!form.email.trim()) newErrors.email = 'Email wajib diisi';
-        if (!form.email.includes('@')) newErrors.email = 'Email tidak valid';
+        // Validasi nama
+        if (!form.name.trim()) {
+            newErrors.name = 'Nama wajib diisi';
+        } else if (form.name.trim().length < 3) {
+            newErrors.name = 'Nama minimal 3 karakter';
+        }
+
+        // Validasi email
+        if (!form.email.trim()) {
+            newErrors.email = 'Email wajib diisi';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+            newErrors.email = 'Format email tidak valid';
+        }
         
-        if (!data) { // Hanya validasi password untuk user baru
-            if (!form.password) newErrors.password = 'Password wajib diisi';
-            if (form.password && form.password.length < 6) {
+        // Validasi password (hanya untuk user baru)
+        if (!data) {
+            if (!form.password) {
+                newErrors.password = 'Password wajib diisi';
+            } else if (form.password.length < 6) {
                 newErrors.password = 'Password minimal 6 karakter';
             }
+            
             if (form.password !== form.password_confirm) {
                 newErrors.password_confirm = 'Password tidak cocok';
             }
+        } else {
+            // Untuk edit, validasi password hanya jika diisi
+            if (form.password && form.password.length < 6) {
+                newErrors.password = 'Password minimal 6 karakter';
+            }
+            
+            if (form.password && form.password !== form.password_confirm) {
+                newErrors.password_confirm = 'Password tidak cocok';
+            }
+        }
+
+        // Validasi phone (optional tapi harus valid jika diisi)
+        if (form.phone && !/^[0-9+\-\s()]*$/.test(form.phone)) {
+            newErrors.phone = 'Format nomor telepon tidak valid';
         }
         
         setErrors(newErrors);
@@ -94,26 +138,109 @@ export default function AddMemberModal({ data, onClose }) {
     };
 
     const handleSubmit = async () => {
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            alertError('Mohon periksa kembali form Anda');
+            return;
+        }
 
         setLoading(true);
+        
         try {
-            const formData = new FormData();
-            Object.keys(form).forEach(key => {
-                if (key === 'image' && form.image instanceof File) {
-                    formData.append(key, form.image);
-                } else if (form[key]) {
-                    formData.append(key, form[key]);
+            // Jika ada image, gunakan FormData
+            let dataToSend;
+            
+            if (form.image instanceof File) {
+                const formData = new FormData();
+                
+                // Append semua field ke FormData
+                formData.append('name', form.name);
+                formData.append('email', form.email);
+                formData.append('password', form.password);
+                formData.append('role', form.role);
+                formData.append('status', form.status);
+                formData.append('foundation_id', user.foundation_id);
+                
+                // Append optional fields jika ada
+                if (form.dob) formData.append('dob', form.dob);
+                if (form.pob) formData.append('pob', form.pob);
+                if (form.bio) formData.append('bio', form.bio);
+                if (form.phone) formData.append('phone', form.phone);
+                if (form.address) formData.append('address', form.address);
+                if (form.city) formData.append('city', form.city);
+                if (form.province) formData.append('province', form.province);
+                if (form.country) formData.append('country', form.country);
+                if (form.postal_code) formData.append('postal_code', form.postal_code);
+                if (form.latitude) formData.append('latitude', form.latitude);
+                if (form.longitude) formData.append('longitude', form.longitude);
+                if (form.timezone) formData.append('timezone', form.timezone);
+                
+                // Append image
+                formData.append('image', form.image);
+                
+                dataToSend = formData;
+            } else {
+                // Jika tidak ada image, gunakan JSON biasa
+                dataToSend = {
+                    name: form.name,
+                    email: form.email,
+                    password: form.password,
+                    role: form.role,
+                    status: form.status,
+                    foundation_id: user.foundation_id,
+                    dob: form.dob || null,
+                    pob: form.pob || null,
+                    bio: form.bio || null,
+                    phone: form.phone || null,
+                    address: form.address || null,
+                    city: form.city || null,
+                    province: form.province || null,
+                    country: form.country || 'Indonesia',
+                    postal_code: form.postal_code || null,
+                    latitude: form.latitude || null,
+                    longitude: form.longitude || null,
+                    timezone: form.timezone || 'Asia/Jakarta',
+                };
+                
+                // Hapus password jika kosong (untuk edit)
+                if (data && !form.password) {
+                    delete dataToSend.password;
                 }
-            });
-
-            const res = await api.createMember(formData);
-            const updatedUser = await res.json();
-            updateUser(updatedUser);
+            }
+            
+            let response;
+            if (data) {
+                // Update user
+                response = await api.updateUser(data.id, dataToSend);
+                alertSuccess('User berhasil diupdate!');
+            } else {
+                // Create user
+                response = await api.createUser(dataToSend);
+                alertSuccess('User berhasil ditambahkan!');
+            }
+            
+            console.log('Response:', response);
+            
+            // Callback success
+            if (onSuccess) {
+                onSuccess(response);
+            }
+            
+            // Close modal
             onClose();
+            
         } catch (err) {
-            console.error(err);
-            alert('Gagal menambahkan member: ' + (err.message || 'Unknown error'));
+            console.error('Error submit:', err);
+            
+            // Handle specific error messages
+            if (err.response?.data?.message) {
+                alertError(err.response.data.message);
+            } else if (err.response?.status === 409) {
+                alertError('Email sudah terdaftar');
+            } else if (err.response?.status === 422) {
+                alertError('Data tidak valid, periksa kembali form Anda');
+            } else {
+                alertError('Gagal menyimpan data: ' + (err.message || 'Unknown error'));
+            }
         } finally {
             setLoading(false);
         }
@@ -152,6 +279,7 @@ export default function AddMemberModal({ data, onClose }) {
                             accept="image/*"
                             onChange={handleImageChange}
                         />
+                        <small className="text-muted mt-1">Max 2MB, format: JPG, PNG, GIF</small>
                     </div>
                 </div>
 
@@ -217,11 +345,12 @@ export default function AddMemberModal({ data, onClose }) {
                     <label className="form-label">Nomor Telepon</label>
                     <input
                         type="tel"
-                        className="form-control"
+                        className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                         placeholder="+62 812-3456-7890"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     />
+                    {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -282,7 +411,8 @@ export default function AddMemberModal({ data, onClose }) {
                         >
                             <option value="member">Member</option>
                             <option value="admin">Admin</option>
-                            <option value="moderator">Moderator</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
                         </select>
                     </div>
 
