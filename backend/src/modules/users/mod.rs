@@ -1,5 +1,6 @@
 pub mod docs;
 pub mod dto;
+pub mod dto_multipart;
 pub mod handler;
 pub mod repository;
 pub mod routes;

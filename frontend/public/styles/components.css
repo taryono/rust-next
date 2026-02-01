@@ -1,0 +1,40 @@
+/* frontend/styles/components.css */
+/* ImageUpload Styles */
+.image-upload-wrapper .image-preview-container:hover {
+  border-color: var(--bs-primary);
+}
+
+.image-upload-wrapper .image-preview-container.dragging {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.image-upload-wrapper .image-preview-container.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* FormSection Styles */
+.form-section {
+  transition: all 0.3s ease;
+}
+
+.form-section-header {
+  position: relative;
+}
+
+.form-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: var(--bs-primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.form-section-header:hover::after {
+  width: 100%;
+}

@@ -1,6 +1,6 @@
 // backend/src/modules/user_profiles/dto.rs
+use chrono::NaiveDate;
 use entity::sea_orm_active_enums::Gender; // ❌ Tidak punya ToSchema
-
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate; // Untuk validasi input // ✅ Built-in di Rust 1.80+
@@ -10,7 +10,7 @@ pub struct UserProfileResponse {
     pub foundation_id: i64,
     pub user_id: i64,
     pub phone: Option<String>,
-    pub dob: Option<String>,
+    pub dob: Option<NaiveDate>,
     pub pob: Option<String>,
     pub bio: Option<String>,
     pub avatar: Option<String>,
@@ -86,7 +86,10 @@ impl From<entity::user_profiles::Model> for UserProfileResponse {
             foundation_id: model.foundation_id,
             user_id: model.user_id,
             phone: model.phone,
-            dob: model.dob,
+            dob: model
+                .dob
+                .clone()
+                .and_then(|v| NaiveDate::parse_from_str(&v.to_string(), "%Y-%m-%d").ok()),
             pob: model.pob,
             bio: model.bio,
             avatar: model.avatar,

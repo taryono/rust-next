@@ -1,5 +1,5 @@
 // ============================================================================
-// repository.rs - Database Operations Only
+// backend/src/modules/users/repository.rs - Database Operations Only
 // ============================================================================
 use crate::config::database::Database;
 use crate::errors::AppError;

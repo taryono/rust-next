@@ -1,68 +1,48 @@
-// frontend/contexts/AuthContext.js
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { cookies } from '@/lib/cookies';
-const AuthContext = createContext();
+import { createContext, useContext, useEffect, useState } from 'react';
+import useAuthStore from '@/store/authStore';
+
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const store = useAuthStore();
 
+  const [ready, setReady] = useState(false); 
+  // 👉 INISIALISASI SEKALI SAJA
   useEffect(() => {
-    // Check token on mount
-    const savedToken = cookies.getAccessToken();
-    const savedUser = cookies.getUser();
-    
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(savedUser);
+    let mounted = true;
+
+    async function init() {
+      try {
+        await store.initialize();
+      } finally {
+        if (mounted) setReady(true);
+      }
     }
-    
-    setLoading(false);
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
+  
 
-  const login = (userData, authToken, refresh_token) => {
-    setUser(userData);
-    setToken(authToken);
-    cookies.setTokens(authToken,refresh_token);
-    cookies.setUser(userData) 
-  };
-
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    cookies.clearAll(); 
-    router.push('/login');
-  };
-
-  // Function to handle unauthorized errors
-  const handleUnauthorized = () => {
-    console.log('🚫 Token expired - logging out...');
-    logout();
+  const value = {
+    ...store,
+    isReady: ready,   // ← flag penting
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      token, 
-      loading, 
-      login, 
-      logout, 
-      handleUnauthorized 
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used in AuthProvider');
+  return ctx;
 };

@@ -6,11 +6,11 @@
 use crate::config::database::Database;
 use crate::errors::AppError;
 use crate::utils::pagination::PaginationParams;
+// use chrono::NaiveDate;
 use entity::user_profiles::{self, Entity as UserProfile};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, Set,
 };
-
 #[derive(Clone)]
 pub struct UserProfileRepository {
     db: Database,
@@ -25,7 +25,6 @@ impl UserProfileRepository {
     pub fn conn(&self) -> &sea_orm::DatabaseConnection {
         self.db.get_connection()
     }
-
     /// Create new user_profile
     pub async fn create(
         &self,

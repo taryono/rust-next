@@ -1,169 +1,258 @@
+// frontend/store/authStore.js
 import { create } from 'zustand';
 import { api } from '@/lib/api';
 import { cookies } from '@/lib/cookies';
 
+/* ========================================================
+   UTILITIES
+======================================================== */
+
 const normalizeUser = (user) => {
-  if (!user) return null;
+  if (!user || typeof user !== 'object') return null;
 
   return {
-    ...user,
+    id: user.id ?? null,
+    name: user.name ?? '',
+    foundation_id:user.foundation_id ?? '',
+    email: user.email ?? '',
     roles: Array.isArray(user.roles) ? user.roles : [],
+    permissions: Array.isArray(user.permissions) ? user.permissions : [],
+    meta: user.meta ?? {},
   };
 };
 
+const initialState = {
+  user: null,
+  accessToken: null,
+  refreshToken: null,
+  isAuthenticated: false,
+
+  isLoading: false,
+  isInitialized: false,
+
+  error: null,
+};
+
+/* ========================================================
+   STORE
+======================================================== */
 
 const useAuthStore = create((set, get) => ({
-    user: { roles: [] },
-    accessToken: null,
-    refreshToken: null,
-    isAuthenticated: false,
-    isLoading: false,
-    error: null,
 
-    // Initialize auth from cookies
-    initialize: () => {
-        const accessToken = cookies.getAccessToken();
-        const refreshToken = cookies.getRefreshToken();
-        const user = cookies.getUser();
+  ...initialState,
 
-        if (accessToken && refreshToken && user) {
-            set({
-                user: normalizeUser(user),
-                accessToken,
-                refreshToken,
-                isAuthenticated: true
-            });
-            return true;
-        } else {
-            set({
-                user: null,
-                accessToken: null,
-                refreshToken: null,
-                isAuthenticated: false
-            });
-            return false;
-        }
-    },
+  /* ---------------------------------------------
+     INITIALIZE (NON BLOCKING & SAFE)
+  --------------------------------------------- */
+  initialize: () => {
+    try {
+      const accessToken = cookies.getAccessToken();
+      const refreshToken = cookies.getRefreshToken();
+      const user = cookies.getUser();
 
-    // Login
-    login: async (email, password) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await api.login({ email, password });
-            console.log(response);
-            if (response.success && response.data) {
-                const { access_token, refresh_token, user } = response.data;
+      if (!accessToken || !refreshToken || !user) {
+        set({ ...initialState, isInitialized: true });
+        return false;
+      }
 
-                // Save to cookies
-                cookies.setTokens(access_token, refresh_token);
-                cookies.setUser(user);
+      set({
+        user: normalizeUser(user),
+        accessToken,
+        refreshToken,
+        isAuthenticated: true,
+        isInitialized: true,
+      });
 
-                set({
-                    user: normalizeUser(user),
-                    accessToken: access_token,
-                    refreshToken: refresh_token,
-                    isAuthenticated: true,
-                    isLoading: false,
-                    error: null,
-                });
+      return true;
 
-                return { success: true };
-            } else {
-                set({ isLoading: false, error: response.message || 'Login failed' });
-                return { success: false, error: response.message };
-            }
-        } catch (error) {
-            let errorMessage = 'Terjadi kesalahan';
+    } catch (err) {
+      console.warn('Auth initialize failed:', err);
+      set({ ...initialState, isInitialized: true });
+      return false;
+    }
+  },
 
-            // Backend mati / tidak bisa diakses
-            if (
-                error.code === 'ERR_NETWORK' ||
-                error.message?.includes('Network Error')
-            ) {
-                errorMessage = 'Server sedang tidak tersedia. Silakan coba lagi nanti.';
-            }
-            // Timeout
-            else if (error.code === 'ECONNABORTED') {
-                errorMessage = 'Koneksi ke server timeout.';
-            }
-            // Response dari backend (401, 422, dll)
-            else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            }
+  /* ---------------------------------------------
+     LOGIN (DEFENSIVE & CLEAN)
+  --------------------------------------------- */
+  login: async (email, password) => {
+    if (get().isLoading) return { success: false };
 
-            set({
-                isLoading: false,
-                error: errorMessage,
-            });
+    set({ isLoading: true, error: null });
 
-            return { success: false, error: errorMessage };
-        }
+    try {
+      const response = await api.login({ email, password });
 
-    },
+      if (!response?.success || !response?.data) {
+        throw new Error(response?.message || 'Login gagal');
+      }
 
-    // Register
-    register: async (name, email, password) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await api.register({ name, email, password });
+      const { access_token, refresh_token, user } = response.data;
 
-            if (response.success && response.data) {
-                const { access_token, refresh_token, user } = response.data;
+      // Persist
+      cookies.setTokens(access_token, refresh_token);
+      cookies.setUser(user);
 
-                // Save to cookies
-                cookies.setTokens(access_token, refresh_token);
-                cookies.setUser(user);
+      set({
+        user: normalizeUser(user),
+        accessToken: access_token,
+        refreshToken: refresh_token,
+        isAuthenticated: true,
 
-                set({
-                    user: normalizeUser(user),
-                    accessToken: access_token,
-                    refreshToken: refresh_token,
-                    isAuthenticated: true,
-                    isLoading: false,
-                    error: null,
-                });
+        isLoading: false,
+        error: null,
+      });
 
-                return { success: true };
-            } else {
-                set({ isLoading: false, error: response.message || 'Registration failed' });
-                return { success: false, error: response.message };
-            }
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'An error occurred';
-            set({ isLoading: false, error: errorMessage });
-            return { success: false, error: errorMessage };
-        }
-    },
-    updateUser: (updatedUser) =>
+      return { success: true };
+
+    } catch (error) {
+      const message = parseAuthError(error);
+
+      set({
+        isLoading: false,
+        error: message,
+      });
+
+      return { success: false, error: message };
+    }
+  },
+
+  /* ---------------------------------------------
+     REGISTER
+  --------------------------------------------- */
+  register: async (name, email, password) => {
+    if (get().isLoading) return { success: false };
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await api.register({ name, email, password });
+
+      if (!response?.success || !response?.data) {
+        throw new Error(response?.message || 'Register gagal');
+      }
+
+      const { access_token, refresh_token, user } = response.data;
+
+      cookies.setTokens(access_token, refresh_token);
+      cookies.setUser(user);
+
+      set({
+        user: normalizeUser(user),
+        accessToken: access_token,
+        refreshToken: refresh_token,
+        isAuthenticated: true,
+
+        isLoading: false,
+        error: null,
+      });
+
+      return { success: true };
+
+    } catch (error) {
+      const message = parseAuthError(error);
+
+      set({
+        isLoading: false,
+        error: message,
+      });
+
+      return { success: false, error: message };
+    }
+  },
+
+  /* ---------------------------------------------
+     REFRESH TOKEN (OPTIONAL TAPI PENTING)
+  --------------------------------------------- */
+  refresh: async () => {
+    try {
+      const refreshToken = get().refreshToken;
+      if (!refreshToken) throw new Error('No refresh token');
+
+      const response = await api.refresh(refreshToken);
+
+      if (!response?.success) throw new Error('Refresh gagal');
+
+      const { access_token } = response.data;
+
+      cookies.setTokens(access_token, refreshToken);
+
+      set({
+        accessToken: access_token,
+        isAuthenticated: true,
+      });
+
+      return true;
+
+    } catch {
+      get().forceLogout();
+      return false;
+    }
+  },
+
+  /* ---------------------------------------------
+     UPDATE USER PARTIAL
+  --------------------------------------------- */
+  updateUser: (updated) =>
     set((state) => ({
-        user: normalizeUser({
-        ...state.user,
-        ...updatedUser,
-        }),
-    })), 
-    // Logout
-    logout: () => {
-        // Clear cookies first
-        cookies.clearAll();
+      user: normalizeUser({
+        ...(state.user || {}),
+        ...updated,
+      }),
+    })),
 
-        // Then clear state
-        set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            error: null,
-            isLoading: false,
-        });
+  /* ---------------------------------------------
+     LOGOUT (SAFE)
+  --------------------------------------------- */
+  logout: () => {
+    cookies.clearAll();
 
-        // Redirect to login page
-        if (typeof window !== 'undefined') {
-            // window.location.href = '/login';
-        }
-    },
+    set({
+      ...initialState,
+      isInitialized: true,
+    });
+  },
 
-    // Clear error
-    clearError: () => set({ error: null }),
+  /* ---------------------------------------------
+     FORCE LOGOUT (TOKEN EXPIRED)
+  --------------------------------------------- */
+  forceLogout: () => {
+    cookies.clearAll();
+
+    set({
+      ...initialState,
+      isInitialized: true,
+      error: 'Sesi telah berakhir, silakan login ulang.',
+    });
+  },
+
+  clearError: () => set({ error: null }),
 }));
+
+/* ========================================================
+   HELPER ERROR PARSER
+======================================================== */
+
+function parseAuthError(error) {
+  // Network mati
+  if (
+    error.code === 'ERR_NETWORK' ||
+    error.message?.includes('Network Error')
+  ) {
+    return 'Server sedang tidak tersedia. Silakan coba lagi nanti.';
+  }
+
+  // Timeout
+  if (error.code === 'ECONNABORTED') {
+    return 'Koneksi ke server timeout.';
+  }
+
+  // Backend message
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+
+  return error.message || 'Terjadi kesalahan tidak dikenal';
+}
 
 export default useAuthStore;

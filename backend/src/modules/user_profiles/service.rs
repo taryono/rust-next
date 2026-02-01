@@ -6,10 +6,10 @@ use super::dto::{CreateUserProfileRequest, UpdateUserProfileRequest, UserProfile
 use super::repository::UserProfileRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
+use chrono::NaiveDate;
 use entity::user_profiles;
 use sea_orm::Set;
 use validator::Validate;
-
 #[derive(Clone)]
 pub struct UserProfileService {
     repository: UserProfileRepository,
@@ -47,7 +47,10 @@ impl UserProfileService {
             foundation_id: Set(request.foundation_id),
             user_id: Set(request.user_id),
             phone: Set(request.phone),
-            dob: Set(request.dob),
+            dob: Set(request
+                .dob
+                .clone()
+                .and_then(|v| NaiveDate::parse_from_str(&v, "%Y-%m-%d").ok())),
             pob: Set(request.pob),
             bio: Set(request.bio),
             avatar: Set(request.avatar),
@@ -160,7 +163,10 @@ impl UserProfileService {
 
         active_model.bio = Set(request.bio.clone());
         active_model.phone = Set(request.phone.clone());
-        active_model.dob = Set(request.dob.clone());
+        active_model.dob = Set(request
+            .dob
+            .clone()
+            .and_then(|v| NaiveDate::parse_from_str(&v, "%Y-%m-%d").ok()));
         active_model.pob = Set(request.pob.clone());
         active_model.avatar = Set(request.avatar.clone());
         active_model.gender = Set(request.gender);

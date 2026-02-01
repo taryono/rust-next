@@ -1,0 +1,10 @@
+curl -v -X POST http://localhost:8080/api/users/create_multipart \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcl9pZCI6MSwiZm91bmRhdGlvbl9pZCI6MSwiZXhwIjoxNzc4NTU5MjI5LCJpYXQiOjE3Njk5MTkyMjksInRva2VuX3R5cGUiOiJhY2Nlc3MiLCJwZXJtaXNzaW9ucyI6W119.8cbkkewciaI1TM0S3956jYC3gHWL0aZZ75kfitqXH18" \
+  -F "name=Muhammad Syahdan Ksatria" \
+  -F "email=syahdan_new@gmail.com" \
+  -F "password=password123" \
+  -F "status=1" \
+  -F "foundation_id=1" \
+  -F "roles[]=61" \
+  -F "roles[]=40" \
+  -F "image=@jobstreet.png" 2>&1

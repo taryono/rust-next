@@ -8,6 +8,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(JwtMiddleware)
             .route("", web::get().to(handler::get_users))
             .route("/create", web::post().to(handler::create))
+            .route("/create_multipart", web::post().to(handler::create_multipart))
             .route("/me", web::get().to(handler::get_current_user))
             .route("/me", web::put().to(handler::update_user))
             .route("/change-password", web::post().to(handler::change_password))

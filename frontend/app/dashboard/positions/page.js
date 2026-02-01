@@ -91,7 +91,7 @@ export default function Positions() {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   };  
 
-  if (loading && roles.length === 0) {
+  if (loading && positions.length === 0) {
       return (
         <AuthLayout>
           <Loader title={"Loading Positions...."} /> 
@@ -196,7 +196,7 @@ export default function Positions() {
                             <tr>
                               <th>Position</th>
                               <th>Email</th>
-                              <th>Roles</th>
+                              <th>positions</th>
                               <th className="w-1"></th>
                             </tr>
                           </thead>

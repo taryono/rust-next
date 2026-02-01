@@ -8,6 +8,8 @@ pub struct CreateUserRequest {
     pub name: String,
     pub email: String,
     pub password: String,
+    // 🔥 INI BIAR STRING "1" TETAP DITERIMA
+    #[serde(deserialize_with = "string_to_i64")]
     pub foundation_id: i64,
     #[serde(default = "default_is_active")]
     pub is_active: i8,
@@ -125,4 +127,23 @@ impl From<entity::users::Model> for UserResponse {
 
 fn default_is_active() -> i8 {
     1 // default active
+}
+
+fn string_to_i64<'de, D>(deserializer: D) -> Result<i64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::Deserialize;
+
+    let value = serde_json::Value::deserialize(deserializer)?;
+
+    match value {
+        serde_json::Value::String(s) => s.parse::<i64>().map_err(serde::de::Error::custom),
+
+        serde_json::Value::Number(n) => n
+            .as_i64()
+            .ok_or_else(|| serde::de::Error::custom("invalid number")),
+
+        _ => Err(serde::de::Error::custom("invalid type")),
+    }
 }

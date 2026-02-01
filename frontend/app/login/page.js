@@ -4,44 +4,105 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
 import Link from 'next/link';
-import { api } from '@/lib/api'; 
+import { api } from '@/lib/api';
+
 export default function LoginPage() {
-    const router = useRouter();
-    const { login, isLoading, error, clearError, isAuthenticated } = useAuthStore();
-    const [serverStatus, setServerStatus] = useState('checking');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            router.push('/dashboard');
-        }
-        const checkServer = async () => {
-            try {
-                await api.isOnline();
-                setServerStatus('online');
-            } catch (error) {
-                setServerStatus('offline');
-            }
-        };
-        setEmail('denmas.yono@gmail.com');
-        setPassword('password');
-        checkServer();
-    }, [isAuthenticated, router]);
+  const {
+    login,
+    isLoading,
+    error,
+    clearError,
+    isAuthenticated,
+    isInitialized,
+  } = useAuthStore();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        clearError();
+  const [serverStatus, setServerStatus] = useState('idle');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-        const result = await login(email, password);
+  /* ---------------------------------------------
+     1. TUNGGU INIT DULU → baru redirect
+  --------------------------------------------- */
+  useEffect(() => {
+    if (!isInitialized) return;
 
-        if (result.success) {
-            router.push('/dashboard');
-        }
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isInitialized, isAuthenticated, router]);
+
+  /* ---------------------------------------------
+     2. Check server TANPA BLOCK UI
+  --------------------------------------------- */
+  useEffect(() => {
+    let mounted = true;
+
+    const checkServer = async () => {
+      setServerStatus('checking');
+
+      try {
+        await Promise.race([
+          api.isOnline(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject('timeout'), 1200)
+          ),
+        ]);
+
+        if (mounted) setServerStatus('online');
+      } catch {
+        if (mounted) setServerStatus('offline');
+      }
     };
 
+    // auto fill dev only
+    if (process.env.NODE_ENV === 'development') {
+      setEmail('denmas.yono@gmail.com');
+      setPassword('password');
+    }
+
+    checkServer();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  /* ---------------------------------------------
+     3. SUBMIT
+  --------------------------------------------- */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    clearError();
+
+    const result = await login(email, password);
+
+    if (result.success) {
+      router.push('/dashboard');
+    }
+  };
+
+  /* ---------------------------------------------
+     4. LOADING GATE PALING PENTING
+  --------------------------------------------- */
+  if (!isInitialized) {
     return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="text-center">
+          <div className="spinner-border mb-2"></div>
+          <div>Preparing application...</div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------------------------------------------
+     RENDER NORMAL
+  --------------------------------------------- */
+  return (
         <>
         <div className="auth-container">
             <div className="auth-card fade-in">

@@ -2,6 +2,7 @@
 // backend/src/modules/users/service.rs
 // User Service - Business Logic Layer
 // ============================================================================
+use super::dto_multipart::CreateUserMultipart;
 use super::{
     dto::{ChangePasswordRequest, CreateUserRequest, UpdateUserRequest, UserResponse},
     repository::UserRepository,
@@ -13,10 +14,14 @@ use crate::{
         password,
     },
 };
+use chrono::NaiveDate;
+use entity::users;
 use entity::{
     role_users::{self, Entity as RoleUsers},
     roles::Entity as Roles,
-    users::{self},
+    sea_orm_active_enums::Gender,
+    user_profiles::{self},
+    users::{self as User, Entity as UserEntity},
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait, QueryFilter, Set,
@@ -47,14 +52,18 @@ impl UserService {
         }
 
         // Check duplicate name in foundation
-        if let Some(_) = self
+        if let Some(user_by_name) = self
             .repository
             .find_by_name(&request.name, request.foundation_id)
             .await?
         {
-            return Err(AppError::conflict(
-                "User with this name already exists in foundation".to_string(),
-            ));
+            let same_email = user_by_name.email == request.email;
+
+            if same_email {
+                return Err(AppError::conflict(
+                    "User with this name already exists in foundation".to_string(),
+                ));
+            }
         }
 
         // Hash password
@@ -350,6 +359,83 @@ impl UserService {
         let roles = user.find_related(Roles).all(self.repository.conn()).await?;
 
         Ok(UserResponse::from_user_with_roles(&user, &roles))
+    }
+    // src/modules/users/service.rs
+    pub async fn create_from_multipart(
+        &self,
+        data: CreateUserMultipart,
+    ) -> Result<UserResponse, AppError> {
+        // Validate email uniqueness
+
+        // ✅ FIX DISINI
+        if let Some(_) = self.repository.find_by_email(&data.email).await? {
+            return Err(AppError::ConflictError(format!(
+                "Email {} already exists",
+                data.email
+            )));
+        }
+
+        // Hash password
+        let hashed_password = password::hash(&data.password)?;
+        // Create user entity
+        let user_model = users::ActiveModel {
+            name: Set(data.name),
+            username: Set(Some(data.email.clone())),
+            email: Set(data.email),
+            password: Set(hashed_password),
+            foundation_id: Set(data.foundation_id),
+            avatar: Set(None),
+            ..Default::default()
+        };
+
+        // Save to database
+        let user = self.repository.create(user_model).await?;
+
+        if !data.roles.is_some() {
+            // Handle roles if provided
+            if let Some(roles) = data.roles {
+                for role_name in roles {
+                    let role_id: i64 = role_name.parse().map_err(|_| {
+                        AppError::BadRequest(format!("Invalid role id: {}", role_name))
+                    })?;
+
+                    self.assign_role(user.id, role_id).await?;
+                }
+            }
+        }
+
+        let user_profile = user_profiles::ActiveModel {
+            foundation_id: Set(user.foundation_id),
+            user_id: Set(user.id),
+            phone: Set(data.phone),
+            dob: Set(data
+                .dob
+                .clone()
+                .and_then(|v| NaiveDate::parse_from_str(&v, "%Y-%m-%d").ok())),
+            pob: Set(data.pob),
+            bio: Set(data.bio),
+            gender: Set(Self::parse_gender(data.gender)),
+            address: Set(data.address),
+            city: Set(data.city),
+            province: Set(data.province),
+            country: Set(data.country),
+            postal_code: Set(data.postal_code),
+            latitude: Set(data.latitude),
+            longitude: Set(data.longitude),
+            timezone: Set(data.timezone),
+            ..Default::default()
+        };
+        user_profile.insert(self.repository.conn()).await?;
+
+        Ok(UserResponse::from(user))
+    }
+
+    fn parse_gender(value: Option<String>) -> Option<Gender> {
+        match value.as_deref() {
+            Some("m") => Some(Gender::M),
+            Some("f") => Some(Gender::F),
+            _ => None,
+        }
     }
 }
 

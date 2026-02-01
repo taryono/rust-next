@@ -310,3 +310,38 @@ error[E0609]: no field `code` on type `entity::role_permissions::Model`
     muncul error ini 
 
     "Database error: Query Error: error returned from database: 1054 (42S22): Unknown column 'roles.id' in 'on clause'"
+
+error[E0308]: mismatched types
+   --> src/modules/users/service.rs:383:28
+    |
+383 |             foundation_id: Some(data.foundation_id),
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^ expected `ActiveValue<i64>`, found `Option<i64>`
+    |
+    = note: expected enum `ActiveValue<i64>`
+    found enum `std::option::Option<i64>`
+
+    error ada pada baris code 
+        foundation_id: Some(data.foundation_id), <--- salah
+    solusinya:
+        foundation_id: Set(data.foundation_id), <--- benar
+
+
+error[E0308]: mismatched types
+   --> src/modules/users/service.rs:380:23
+    |
+380 |             username: data.email,
+    |                       ^^^^^^^^^^ expected `ActiveValue<Option<String>>`, found `String`
+    |
+    = note: expected enum `ActiveValue<std::option::Option<std::string::String>>`
+             found struct `std::string::String`
+    error ada pada baris code 
+        username: data.email, <--- salah
+    solusinya :
+        username: Set(Some(data.email)), <--- benar
+
+
+error[E0605]: non-primitive cast: `std::string::String` as `i64`
+   --> src/modules/users/service.rs:394:31
+    |
+394 |                 let role_id = role_name.clone() as i64;
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^ an `as` expression can only be used to convert between primitive types or to coerce to a specific trait object

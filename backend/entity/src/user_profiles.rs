@@ -13,7 +13,7 @@ pub struct Model {
     #[sea_orm(unique)]
     pub user_id: i64,
     pub phone: Option<String>,
-    pub dob: Option<String>,
+    pub dob: Option<Date>,
     pub pob: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub bio: Option<String>,

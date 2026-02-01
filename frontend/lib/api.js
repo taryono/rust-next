@@ -29,9 +29,25 @@ const processQueue = (error, token = null) => {
 const axiosInstance = axios.create({
     baseURL: API_URL,
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // ← INI yang masalah
     },
 });
+
+// Request interceptor - add token to headers
+// ini dimatiin karena Axios instance ini default set Content-Type: application/json untuk semua request. Jadi waktu createMultipart kirim FormData, axios malah override Content-Type-nya jadi application/json — bukan multipart/form-data. Itu yang bikin Actix nggak nemuin Content-Type yang bener.
+// Fix-nya di request interceptor — kalau data-nya FormData, hapus Content-Type dan biarkan axios yang auto-set: 
+// axiosInstance.interceptors.request.use(
+//     (config) => {
+//         const token = cookies.getAccessToken();
+//         if (token) {
+//             config.headers.Authorization = `Bearer ${token}`;
+//         }
+//         return config;
+//     },
+//     (error) => {
+//         return Promise.reject(error);
+//     }
+// );
 
 // Request interceptor - add token to headers
 axiosInstance.interceptors.request.use(
@@ -40,6 +56,13 @@ axiosInstance.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // Kalau data-nya FormData, hapus Content-Type
+        // dan biarkan axios auto-set multipart/form-data + boundary
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+        }
+
         return config;
     },
     (error) => {
@@ -175,8 +198,9 @@ export const api = {
     changePassword: (data) => axiosInstance.post('/api/users/change-password', data),
     deleteUser: (id) => axiosInstance.delete(`/api/users/${id}`),
     createUser: (data) => axiosInstance.post('/api/users/create', data),
-    updateUser: (data) => axiosInstance.put('/api/users/${id}', data),
- 
+    updateUser: (data) => axiosInstance.put(`/api/users/${id}`, data),
+    createMultipart: (data) => axiosInstance.post('/api/users/create_multipart', data),
+
     // Foundations 
     getFoundations: (params = '') => axiosInstance.get(`/api/foundations${params}`),
     getFoundationById: (id) => axiosInstance.get(`/api/foundation/${id}`),

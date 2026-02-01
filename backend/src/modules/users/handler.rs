@@ -1,6 +1,7 @@
 // ============================================
 // backend/src/modules/users/handler.rs
 // ============================================
+use super::dto_multipart::{CreateUserMultipart, CreateUserMultipartRequest};
 use crate::utils::pagination::PaginationParams;
 use crate::{
     app_state::AppState,
@@ -10,9 +11,14 @@ use crate::{
     },
     utils::{jwt::Claims, response::ApiResponse},
 };
+use actix_multipart::{Field, Multipart};
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, Result};
-use validator::Validate;
 
+use futures_util::{StreamExt, TryStreamExt};
+use std::fs;
+use std::io::Write;
+use uuid::Uuid;
+use validator::Validate;
 #[utoipa::path(
     get,
     path = "/api/users",
@@ -328,4 +334,156 @@ pub async fn force_delete_user(
         Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User permanently deleted"))),
         Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
     }
+}
+// backend/src/modules/users/handler.rs
+#[utoipa::path(
+    post,
+    path = "/api/users/create_multipart",
+    request_body(content_type = "multipart/form-data", content = CreateUserMultipartRequest),
+    responses(
+        (status = 201, description = "User created successfully", body = UserResponse),
+        (status = 400, description = "Bad request"),
+        (status = 409, description = "Conflict - duplicate email"),
+        (status = 500, description = "Internal server error")
+    ),
+    tag = "Users",
+    security(
+        ("bearer_auth" = [])
+    )
+)]
+
+pub async fn create_multipart(
+    app_state: web::Data<AppState>,
+    mut payload: Multipart,
+) -> Result<HttpResponse, AppError> {
+    let mut user_data = CreateUserMultipart::default();
+    let mut roles = Vec::new();
+    let mut image_path: Option<String> = None;
+
+    // Iterasi melalui semua field multipart
+    while let Some(item) = payload.next().await {
+        let mut field = item.map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+        // Get field name dengan cara yang lebih aman
+        let field_name = if let Some(name) = field.name() {
+            name.to_string()
+        } else {
+            // Skip fields tanpa nama
+            continue;
+        };
+
+        println!("Processing field: {}", field_name);
+
+        // Handle file upload
+        if field_name == "image" {
+            // Process image
+            let result = process_image_field(&mut field).await?;
+            if let Some(path) = result {
+                image_path = Some(path);
+            }
+            continue;
+        }
+
+        // Handle text fields
+        let value = process_text_field_simple(&mut field).await?;
+
+        // Map fields
+        match field_name.as_str() {
+            "name" => user_data.name = value,
+            "email" => user_data.email = value,
+            "password" => user_data.password = value,
+            "dob" => user_data.dob = Some(value),
+            "pob" => user_data.pob = Some(value),
+            "phone" => user_data.phone = Some(value),
+            "gender" => user_data.gender = Some(value),
+            "address" => user_data.address = Some(value),
+            "city" => user_data.city = Some(value),
+            "province" => user_data.province = Some(value),
+            "country" => user_data.country = Some(value),
+            "postal_code" => user_data.postal_code = Some(value),
+            "bio" => user_data.bio = Some(value),
+            "status" => user_data.status = value,
+            "latitude" => user_data.latitude = Some(value),
+            "longitude" => user_data.longitude = Some(value),
+            "timezone" => user_data.timezone = Some(value),
+            "foundation_id" => {
+                user_data.foundation_id = value
+                    .parse()
+                    .map_err(|_| AppError::BadRequest("Invalid foundation_id".to_string()))?;
+            }
+            field if field.starts_with("roles") => {
+                roles.push(value);
+            }
+            _ => {
+                // Log unknown fields but don't fail
+                println!("Unknown field: {} = {}", field_name, value);
+            }
+        }
+    }
+
+    // Set image path
+    user_data.image_path = image_path;
+
+    // Set roles
+    if !roles.is_empty() {
+        user_data.roles = Some(roles);
+    }
+
+    // Debug data
+    println!("Parsed user data: {:?}", user_data);
+    match app_state
+        .user_service
+        .create_from_multipart(user_data)
+        .await
+    {
+        Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::success("User Berhasil ditambahkan"))),
+        Err(e) => Ok(HttpResponse::BadRequest().json(ApiResponse::<()>::error(e.to_string()))),
+    }
+}
+
+async fn process_image_field(field: &mut Field) -> Result<Option<String>, AppError> {
+    // Check if field actually contains a file
+    let content_disposition = field.content_disposition();
+
+    if content_disposition.is_none() {
+        return Ok(None);
+    }
+
+    let filename = content_disposition.unwrap().get_filename();
+    if filename.is_none() {
+        return Ok(None);
+    }
+
+    let filename = filename.unwrap();
+    println!("Uploading file: {}", filename);
+
+    // Generate unique filename
+    let new_filename = format!("{}_{}", Uuid::new_v4(), filename);
+
+    let upload_dir = "uploads/users";
+    fs::create_dir_all(upload_dir).map_err(|e| AppError::InternalServerError(e.to_string()))?;
+
+    let filepath = format!("{}/{}", upload_dir, new_filename);
+    let mut file =
+        fs::File::create(&filepath).map_err(|e| AppError::InternalServerError(e.to_string()))?;
+
+    // Write file
+    while let Some(chunk) = field.next().await {
+        let data = chunk.map_err(|e| AppError::BadRequest(e.to_string()))?;
+        file.write_all(&data)
+            .map_err(|e| AppError::InternalServerError(e.to_string()))?;
+    }
+
+    Ok(Some(filepath))
+}
+
+async fn process_text_field_simple(field: &mut Field) -> Result<String, AppError> {
+    let mut bytes = Vec::new();
+
+    while let Some(chunk) = field.next().await {
+        let data = chunk.map_err(|e| AppError::BadRequest(e.to_string()))?;
+        bytes.extend_from_slice(&data);
+    }
+
+    String::from_utf8(bytes).map_err(|e| AppError::BadRequest(e.to_string()))
 }
