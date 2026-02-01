@@ -208,6 +208,13 @@ export const api = {
     updateFoundation: (id, data) => axiosInstance.put(`/api/foundation/${id}`, data),
     deleteFoundation: (id) => axiosInstance.delete(`/api/foundation/${id}`),
 
+    // Departments 
+    getDepartments: (params = '') => axiosInstance.get(`/api/departments${params}`),
+    getDepartmentById: (id) => axiosInstance.get(`/api/department/${id}`),
+    createDepartment: (data) => axiosInstance.post('/api/department', data),
+    updateDepartment: (id, data) => axiosInstance.put(`/api/department/${id}`, data),
+    deleteDepartment: (id) => axiosInstance.delete(`/api/department/${id}`),
+
     // Units 
     getUnits: (params = '') => axiosInstance.get(`/api/units${params}`),
     getUnitById: (id) => axiosInstance.get(`/api/unit/${id}`),

@@ -16,6 +16,7 @@ pub struct Model {
     pub password: String,
     pub is_verified: Option<i8>,
     pub is_active: Option<i32>,
+    pub avatar: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub deleted_at: Option<DateTime>,

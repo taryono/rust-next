@@ -4,9 +4,12 @@
 use super::dto::{CreateDepartmentRequest, DepartmentResponse, UpdateDepartmentRequest};
 use crate::app_state::AppState;
 use crate::errors::AppError;
-use crate::utils::pagination::{PaginatedResponse, PaginationParams};
+use crate::middleware::auth::AuthContext;
+use crate::utils::{
+    pagination::{PaginatedResponse, PaginationParams},
+    response::ApiResponse,
+};
 use actix_web::{web, HttpResponse};
-
 /// Create department
 #[utoipa::path(
     post,
@@ -74,13 +77,20 @@ pub async fn get_all(
     app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
     // Optional: foundation_id dari auth/context
-    // foundation_id: web::ReqData<i64>,
+    auth: web::ReqData<AuthContext>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
-    // Untuk admin (semua foundation)
-    let result = app_state.department_service.get_all(params, None).await?;
-
-    Ok(HttpResponse::Ok().json(result))
+    let foundation_id = auth.foundation_id;
+    match app_state
+        .department_service
+        .get_all(params, Some(foundation_id))
+        .await
+    {
+        Ok(roles) => Ok(HttpResponse::Ok().json(ApiResponse::success(roles))),
+        Err(e) => {
+            Ok(HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string())))
+        }
+    }
 }
 
 /// Update department

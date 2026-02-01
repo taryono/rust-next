@@ -105,8 +105,7 @@ const GenderRadio = ({ register, error }) => (
             className="form-check-input"
             type="radio"
             id={`gender-${option.value}`}
-            value={option.value}
-            defaultValue={'m'}
+            value={option.value} 
             {...register('gender')}
           />
           <label className="form-check-label" htmlFor={`gender-${option.value}`}>
@@ -441,39 +440,41 @@ const prepareFormData = (formData) => {
             </div>
 
             <div className="row">
-              <div className="col-md-6">
-                <FormInput label="Role" error={errors.role}>
-                  <SelectPro
-                    name="role"
-                    label="Role"
-                    control={control}
-                    options={roles}
-                    textKey="name"
-                    valueKey="id"
-                    isLoading={loadingRoles}
-                    isMulti
-                    rules={{
-                      validate: value =>
-                        Array.isArray(value) && value.length > 0
-                          ? true
-                          : "Minimal pilih 1 role"
-                    }}
-                  />
-                </FormInput>
+                <div className="col-md-12">
+                  <FormInput label="Role" error={errors.role}>
+                    <span className="text-danger"> *</span>
+                    <SelectPro
+                      name="role"
+                      label="Role"
+                      control={control}
+                      options={roles}
+                      textKey="name"
+                      valueKey="id"
+                      isLoading={loadingRoles}
+                      isMulti
+                      rules={{
+                        validate: value =>
+                          Array.isArray(value) && value.length > 0
+                            ? true
+                            : "Minimal pilih 1 role"
+                      }}
+                    />
+                  </FormInput>
+                </div>
               </div>
-
-              <div className="col-md-6">
-                <FormInput label="Status" error={errors.status}>
-                  <select
-                    className={`form-select ${errors.status ? 'is-invalid' : ''}`}
-                    {...register('status')}
-                  >
-                    <option value="0">Inactive</option>
-                    <option value="1">Active</option>
-                    <option value="2">Pending</option>
-                  </select>
-                </FormInput>
-              </div>
+              <div className="row"> 
+                <div className="col-md-12">
+                  <FormInput label="Status" error={errors.status}>
+                    <select
+                      className={`form-select ${errors.status ? 'is-invalid' : ''}`}
+                      {...register('status')}
+                    >
+                      <option value="0">Inactive</option>
+                      <option value="1">Active</option>
+                      <option value="2">Pending</option>
+                    </select>
+                  </FormInput>
+                </div>
             </div>
           </FormSection>
 
@@ -615,3 +616,24 @@ const prepareFormData = (formData) => {
     </>
   );
 }
+
+
+// Mode RHF
+/* <SelectPro
+  name="categories"
+  control={control}
+  options={categoryOptions}
+  label="Kategori"
+  isMandatory
+  multiple
+/>
+
+// Mode biasa
+<SelectPro
+  name="tags"
+  options={tagOptions}
+  value={selectedTags}
+  onChange={(name, val) => setSelectedTags(val)}
+  label="Tags"
+  multiple={false}
+/> */

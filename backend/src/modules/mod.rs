@@ -7,6 +7,7 @@ pub mod classes;
 pub mod departments;
 pub mod employees;
 pub mod foundations;
+pub mod menus;
 pub mod permissions;
 pub mod positions;
 pub mod roles;

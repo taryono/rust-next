@@ -53,9 +53,37 @@ const treeMenuConfig = [
     children: [
       {
         key:'unit',
-        label: 'Unit',
-        href: '/dashboard/units',
-        icon: 'ti ti-list'
+        label: 'Unit', 
+        icon: 'ti ti-list',
+        children: [
+            {
+                key:'tk',
+                label: 'TK',
+                href: '/dashboard/units/tk',
+                icon: 'ti ti-list'
+            }, 
+            {
+                key:'sd',
+                label: 'SD',
+                href: '/dashboard/units/sd',
+                icon: 'ti ti-shield',
+                
+            }, 
+            {
+                key:'smp',
+                label: 'SMP',
+                href: '/dashboard/units/smp',
+                icon: 'ti ti-shield',
+                
+            },
+            {
+                key:'sma',
+                label: 'SMA',
+                href: '/dashboard/units/sma',
+                icon: 'ti ti-shield',
+                
+            }
+        ]
       }, 
       {
         key:'bisnis',
@@ -95,22 +123,15 @@ const treeMenuConfig = [
     children: [
       {
         key:'position',
-        label: 'Positions',
+        label: 'Jabatan',
         href: '/dashboard/positions',
         icon: 'ti ti-list'
-      },
-      {
-        key:'employee',
-        key:'dashboard',
-        label: 'Employee',
-        href: '/dashboard/employees',
-        icon: 'ti ti-list'
-      },
+      }, 
       {
         key:'status_employee',
         label: 'Employee',
         icon: 'ti ti-category',
-        children: [
+        children: [ 
           {
             key:'permanent',
             label: 'Permanent Employee',
@@ -127,6 +148,30 @@ const treeMenuConfig = [
             href: '/dashboard/employees/freelance',
           }
         ]
+      }
+    ]
+  },
+  {
+    key:'parent_department',
+    label: 'Departments',
+    icon: 'ti ti-package',
+    roles: ['system_owner'],
+    menuContext: 'system_owner',
+    children: [ 
+      {
+        key:'it',
+        label: 'IT',
+        href: '/dashboard/departments/it',
+      },
+      {
+        key:'legal',
+        label: 'Legal',
+        href: '/dashboard/departments/legal',
+      },
+      {
+        key:'finance',
+        label: 'Keuangan',
+        href: '/dashboard/departments/finance',
       }
     ]
   },

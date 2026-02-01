@@ -297,6 +297,11 @@ body,.page {
   .navbar-vertical.show {
     transform: translateX(0);
   }
+
+  .page-wrapper { 
+      margin-top: 30px;
+  }
+
 }
 
 /* Sidebar */
@@ -322,6 +327,10 @@ body,.page {
 
   .sidebar.show {
     transform: translateX(0);
+  }
+
+  .dropdown-account .dropdown-menu.show {
+    display: block; 
   }
 }
 
@@ -380,8 +389,8 @@ body,.page {
 }
 
 .sidebar .nav-link:hover {
-  background: #f8f9fa;
-  color: #667eea;
+  background: #0878e7;
+  color: #ffffff;
 }
 
 .sidebar .nav-link i {
@@ -428,6 +437,7 @@ main {
 /* Pertahankan dropdown tetap terbuka saat di-click */
 .dropdown-account .dropdown-menu.show {
     display: block;
+    position:absolute;
 }
 
 .dropdown-account:hover .dropdown-menu {
@@ -443,4 +453,4 @@ main {
         opacity: 1;
         transform: translateY(0);
     }
-}
+} 

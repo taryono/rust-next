@@ -103,7 +103,7 @@ export default function TreeMenuItem({
 
             {!sidebarCollapsed && (
               <>
-                <span className="nav-link-title">{menu.label}</span>
+                <span className="nav-link-title text-nowrap text-left">{menu.label}</span>
                 <span className="nav-link-toggle">
                   <i
                     className={clsx(

@@ -11,9 +11,10 @@ pub struct Model {
     #[sea_orm(unique)]
     pub name: String,
     pub foundation_id: Option<i32>,
-    pub unit_type: Option<String>,
+    pub unit_type_id: Option<i32>,
     pub class_level_id: Option<i32>,
-    pub level_id: Option<i32>,
+    pub level_id: i32,
+    pub parent_id: i32,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub deleted_at: Option<DateTime>,

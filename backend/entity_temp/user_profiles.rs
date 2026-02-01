@@ -24,13 +24,13 @@ pub struct Model {
     pub province: Option<String>,
     pub country: Option<String>,
     pub postal_code: Option<String>,
-    #[sea_orm(column_type = "Decimal(Some((10, 8)))", nullable)]
-    pub latitude: Option<Decimal>,
-    #[sea_orm(column_type = "Decimal(Some((11, 8)))", nullable)]
-    pub longitude: Option<Decimal>,
+    pub latitude: Option<String>,
+    pub longitude: Option<String>,
     pub timezone: Option<String>,
+    pub foundation_id: Option<i32>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
+    pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

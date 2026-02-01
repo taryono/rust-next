@@ -9,6 +9,9 @@ import Pagination from '@/components/common/Pagination';
 import useModalStore from '@/store/modalStore';
 import CardHeader from '@/components/ui/CardHeader';
 import Loader from '@/components/ui/Loader';
+import AddButton from '@/components/ui/AddButton';
+import TableFilters from '@/components/ui/TableFilters';
+
 export default function Roles() {
   const { openModal } = useModalStore();
   const {
@@ -20,6 +23,7 @@ export default function Roles() {
     goToPage,
     changePerPage,
     updateFilters,
+    refresh,
   } = usePagination(api.getRoles);
  
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,18 +114,10 @@ export default function Roles() {
                   <h2 className="page-title">Roles Management</h2>
                 </div>
                 
-                <div className="col-auto ms-auto d-print-none">
-                  <div className="btn-list">
-                    <button className="btn btn-primary d-none d-sm-inline-block" onClick={()=> openModal('add-role',null)}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 5l0 14" />
-                        <path d="M5 12l14 0" />
-                      </svg>
-                      Add new role
-                    </button>
-                  </div>
-                </div>
+                <AddButton 
+                  title="Add new role" 
+                  onClick={() => openModal('add-member', null, refresh)}
+                />
               </div>
             </div>
           </div>
@@ -129,39 +125,16 @@ export default function Roles() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
-
+                <CardHeader title={"Role List"} viewMode={viewMode} onViewModeChange={setViewMode} />
+ 
                   {/* Filters */}
-                  <div className="card-body border-bottom py-3">
-                    <div className="d-flex">
-                      <div className="text-secondary">
-                        Show
-                        <div className="mx-2 d-inline-block">
-                          <select 
-                            className="form-select form-select-sm" 
-                            value={pagination.perPage}
-                            onChange={(e) => changePerPage(Number(e.target.value))}
-                          >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                          </select>
-                        </div>
-                        entries
-                      </div>
-                      
-                      <div className="ms-auto">
-                        <input 
-                          type="text" 
-                          className="form-control form-control-sm" 
-                          placeholder="Search roles..."
-                          value={filters.search}
-                          onChange={(e) => updateFilters({ search: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <TableFilters
+                    perPage={pagination.perPage}
+                    onPerPageChange={changePerPage}
+                    searchValue={filters.search || ''}
+                    onSearchChange={(value) => updateFilters({ search: value })}
+                    searchPlaceholder="Search roles..."
+                  />
 
                   {viewMode === 'grid' && (
                       <div className="card-body">

@@ -12,7 +12,8 @@ pub struct Model {
     pub foundation_id: i64,
     pub unit_type: Option<String>,
     pub class_level_id: Option<i32>,
-    pub level_id: Option<i32>,
+    pub level_id: i64,
+    pub parent_id: i64,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     #[sea_orm(column_type = "Text", nullable)]

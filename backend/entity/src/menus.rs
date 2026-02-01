@@ -4,21 +4,22 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "settings")]
+#[sea_orm(table_name = "menus")]
 pub struct Model {
-    #[sea_orm(primary_key, unique)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: i64,
     #[sea_orm(unique)]
-    pub name: String,
-    pub foundation_id: Option<i64>,
-    pub unit_id: Option<i64>,
-    pub academic_year_id: Option<i64>,
-    pub start_date: Option<DateTime>,
-    pub end_date: Option<DateTime>,
-    pub is_active: Option<i32>,
+    pub key: String,
+    pub label: String,
+    pub href: Option<String>,
+    pub icon: Option<String>,
+    pub parent_id: Option<i64>,
+    pub sort_order: i16,
+    pub menu_context: Option<String>,
+    pub is_active: i8,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub deleted_at: Option<DateTime>,
+    pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -7,13 +7,15 @@ import { alertError,alertConfirm,alertSuccess } from '@/lib/alert';
 import { usePagination } from '@/hooks/usePagination';
 import Pagination from '@/components/common/Pagination'; 
 import useModalStore from '@/store/modalStore';
-import Loader from '@/components/ui/Loader';
 import CardHeader from '@/components/ui/CardHeader';
+import Loader from '@/components/ui/Loader';
+import AddButton from '@/components/ui/AddButton';
+import TableFilters from '@/components/ui/TableFilters';
 
-export default function Units() {
+export default function Departments() {
   const { openModal } = useModalStore();
   const {
-    data: units,
+    data: departments,
     loading,
     error,
     pagination,
@@ -21,12 +23,13 @@ export default function Units() {
     goToPage,
     changePerPage,
     updateFilters,
-  } = usePagination(api.getUnits);
+    refresh,
+  } = usePagination(api.getDepartments);
  
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterRole, setFilterRole] = useState('all');
+  const [filterDepartment, setFilterDepartment] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
-  
+  const [isLoading, setIsLoading] = useState(false);
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -34,28 +37,29 @@ export default function Units() {
   const [total, setTotal] = useState(0); 
 
   useEffect(() => {
-    fetchUnits();
-  }, [currentPage, perPage, searchQuery, filterRole]);
+    fetchDepartments();
+  }, [currentPage, perPage, searchQuery, filterDepartment]);
 
-  const fetchUnits = async () => {
-    try {
-       
+  const fetchDepartments = async () => {
+    try { 
+       if (isLoading) return; // Prevent multiple calls  
+      setIsLoading(true);
       const params = new URLSearchParams({
         page: currentPage.toString(),
         per_page: perPage.toString(),
       });
       
       if (searchQuery) params.append('search', searchQuery);
-      if (filterRole !== 'all') params.append('role', filterRole);
+      if (filterDepartment !== 'all') params.append('department', filterDepartment);
       
-      const response = await api.getUnits(`?${params.toString()}`);
+      const response = await api.getDepartments(`?${params.toString()}`);
       const data = response.data || response; 
       setTotal(data.total || 0);
       setTotalPages(data.total_pages || 1);
       
     } catch (err) {
       console.error('Error:', err);
-      alertError('Failed to fetch units');
+      alertError('Failed to fetch departments');
     } finally { 
     }
   };
@@ -70,14 +74,14 @@ export default function Units() {
   }, [searchQuery]);
 
   // Helper functions
-  const getRoleBadgeColor = (role) => {
+  const getDepartmentBadgeColor = (department) => {
     const colors = {
       'Admin': 'bg-red',
       'Editor': 'bg-blue',
       'Viewer': 'bg-green',
       'default': 'bg-gray'
     };
-    return colors[role] || colors.default;
+    return colors[department] || colors.default;
   };
 
   const getAvatarColor = (index) => {
@@ -88,7 +92,7 @@ export default function Units() {
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
-  };  
+  }; 
 
   if (loading && departments.length === 0) {
     return (
@@ -97,7 +101,6 @@ export default function Units() {
       </AuthLayout>
     );
   } 
-  
   return (
     <AuthLayout>
       <div className="page">
@@ -108,21 +111,13 @@ export default function Units() {
               <div className="row g-2 align-items-center">
                 <div className="col">
                   <div className="page-pretitle">Overview</div>
-                  <h2 className="page-title">Units Management</h2>
+                  <h2 className="page-title">Departments Management</h2>
                 </div>
                 
-                <div className="col-auto ms-auto d-print-none">
-                  <div className="btn-list">
-                    <button className="btn btn-primary d-none d-sm-inline-block" onClick={()=> openModal('add-member',null)}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 5l0 14" />
-                        <path d="M5 12l14 0" />
-                      </svg>
-                      Add new unit
-                    </button>
-                  </div>
-                </div>
+                <AddButton 
+                  title="Add new department" 
+                  onClick={() => openModal('add-member', null, refresh)}
+                />
               </div>
             </div>
           </div>
@@ -130,54 +125,31 @@ export default function Units() {
           <div className="page-body">
             <div className="container-xl">
               <div className="card">
-                <CardHeader title={"USer List"} viewMode={viewMode} onViewModeChange={setViewMode} />
-
+                <CardHeader title={"Department List"} viewMode={viewMode} onViewModeChange={setViewMode} />
+ 
                   {/* Filters */}
-                  <div className="card-body border-bottom py-3">
-                    <div className="d-flex">
-                      <div className="text-secondary">
-                        Show
-                        <div className="mx-2 d-inline-block">
-                          <select 
-                            className="form-select form-select-sm" 
-                            value={pagination.perPage}
-                            onChange={(e) => changePerPage(Number(e.target.value))}
-                          >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                          </select>
-                        </div>
-                        entries
-                      </div>
-                      
-                      <div className="ms-auto">
-                        <input 
-                          type="text" 
-                          className="form-control form-control-sm" 
-                          placeholder="Search units..."
-                          value={filters.search}
-                          onChange={(e) => updateFilters({ search: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <TableFilters
+                    perPage={pagination.perPage}
+                    onPerPageChange={changePerPage}
+                    searchValue={filters.search || ''}
+                    onSearchChange={(value) => updateFilters({ search: value })}
+                    searchPlaceholder="Search departments..."
+                  />
 
                   {viewMode === 'grid' && (
                       <div className="card-body">
                         <div className="row row-cards">
-                          {units.map((unit, index) => (
-                            <div key={unit.id} className="col-md-6 col-lg-4">
+                          {departments.map((department, index) => (
+                            <div key={department.id} className="col-md-6 col-lg-4">
                               <div className="card card-sm">
                                 <div className="card-body">
                                   <div className="d-flex align-items-center mb-3">
                                     <span className={`avatar avatar-lg rounded me-3 ${getAvatarColor(index)}`}>
-                                      {getInitials(unit.name)}
+                                      {getInitials(department.code)}
                                     </span>
-                                    <div className="flex-fill">
-                                      <div className="font-weight-medium">{unit.name}</div>
-                                      <div className="text-secondary small">{unit.email}</div>
+                                    <div className="flex-fill"> 
+                                      <div className="font-weight-medium">{department.name}</div>
+                                      <div className="text-secondary small">{department.description}</div>
                                     </div>
                                   </div> 
                                 </div>
@@ -193,26 +165,28 @@ export default function Units() {
                         <table className="table table-vcenter card-table table-striped">
                           <thead>
                             <tr>
-                              <th>Unit</th>
-                              <th>Email</th>
-                              <th>Roles</th>
+                              <th>Code</th>
+                              <th>Name</th>
+                              <th>Description</th> 
                               <th className="w-1"></th>
                             </tr>
                           </thead>
                           <tbody>
-                            {units.map((unit, index) => (
-                              <tr key={unit.id}>
+                            {departments.map((department, index) => (
+                              <tr key={department.id}>
+                                <td className="text-secondary">{department.code}</td>
                                 <td>
                                   <div className="d-flex py-1 align-items-center">
                                     <span className={`avatar avatar-sm me-2 ${getAvatarColor(index)}`}>
-                                      {getInitials(unit.name)}
+                                      {getInitials(department.name)}
                                     </span>
                                     <div className="flex-fill">
-                                      <div className="font-weight-medium">{unit.name}</div>
+                                      <div className="font-weight-medium">{department.name}</div>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="text-secondary">{unit.email}</td> 
+                                <td className="text-secondary">{department.description}</td>
+                                 
                                 <td>
                                   <div className="btn-list flex-nowrap">
                                     <button className="btn btn-sm btn-icon btn-ghost-primary">

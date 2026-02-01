@@ -14,8 +14,7 @@ import Loader from '@/components/ui/Loader';
 import AddButton from '@/components/ui/AddButton';
 import TableFilters from '@/components/ui/TableFilters';
 import { setUnauthorizedHandler } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext'; 
-import ModalManager from '@/components/modals/ModalManager';
+import { useAuth } from '@/contexts/AuthContext';  
 
 
 export default function Users() {
@@ -307,7 +306,7 @@ export default function Users() {
             </div>
           </div>
         </div>
-      </div> 
+      </div>
     </AuthLayout>
   );
 }

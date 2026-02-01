@@ -8,6 +8,7 @@ use crate::modules::classes::ClassService;
 use crate::modules::departments::DepartmentService;
 use crate::modules::employees::EmployeeService;
 use crate::modules::foundations::FoundationService;
+use crate::modules::menus::{MEnuService, MenuService};
 use crate::modules::permissions::PermissionService;
 use crate::modules::positions::PositionService;
 use crate::modules::roles::RoleService;
@@ -32,6 +33,7 @@ pub struct AppState {
     pub department_service: Arc<DepartmentService>,
     pub employee_service: Arc<EmployeeService>,
     pub foundation_service: Arc<FoundationService>,
+    pub menu_service: Arc<MenuService>,
     pub permission_service: Arc<PermissionService>,
     pub position_service: Arc<PositionService>,
     pub role_service: Arc<RoleService>,
@@ -57,6 +59,7 @@ impl AppState {
         department_service: DepartmentService,
         employee_service: EmployeeService,
         foundation_service: FoundationService,
+        menu_service: MenuService,
         permission_service: PermissionService,
         position_service: PositionService,
         role_service: RoleService,
@@ -81,6 +84,7 @@ impl AppState {
             employee_service: Arc::new(employee_service),
             department_service: Arc::new(department_service),
             foundation_service: Arc::new(foundation_service),
+            menu_service: Arc::new(menu_service),
             permission_service: Arc::new(permission_service),
             position_service: Arc::new(position_service),
             role_service: Arc::new(role_service),

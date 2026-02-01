@@ -1,11 +1,12 @@
 // frontend/hooks/usePagination.js
 import { useState, useEffect, useCallback } from 'react';
-
+import { useAuth } from '@/contexts/AuthContext';  
 export function usePagination(fetchFunction, initialParams = {}) {
+   const { user } = useAuth();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  console.log(user)
   const [pagination, setPagination] = useState({
     page: 1,
     perPage: 10,
@@ -19,6 +20,7 @@ export function usePagination(fetchFunction, initialParams = {}) {
     search: '',
     sortBy: '',
     sortOrder: 'desc',
+    foundation_id:'',
     ...initialParams,
   });
 
@@ -35,11 +37,12 @@ export function usePagination(fetchFunction, initialParams = {}) {
       if (filters.search) params.append('search', filters.search);
       if (filters.sortBy) params.append('sort_by', filters.sortBy);
       if (filters.sortOrder) params.append('sort_order', filters.sortOrder);
-      
+      if(user) params.append('foundation_id', user.foundation_id);
       // Add custom filters
       Object.entries(filters).forEach(([key, value]) => {
         if (value && !['search', 'sortBy', 'sortOrder'].includes(key)) {
           params.append(key, value);
+          
         }
       });
       console.log(params.toString())
