@@ -175,37 +175,6 @@ impl PermissionService {
         Ok(permissions)
     }
 
-    /// Get permissions via roles
-    // async fn get_permissions_from_roles(
-    //     db: &DatabaseConnection,
-    //     user_id: i64,
-    // ) -> Result<Vec<String>, AppError> {
-    //     let rows = permissions::Entity::find()
-    //         // 1. Join ke role_permissions
-    //         .join_rev(
-    //             sea_orm::JoinType::InnerJoin,
-    //             role_permissions::Relation::Permissions.def(),
-    //         )
-    //         // 2. Join ke role_users secara manual pada kolom role_id
-    //         // Ini menghindari error "Unknown column roles.id" karena kita tidak memanggil tabel roles
-    //         .join(
-    //             sea_orm::JoinType::InnerJoin,
-    //             role_permissions::Entity::belongs_to(role_users::Entity)
-    //                 .from(role_permissions::Column::RoleId)
-    //                 .to(role_users::Column::RoleId)
-    //                 .into(),
-    //         )
-    //         .filter(role_users::Column::UserId.eq(user_id))
-    //         .all(db)
-    //         .await?
-    //         .build(DbBackend::MySql);
-
-    //     // Cetak query ke terminal (mirip dd() tapi hanya untuk SQL string)
-    //     println!("DEBUG SQL: {}", rows.to_string());
-
-    //     Ok(rows.into_iter().map(|p| p.code).collect())
-    // }
-
     async fn get_permissions_from_roles(
         db: &DatabaseConnection,
         user_id: i64,

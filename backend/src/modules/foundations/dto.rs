@@ -27,7 +27,7 @@ pub struct UpdateFoundationRequest {
 pub struct FoundationListResponse {
     pub data: Vec<FoundationResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

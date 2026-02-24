@@ -30,7 +30,7 @@ pub struct UpdateClassLevelRequest {
 pub struct ClassLevelListResponse {
     pub data: Vec<ClassLevelResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

@@ -199,7 +199,7 @@ export const api = {
     deleteUser: (id) => axiosInstance.delete(`/api/users/${id}`),
     createUser: (data) => axiosInstance.post('/api/users/create', data),
     updateUser: (data) => axiosInstance.put(`/api/users/${id}`, data),
-    createMultipart: (data) => axiosInstance.post('/api/users/create_multipart', data),
+    createMultipart: (data) => axiosInstance.post('/api/users/multipart', data),
 
     // Foundations 
     getFoundations: (params = '') => axiosInstance.get(`/api/foundations${params}`),

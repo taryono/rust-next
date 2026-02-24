@@ -41,7 +41,7 @@ pub struct UpdateAttendanceRequest {
 pub struct AttendanceListResponse {
     pub data: Vec<AttendanceResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

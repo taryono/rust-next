@@ -8,7 +8,7 @@ use crate::modules::classes::ClassService;
 use crate::modules::departments::DepartmentService;
 use crate::modules::employees::EmployeeService;
 use crate::modules::foundations::FoundationService;
-use crate::modules::menus::{MEnuService, MenuService};
+use crate::modules::menus::MenuService;
 use crate::modules::permissions::PermissionService;
 use crate::modules::positions::PositionService;
 use crate::modules::roles::RoleService;
@@ -23,11 +23,12 @@ use crate::modules::units::UnitService;
 use crate::modules::user_profiles::UserProfileService;
 use crate::modules::users::UserService;
 use std::sync::Arc;
+#[derive(Clone)]
 pub struct AppState {
     pub academic_year_service: Arc<AcademicYearService>,
     pub applicant_service: Arc<ApplicantService>,
     pub attendance_service: Arc<AttendanceService>,
-    pub auth_service: Arc<AuthService>, // ← Tambahkan ini
+    pub auth_service: Arc<AuthService>,
     pub class_level_service: Arc<ClassLevelService>,
     pub class_service: Arc<ClassService>,
     pub department_service: Arc<DepartmentService>,
@@ -81,8 +82,8 @@ impl AppState {
             auth_service: Arc::new(auth_service),
             class_level_service: Arc::new(class_level_service),
             class_service: Arc::new(class_service),
-            employee_service: Arc::new(employee_service),
             department_service: Arc::new(department_service),
+            employee_service: Arc::new(employee_service),
             foundation_service: Arc::new(foundation_service),
             menu_service: Arc::new(menu_service),
             permission_service: Arc::new(permission_service),

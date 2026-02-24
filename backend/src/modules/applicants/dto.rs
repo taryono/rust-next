@@ -51,7 +51,7 @@ pub struct UpdateApplicantRequest {
 pub struct ApplicantListResponse {
     pub data: Vec<ApplicantResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

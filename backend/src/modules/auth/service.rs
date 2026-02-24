@@ -36,9 +36,8 @@ impl AuthService {
         Ok(UserResponse::from_entity(&user))
     }
 
-    // ✅ FIX: Login method yang benar
     pub async fn login(&self, body: LoginRequest) -> Result<AuthResponse, AppError> {
-        // 1. Fetch user dengan roles sekalian (hanya 1x query)
+        // 1. Fetch user dengan roles (1x query)
         let (user, roles) = self
             .repository
             .find_by_email_with_roles(&body.email)
@@ -46,8 +45,7 @@ impl AuthService {
             .ok_or(AppError::Unauthorized("Invalid credentials".into()))?;
 
         // 2. Verify password
-        let valid = password::verify(&body.password, &user.password)?;
-        if !valid {
+        if !password::verify(&body.password, &user.password)? {
             return Err(AppError::Unauthorized("Invalid credentials".into()));
         }
 
@@ -61,22 +59,12 @@ impl AuthService {
         .into_iter()
         .collect::<Vec<_>>();
 
-        // 4. Create JWT claims dengan permissions
-        let access_claims = jwt::Claims::new(
-            user.id,
-            user.foundation_id,
-            "access".into(),
-            permissions.clone(),
-        );
+        let array_roles: Vec<String> = roles.iter().map(|r| r.code.clone()).collect();
 
-        let refresh_claims =
-            jwt::Claims::new(user.id, user.foundation_id, "refresh".into(), permissions);
+        // 4. Buat tokens
+        let (access_token, refresh_token) =
+            self.generate_token_pair(user.id, user.foundation_id, &array_roles, &permissions)?;
 
-        // 5. Generate tokens (TANPA .await karena bukan async function)
-        let access_token = jwt::create_token(&access_claims)?;
-        let refresh_token = jwt::create_refresh_token(&refresh_claims)?;
-
-        // 6. Return response
         Ok(AuthResponse {
             user: UserResponse::from_user_with_roles(&user, &roles),
             access_token,
@@ -87,34 +75,87 @@ impl AuthService {
     }
 
     pub async fn refresh_token(&self, token: String) -> Result<RefreshTokenResponse, AppError> {
-        // Verify refresh token
-        let claims = jwt::verify_refresh_token(&token)?;
+        // 1. Verify refresh token
+        let claims = jwt::verify_refresh_token(&token)
+            .map_err(|_| AppError::Unauthorized("Invalid or expired refresh token".into()))?;
 
-        // Create new claims dengan permissions yang sama
-        let new_access_claims = jwt::Claims::new(
-            claims.user_id,
-            claims.foundation_id.clone(),
+        // 2. Pastikan ini memang refresh token
+        if claims.token_type != "refresh" {
+            return Err(AppError::Unauthorized("Invalid token type".into()));
+        }
+
+        // 3. Cek user masih ada di DB
+        let (user, roles) = self
+            .repository
+            .find_by_id_with_roles(claims.user_id)
+            .await?
+            .ok_or(AppError::Unauthorized("User not found".into()))?;
+
+        // 4. Re-resolve permissions (bisa berubah sejak token dibuat)
+        let permissions = PermissionService::resolve_user_permissions(
+            self.repository.conn(),
+            user.id,
+            user.foundation_id,
+        )
+        .await?
+        .into_iter()
+        .collect::<Vec<_>>();
+
+        let array_roles: Vec<String> = roles.iter().map(|r| r.code.clone()).collect();
+
+        // 5. Generate access token baru saja (refresh token tetap yang lama)
+        let access_claims = jwt::Claims::new(
+            user.id,
+            user.foundation_id,
             "access".into(),
-            claims.permissions.clone(),
+            array_roles.clone(),
+            permissions,
         );
-
         let new_refresh_claims = jwt::Claims::new(
             claims.user_id,
             claims.foundation_id,
             "refresh".into(),
+            array_roles.clone(),
             claims.permissions,
         );
 
-        // Generate new tokens (TANPA .await)
-        let access_token = jwt::create_token(&new_access_claims)?;
+        let access_token = jwt::create_token(&access_claims)?;
         let refresh_token = jwt::create_refresh_token(&new_refresh_claims)?;
-
         Ok(RefreshTokenResponse {
             access_token,
             refresh_token,
             token_type: "Bearer".into(),
             expires_in: self.get_token_expiration(),
         })
+    }
+
+    // ← Helper agar tidak duplikasi logic token generation
+    fn generate_token_pair(
+        &self,
+        user_id: i64,
+        foundation_id: i64,
+        roles: &[String],
+        permissions: &[String],
+    ) -> Result<(String, String), AppError> {
+        let access_claims = jwt::Claims::new(
+            user_id,
+            foundation_id,
+            "access".into(),
+            roles.to_vec(),
+            permissions.to_vec(),
+        );
+        let refresh_claims = jwt::Claims::new(
+            user_id,
+            foundation_id,
+            "refresh".into(),
+            roles.to_vec(),
+            permissions.to_vec(),
+        );
+
+        let access_token = jwt::create_token(&access_claims)?;
+        let refresh_token = jwt::create_refresh_token(&refresh_claims)?;
+
+        Ok((access_token, refresh_token))
     }
 
     fn get_token_expiration(&self) -> i64 {

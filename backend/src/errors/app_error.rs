@@ -1,6 +1,7 @@
 // backend/src/errors/app_error.rs
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use bcrypt::BcryptError;
+use serde::ser::StdError;
 use serde::Serialize;
 use std::fmt;
 #[derive(Debug, Serialize)]
@@ -279,6 +280,12 @@ impl From<BcryptError> for AppError {
     }
 }
 
+impl From<Box<dyn StdError>> for AppError {
+    fn from(err: Box<dyn StdError>) -> Self {
+        AppError::InternalServerError(err.to_string())
+    }
+}
+
 // Helper methods untuk create errors dengan builder pattern
 impl AppError {
     #[warn(unused_imports)]
@@ -293,7 +300,7 @@ impl AppError {
     pub fn unauthorized<T: Into<String>>(msg: T) -> Self {
         AppError::Unauthorized(msg.into())
     }
-    #[warn(unused_imports)]
+    #[allow(dead_code)] // ✅ Taruh per method yang belum dipakai
     pub fn forbidden<T: Into<String>>(msg: T) -> Self {
         AppError::Forbidden(msg.into())
     }
@@ -305,11 +312,11 @@ impl AppError {
     pub fn conflict<T: Into<String>>(msg: T) -> Self {
         AppError::ConflictError(msg.into())
     }
-    #[warn(unused_imports)]
+    #[allow(dead_code)] // ✅ Taruh per method yang belum dipakai
     pub fn unprocessable_entity<T: Into<String>>(msg: T) -> Self {
         AppError::UnprocessableEntity(msg.into())
     }
-    #[warn(unused_imports)]
+    #[allow(dead_code)] // ✅ Taruh per method yang belum dipakai
     pub fn internal<T: Into<String>>(msg: T) -> Self {
         AppError::InternalServerError(msg.into())
     }

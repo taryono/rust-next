@@ -12,6 +12,7 @@ pub struct Claims {
     pub exp: usize,
     pub iat: usize,
     pub token_type: String,
+    pub roles: Vec<String>,
     pub permissions: Vec<String>,
 }
 
@@ -20,6 +21,7 @@ impl Claims {
         user_id: i64,
         foundation_id: i64,
         token_type: String,
+        roles: Vec<String>,
         permissions: Vec<String>,
     ) -> Self {
         let expiration = if token_type == "refresh" {
@@ -44,6 +46,7 @@ impl Claims {
             iat: iat.timestamp() as usize,
             exp: exp.timestamp() as usize,
             token_type,
+            roles,
             permissions,
         }
     }

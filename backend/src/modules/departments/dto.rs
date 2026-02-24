@@ -29,7 +29,7 @@ pub struct UpdateDepartmentRequest {
 pub struct DepartmentListResponse {
     pub data: Vec<DepartmentResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

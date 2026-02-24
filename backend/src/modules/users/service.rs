@@ -7,6 +7,8 @@ use super::{
     dto::{ChangePasswordRequest, CreateUserRequest, UpdateUserRequest, UserResponse},
     repository::UserRepository,
 };
+use crate::context::service_context::ServiceContext; // ✅ IMPORT INI
+use crate::traits::AuditFields; // ✅ IMPORT INI
 use crate::{
     errors::AppError,
     utils::{
@@ -20,8 +22,7 @@ use entity::{
     role_users::{self, Entity as RoleUsers},
     roles::Entity as Roles,
     sea_orm_active_enums::Gender,
-    user_profiles::{self},
-    users::{self as User, Entity as UserEntity},
+    user_profiles::{self}, // ✅ IMPORT INI
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait, QueryFilter, Set,
@@ -40,7 +41,17 @@ impl UserService {
     }
 
     /// Create new user with validation
-    pub async fn create(&self, request: CreateUserRequest) -> Result<UserResponse, AppError> {
+    pub async fn create(
+        &self,
+        ctx: &ServiceContext,
+        request: CreateUserRequest,
+    ) -> Result<UserResponse, AppError> {
+        // Validasi permission
+        if !ctx.is_admin() {
+            return Err(AppError::Forbidden(
+                "Only admin can create users".to_string(),
+            ));
+        }
         // Validate request
         request
             .validate()
@@ -71,18 +82,16 @@ impl UserService {
 
         // Build entity
         let active_model = users::ActiveModel {
-            foundation_id: Set(request.foundation_id),
             name: Set(request.name),
             email: Set(request.email),
             password: Set(hashed_password),
             is_active: Set(Some(1)),
             is_verified: Set(Some(0)),
-            created_at: Set(chrono::Utc::now()),
-            updated_at: Set(chrono::Utc::now()),
             ..Default::default()
-        };
-
-        // Delegate to repository
+        }
+        .set_foundation(ctx) // ✅ Auto set foundation_id
+        .set_created_by(ctx); // ✅ Auto set created_by + created_at
+                              // Delegate to repository
         let created = self.repository.create(active_model).await?;
 
         Ok(UserResponse::from(created))
@@ -102,9 +111,10 @@ impl UserService {
     /// Get all users with pagination and filters
     pub async fn get_all(
         &self,
+        ctx: &ServiceContext,
         params: PaginationParams,
-        foundation_id: Option<i64>,
     ) -> Result<PaginatedResponse<UserResponse>, AppError> {
+        let foundation_id = ctx.foundation_id;
         // Validate pagination params
         params
             .validate()

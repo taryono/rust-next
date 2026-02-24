@@ -1,7 +1,6 @@
 // backend/src/modules/users/dto_multipart.rs
-use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-use utoipa::{IntoParams, ToSchema};
+use utoipa::ToSchema;
 use validator::Validate;
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate, Default)]
 pub struct CreateUserMultipart {

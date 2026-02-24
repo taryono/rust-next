@@ -54,7 +54,7 @@ pub struct RoleResponse {
 pub struct UserListResponse {
     pub users: Vec<UserResponse>,
     pub total: usize,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }
@@ -75,6 +75,16 @@ pub struct ChangePasswordRequest {
     #[validate(length(min = 6))]
     pub new_password: String,
 }
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct AssignRoleRequest {
+    pub role_id: i64,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct SyncRolesRequest {
+    pub role_ids: Vec<i64>,
+}
+
 impl UserResponse {
     pub fn from_user_with_roles(
         user: &entity::users::Model,

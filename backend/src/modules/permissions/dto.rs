@@ -33,7 +33,7 @@ pub struct UpdatePermissionRequest {
 pub struct PermissionListResponse {
     pub data: Vec<PermissionResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

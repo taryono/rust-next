@@ -1,11 +1,13 @@
 // backend/src/main.rs
 mod app_state;
 mod config;
+mod context;
 mod docs;
 mod errors;
 mod middleware;
 mod modules;
 mod routes;
+mod traits;
 mod utils;
 use actix_cors::Cors;
 use actix_governor::{Governor, GovernorConfigBuilder};
@@ -40,20 +42,10 @@ async fn main() -> std::io::Result<()> {
     let enable_swagger = env::var("ENABLE_SWAGGER").unwrap_or("true".to_string()) == "true";
 
     let swagger_auth = env::var("SWAGGER_AUTH").unwrap_or("false".to_string()) == "true";
-    // init service here
+
+    let enable_cors = env::var("ENABLE_CORS").unwrap_or("true".to_string()) == "true";
 
     log::info!("Starting server at http://{}", server_addr);
-    // let auth_service = modules::auth::init_service(db.clone());
-    // let academic_year_service = modules::academic_years::init_service(db.clone());
-    // let permission_service = modules::permissions::init_service(db.clone());
-    // let position_service = modules::positions::init_service(db.clone());
-    // // ✨ Create AppState
-    // let app_state = web::Data::new(AppState::new(
-    //     academic_year_service,
-    //     auth_service,
-    //     permission_service,
-    //     position_service,
-    // ));
     let app_state = states::states::init_app(db.clone()).unwrap();
     if enable_swagger {
         if swagger_auth {
@@ -69,6 +61,14 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
+    if enable_cors {
+        log::info!("CORS enabled");
+    }
+
+    if swagger_auth {
+        log::info!("Swagger authentication enabled");
+    }
+
     let governor_conf = GovernorConfigBuilder::default()
         .per_second(10)
         .burst_size(20)
@@ -76,6 +76,8 @@ async fn main() -> std::io::Result<()> {
         .unwrap();
 
     HttpServer::new(move || {
+        // ✨ Gunakan macro yang auto-generated dari build.rs
+
         let cors = Cors::default()
             .allowed_origin("http://localhost:3000") // Frontend URL
             .allowed_origin("http://172.18.228.123:3000") // Frontend URL

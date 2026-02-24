@@ -48,7 +48,7 @@ pub struct UpdateSettingRequest {
 pub struct SettingListResponse {
     pub data: Vec<SettingResponse>,
     pub total: i64,
-    pub page: i64,
+    pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }

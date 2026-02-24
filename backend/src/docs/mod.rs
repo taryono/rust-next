@@ -55,6 +55,7 @@
             crate::modules::departments::docs::DepartmentsApiDoc,
             crate::modules::employees::docs::EmployeesApiDoc,
             crate::modules::foundations::docs::FoundationsApiDoc,
+            crate::modules::menus::docs::MenusApiDoc,
             crate::modules::permissions::docs::PermissionsApiDoc,
             crate::modules::positions::docs::PositionsApiDoc,
             crate::modules::roles::docs::RolesApiDoc,

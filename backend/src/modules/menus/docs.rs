@@ -14,6 +14,7 @@ use utoipa::OpenApi;
         handler::create,
         handler::update,
         handler::delete,
+        handler::get_my_menus,
     ),
     components(
         schemas(

@@ -2,16 +2,15 @@
 // ============================================================================
 // handler.rs - HTTP Handlers
 // ============================================================================
-use super::dto::{CreateEmployeeRequest, EmployeeFilters, EmployeeResponse, UpdateEmployeeRequest};
+use super::dto::{CreateEmployeeRequest, EmployeeResponse, UpdateEmployeeRequest};
 use crate::app_state::AppState;
+use crate::context::ServiceContext; // ← import ServiceContext
 use crate::errors::AppError;
-use crate::middleware::auth::AuthContext; // ✅ Import AuthContext
 use crate::utils::{
     pagination::{PaginatedResponse, PaginationParams},
     response::ApiResponse,
 };
 use actix_web::{web, HttpResponse};
-use std::collections::HashMap;
 /// Create employee
 #[utoipa::path(
     post,
@@ -78,12 +77,10 @@ pub async fn get_by_id(
 pub async fn get_all(
     app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
-    filters: web::Query<EmployeeFilters>,
-    // Optional: foundation_id dari auth/context
-    auth: web::ReqData<AuthContext>, // ✅ Extract AuthContext, // ✅ Extract full Claims
+    ctx: ServiceContext,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
-    let foundation_id = auth.foundation_id;
+    let foundation_id = ctx.foundation_id;
     // Untuk admin (semua foundation)
     print!("params: {:#?}\n", params);
     print!("Foundation ID: {}\n", foundation_id);
@@ -146,26 +143,4 @@ pub async fn delete(
 ) -> Result<HttpResponse, AppError> {
     app_state.employee_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
-}
-
-pub async fn get_all_with_dynamic_params(
-    app_state: web::Data<AppState>,
-    query: web::Query<HashMap<String, String>>, // <-- ini jika parameter dinamis tanpa membuat struct untuk parameter
-) -> Result<HttpResponse, AppError> {
-    let page = query
-        .get("page")
-        .and_then(|p| p.parse::<u64>().ok())
-        .unwrap_or(1);
-
-    let per_page = query
-        .get("per_page")
-        .and_then(|p| p.parse::<u64>().ok())
-        .unwrap_or(10);
-
-    let status = query.get("status").cloned();
-    let sort_order = query.get("sort_order").cloned();
-
-    // ... rest of your logic
-
-    Ok(HttpResponse::Ok().json(()))
 }

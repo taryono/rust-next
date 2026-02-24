@@ -11,6 +11,7 @@ pub struct Model {
     #[sea_orm(unique)]
     pub key: String,
     pub label: String,
+    pub foundation_id: i64,
     pub href: Option<String>,
     pub icon: Option<String>,
     pub parent_id: Option<i64>,

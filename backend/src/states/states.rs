@@ -1,4 +1,4 @@
-// src/app_state.rs
+// src/states/state.rs
 use crate::config::database::Database;
 use crate::AppState;
 use actix_web::web;

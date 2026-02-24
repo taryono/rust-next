@@ -26,10 +26,7 @@ impl MenuRepository {
     }
 
     /// Create new menu
-    pub async fn create(
-        &self,
-        active_model: menus::ActiveModel,
-    ) -> Result<menus::Model, AppError> {
+    pub async fn create(&self, active_model: menus::ActiveModel) -> Result<menus::Model, AppError> {
         active_model
             .insert(self.conn())
             .await
@@ -48,18 +45,16 @@ impl MenuRepository {
     pub async fn find_all(
         &self,
         params: &PaginationParams,
-        foundation_id: Option<i64>,
+        foundation_id: i64,
     ) -> Result<(Vec<menus::Model>, u64), AppError> {
         let mut query = Menu::find();
 
         // Filter by foundation_id if provided
-        if let Some(fid) = foundation_id {
-            query = query.filter(menus::Column::FoundationId.eq(fid));
-        }
+        query = query.filter(menus::Column::FoundationId.eq(foundation_id));
 
         // Apply search filter if provided
         if let Some(ref search) = params.search {
-            query = query.filter(Condition::any().add(menus::Column::Name.contains(search)));
+            query = query.filter(Condition::any().add(menus::Column::Label.contains(search)));
         }
 
         // Apply sorting
@@ -67,11 +62,11 @@ impl MenuRepository {
             let is_desc = params.sort_order.as_deref() == Some("desc");
 
             query = match sort_by.as_str() {
-                "name" => {
+                "label" => {
                     if is_desc {
-                        query.order_by_desc(menus::Column::Name)
+                        query.order_by_desc(menus::Column::Label)
                     } else {
-                        query.order_by_asc(menus::Column::Name)
+                        query.order_by_asc(menus::Column::Label)
                     }
                 }
                 "created_at" => {
@@ -104,15 +99,15 @@ impl MenuRepository {
         Ok((items, total.try_into().unwrap_or(0)))
     }
 
-    /// Find by name within a foundation
+    /// Find by label within a foundation
     pub async fn find_by_name(
         &self,
-        name: &str,
+        label: &str,
         foundation_id: i64,
     ) -> Result<Option<menus::Model>, AppError> {
         Menu::find()
             .filter(menus::Column::FoundationId.eq(foundation_id))
-            .filter(menus::Column::Name.eq(name))
+            .filter(menus::Column::Label.eq(label))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))

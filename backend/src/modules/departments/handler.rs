@@ -3,8 +3,8 @@
 // ============================================================================
 use super::dto::{CreateDepartmentRequest, DepartmentResponse, UpdateDepartmentRequest};
 use crate::app_state::AppState;
+use crate::context::ServiceContext; // ← import ServiceContext
 use crate::errors::AppError;
-use crate::middleware::auth::AuthContext;
 use crate::utils::{
     pagination::{PaginatedResponse, PaginationParams},
     response::ApiResponse,
@@ -76,11 +76,10 @@ pub async fn get_by_id(
 pub async fn get_all(
     app_state: web::Data<AppState>,
     query: web::Query<PaginationParams>,
-    // Optional: foundation_id dari auth/context
-    auth: web::ReqData<AuthContext>,
+    ctx: ServiceContext,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
-    let foundation_id = auth.foundation_id;
+    let foundation_id = ctx.foundation_id;
     match app_state
         .department_service
         .get_all(params, Some(foundation_id))
