@@ -134,7 +134,7 @@ export default function TreeMenuItem({
       ) : (
         <Link
           href={menu.href}
-          className="nav-link"
+          className="nav-link text-left"
           onClick={handleLinkClick}
           style={{ paddingLeft }}
           role="treeitem"
@@ -144,7 +144,9 @@ export default function TreeMenuItem({
           </span>
 
           {!sidebarCollapsed && (
-            <span className="nav-link-title">{menu.label}</span>
+            <span className="nav-link-title text-nowrap">
+              {menu.label}
+          </span>
           )}
         </Link>
       )}

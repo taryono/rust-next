@@ -22,6 +22,7 @@ pub mod employees;
 pub mod extracurricular_activities;
 pub mod extracurricular_enrollments;
 pub mod facilities;
+pub mod foundation_types;
 pub mod foundations;
 pub mod grades;
 pub mod homeroom_teachers;

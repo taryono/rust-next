@@ -25,6 +25,14 @@ const modalRegistry = {
         ssr: false,
         loading: () => <div className="p-4 text-center">Loading...</div>,
     }),
+    'add-foundation': dynamic(() => import('./AddFoundationModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
+    'add-foundation-type': dynamic(() => import('./AddFoundationTypeModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
 };
 
 export default modalRegistry;

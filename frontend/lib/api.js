@@ -1,6 +1,6 @@
 // frontend/lib/api.js
 import axios from 'axios';
-import { cookies } from './cookies';
+import { cookies } from './cookies'; 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -189,7 +189,7 @@ export const api = {
     login: (data) => axiosInstance.post('/api/auth/login', data),
     register: (data) => axiosInstance.post('/api/auth/register', data),
     refresh: (refreshToken) => axiosInstance.post('/api/auth/refresh', { refresh_token: refreshToken }),
-
+    getMenu: () => axiosInstance.get('/api/menus'), 
     // Users
     getUsers: (params = '') => axiosInstance.get(`/api/users${params}`),
     getUserById: (id) => axiosInstance.get(`/api/users/${id}`),
@@ -203,10 +203,18 @@ export const api = {
 
     // Foundations 
     getFoundations: (params = '') => axiosInstance.get(`/api/foundations${params}`),
-    getFoundationById: (id) => axiosInstance.get(`/api/foundation/${id}`),
-    createFoundation: (data) => axiosInstance.post('/api/foundation', data),
-    updateFoundation: (id, data) => axiosInstance.put(`/api/foundation/${id}`, data),
-    deleteFoundation: (id) => axiosInstance.delete(`/api/foundation/${id}`),
+    getFoundationById: (id) => axiosInstance.get(`/api/foundations/${id}`),
+    createFoundation: (data) => axiosInstance.post('/api/foundations', data),
+    updateFoundation: (id, data) => axiosInstance.put(`/api/foundations/${id}`, data),
+    deleteFoundation: (id) => axiosInstance.delete(`/api/foundations/${id}`),
+
+    // FoundationTypes 
+    getFoundationTypes: (params = '') => axiosInstance.get(`/api/foundation_types${params}`),
+    getFoundationTypeById: (id) => axiosInstance.get(`/api/foundation_types/${id}`),
+    createFoundationType: (data) => axiosInstance.post('/api/foundation_types', data),
+    updateFoundationType: (id, data) => axiosInstance.put(`/api/foundation_types/${id}`, data),
+    deleteFoundationType: (id) => axiosInstance.delete(`/api/foundation_types/${id}`),
+
 
     // Departments 
     getDepartments: (params = '') => axiosInstance.get(`/api/departments${params}`),

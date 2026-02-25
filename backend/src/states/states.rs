@@ -12,6 +12,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
     let department_service = crate::modules::departments::init_service(db.clone());
     let employee_service = crate::modules::employees::init_service(db.clone());
     let foundation_service = crate::modules::foundations::init_service(db.clone());
+    let foundation_type_service = crate::modules::foundation_types::init_service(db.clone());
     let menu_service = crate::modules::menus::init_service(db.clone());
     let permission_service = crate::modules::permissions::init_service(db.clone());
     let position_service = crate::modules::positions::init_service(db.clone());
@@ -39,6 +40,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
         department_service,
         employee_service,
         foundation_service,
+        foundation_type_service,
         menu_service,
         permission_service,
         position_service,

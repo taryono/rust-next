@@ -6,6 +6,7 @@ pub mod class_levels;
 pub mod classes;
 pub mod departments;
 pub mod employees;
+pub mod foundation_types;
 pub mod foundations;
 pub mod menus;
 pub mod permissions;

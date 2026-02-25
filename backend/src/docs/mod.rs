@@ -54,6 +54,7 @@
             crate::modules::classes::docs::ClassesApiDoc,
             crate::modules::departments::docs::DepartmentsApiDoc,
             crate::modules::employees::docs::EmployeesApiDoc,
+            crate::modules::foundation_types::docs::FoundationTypesApiDoc,
             crate::modules::foundations::docs::FoundationsApiDoc,
             crate::modules::menus::docs::MenusApiDoc,
             crate::modules::permissions::docs::PermissionsApiDoc,

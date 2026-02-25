@@ -1,188 +1,90 @@
 // frontend/config/menu.js
 const treeMenuConfig = [
   {
-    key:'dashboard',
+    key: 'dashboard',
     label: 'Dashboard',
     href: '/dashboard',
     icon: 'ti ti-dashboard',
     menuContext: 'global',
   },
+
+  // Manajemen semua yayasan (hanya system_owner)
   {
-  key:'parent_user',
-  label: 'Authentications',
-  icon: 'ti ti-users',
-  roles: ['system_owner', 'admin'],
-  menuContext: 'system_owner',
-  children: [
-    { 
-      key:'user',
-      label: 'User',
-      href: '/dashboard/users',
-      icon: 'ti ti-list',
-      permissions: ['users.view']
-    }, 
-    {
-      key:'role',
-      label: 'Role',
-      href: '/dashboard/roles',
-      icon: 'ti ti-shield',
-      permissions: ['roles.view']
-    },
-    {
-      key:'permission',
-      label: 'Permission',
-      href: '/dashboard/permissions',
-      icon: 'ti ti-key',
-      permissions: ['permissions.view']
-    },
-    {
-      key:'role_permission',
-      label: 'Role Permissions',
-      href: '/dashboard/role-permissions',
-      icon: 'ti ti-link',
-      permissions: ['role-permissions.view']
-    }
-  ]
-},
-  {
-    key:'foundation',
-    label: 'Foundation',
-    icon: 'ti ti-users',
-    roles: ['system_owner'],
+    key: 'foundations',
+    label: 'Foundations',
+    icon: 'ti ti-building',
     menuContext: 'system_owner',
     children: [
-      {
-        key:'unit',
-        label: 'Unit', 
-        icon: 'ti ti-list',
-        children: [
-            {
-                key:'tk',
-                label: 'TK',
-                href: '/dashboard/units/tk',
-                icon: 'ti ti-list'
-            }, 
-            {
-                key:'sd',
-                label: 'SD',
-                href: '/dashboard/units/sd',
-                icon: 'ti ti-shield',
-                
-            }, 
-            {
-                key:'smp',
-                label: 'SMP',
-                href: '/dashboard/units/smp',
-                icon: 'ti ti-shield',
-                
-            },
-            {
-                key:'sma',
-                label: 'SMA',
-                href: '/dashboard/units/sma',
-                icon: 'ti ti-shield',
-                
-            }
-        ]
-      }, 
-      {
-        key:'bisnis',
-        label: 'Bisnis Units', 
-        icon: 'ti ti-shield',
-        children: [
-            {
-                key:'loundry',
-                label: 'Loundry',
-                href: '/dashboard/loundry',
-                icon: 'ti ti-list'
-            }, 
-            {
-                key:'parking',
-                label: 'Parking',
-                href: '/dashboard/parking_areas',
-                icon: 'ti ti-shield',
-                
-            }, 
-            {
-                key:'canteen',
-                label: 'Canteen',
-                href: '/dashboard/canteens',
-                icon: 'ti ti-shield',
-                
-            }
-        ]
-      }
+      { key: 'foundation_list', label: 'All Foundations', href: '/dashboard/foundations', icon: 'ti ti-list' },
+      { key: 'foundation_units', label: 'Units', href: '/dashboard/foundations/units', icon: 'ti ti-building-community' },
     ]
   },
+
+  // Auth & Access Control
   {
-    key:'parent_employee',
+    key: 'auth',
+    label: 'Authentications',
+    icon: 'ti ti-users',
+    menuContext: 'system_owner',
+    children: [
+      { key: 'user', label: 'User', href: '/dashboard/users', icon: 'ti ti-list' },
+      { key: 'role', label: 'Role', href: '/dashboard/roles', icon: 'ti ti-shield' },
+      { key: 'permission', label: 'Permission', href: '/dashboard/permissions', icon: 'ti ti-key' },
+      { key: 'role_permission', label: 'Role Permissions', href: '/dashboard/role-permissions', icon: 'ti ti-link' },
+    ]
+  },
+
+  // HR - dibedakan karyawan yayasan vs guru
+  {
+    key: 'hr',
     label: 'HR',
     icon: 'ti ti-package',
-    roles: ['system_owner'],
     menuContext: 'system_owner',
     children: [
+      { key: 'position', label: 'Jabatan', href: '/dashboard/positions', icon: 'ti ti-list' },
       {
-        key:'position',
-        label: 'Jabatan',
-        href: '/dashboard/positions',
-        icon: 'ti ti-list'
-      }, 
+        key: 'foundation_employee',
+        label: 'Karyawan Yayasan',
+        icon: 'ti ti-users',
+        children: [
+          { key: 'permanent', label: 'Permanent', href: '/dashboard/employees/permanent' },
+          { key: 'contract', label: 'Contract', href: '/dashboard/employees/contract' },
+          { key: 'honorary', label: 'Honorer', href: '/dashboard/employees/honorary' },
+        ]
+      },
       {
-        key:'status_employee',
-        label: 'Employee',
-        icon: 'ti ti-category',
-        children: [ 
-          {
-            key:'permanent',
-            label: 'Permanent Employee',
-            href: '/dashboard/employees/permanent',
-          },
-          {
-            key:'contract',
-            label: 'Contract Employee',
-            href: '/dashboard/employees/contract',
-          },
-          {
-            key:'freelance',
-            label: 'Freelancer Employee',
-            href: '/dashboard/employees/freelance',
-          }
+        key: 'teacher',
+        label: 'Guru (Per Unit)',
+        icon: 'ti ti-school',
+        children: [
+          // ini idealnya dinamis dari API berdasarkan unit yang ada
+          { key: 'teacher_list', label: 'All Teachers', href: '/dashboard/teachers' },
         ]
       }
     ]
   },
+
   {
-    key:'parent_department',
+    key: 'departments',
     label: 'Departments',
     icon: 'ti ti-package',
-    roles: ['system_owner'],
     menuContext: 'system_owner',
-    children: [ 
-      {
-        key:'it',
-        label: 'IT',
-        href: '/dashboard/departments/it',
-      },
-      {
-        key:'legal',
-        label: 'Legal',
-        href: '/dashboard/departments/legal',
-      },
-      {
-        key:'finance',
-        label: 'Keuangan',
-        href: '/dashboard/departments/finance',
-      }
-    ]
+    href: '/dashboard/departments',
   },
   {
-    key:'setting',
+    key: 'foundation_types',
+    label: 'Tipe Yayasan',
+    icon: 'ti ti-package',
+    menuContext: 'system_owner',
+    href: '/dashboard/foundation_types',
+  },
+
+  {
+    key: 'setting',
     label: 'Settings',
     href: '/dashboard/settings',
     icon: 'ti ti-settings',
-    roles: ['system_owner'],
     menuContext: 'system_owner',
   }
 ];
-
 export default treeMenuConfig;

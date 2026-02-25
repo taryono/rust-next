@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import useUIStore from '@/store/uiStore';
 import useAuthStore from '@/store/authStore';
-import menuConfig from '@/config/menu';
+import menuConfig from '@/config/menu'; 
 import { useEffect, useState } from 'react';
 // import css 
 import "@/app/sidebar.css";
@@ -16,7 +16,7 @@ export default function Sidebar() {
   const { user } = useAuthStore();
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
-
+   
   // Detect mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
@@ -62,7 +62,7 @@ export default function Sidebar() {
         )}
       >
         <div className="sidebar-header">
-          <h3 className="navbar-brand mb-3">
+          <h3 className="navbar-brand">
             {sidebarCollapsed && !isMobile ? 'MA' : 'My Admin'}
           </h3>
         </div>

@@ -7,6 +7,7 @@ use crate::modules::class_levels::ClassLevelService;
 use crate::modules::classes::ClassService;
 use crate::modules::departments::DepartmentService;
 use crate::modules::employees::EmployeeService;
+use crate::modules::foundation_types::FoundationTypeService;
 use crate::modules::foundations::FoundationService;
 use crate::modules::menus::MenuService;
 use crate::modules::permissions::PermissionService;
@@ -34,6 +35,7 @@ pub struct AppState {
     pub department_service: Arc<DepartmentService>,
     pub employee_service: Arc<EmployeeService>,
     pub foundation_service: Arc<FoundationService>,
+    pub foundation_type_service: Arc<FoundationTypeService>,
     pub menu_service: Arc<MenuService>,
     pub permission_service: Arc<PermissionService>,
     pub position_service: Arc<PositionService>,
@@ -60,6 +62,7 @@ impl AppState {
         department_service: DepartmentService,
         employee_service: EmployeeService,
         foundation_service: FoundationService,
+        foundation_type_service: FoundationTypeService,
         menu_service: MenuService,
         permission_service: PermissionService,
         position_service: PositionService,
@@ -85,6 +88,7 @@ impl AppState {
             department_service: Arc::new(department_service),
             employee_service: Arc::new(employee_service),
             foundation_service: Arc::new(foundation_service),
+            foundation_type_service: Arc::new(foundation_type_service),
             menu_service: Arc::new(menu_service),
             permission_service: Arc::new(permission_service),
             position_service: Arc::new(position_service),
