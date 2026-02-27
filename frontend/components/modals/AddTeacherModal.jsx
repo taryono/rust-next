@@ -10,11 +10,10 @@ import FormSection from '@/components/ui/FormSection';
 // =====================================================
 // CONSTANTS
 // =====================================================
-const FOUNDATION_TYPES = [
-  { value: 'yayasan', label: 'Yayasan' },
-  { value: 'lembaga', label: 'Lembaga' },
-  { value: 'organisasi', label: 'Organisasi' },
-  { value: 'komunitas', label: 'Komunitas' },
+const TEACHER_STATUS = [
+  { value: 'honorer', label: 'Honorer' },
+  { value: 'contract', label: 'Kontrak' },
+  { value: 'permanent', label: 'Permanen' }, 
 ];
 
 const PROVINCES = [
@@ -32,8 +31,8 @@ const PROVINCES = [
 const FORM_DEFAULTS = {
   name: '',
   code: '',
-  foundation_type: '',
-  parent_id: '',
+  teacher_type: '',
+  unit_id: '',
   address: '',
   description: '',
   city: '',
@@ -59,9 +58,9 @@ const FormInput = ({ label, error, children, required = false }) => (
 // =====================================================
 // MAIN COMPONENT
 // =====================================================
-export default function AddFoundationModal({ data, onClose, onSuccess }) {
+export default function AddTeacherModal({ data, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const [foundations, setFoundations] = useState([]);
+  const [unitOptions, setUnitOptions] = useState([]);
   const isEdit = !!data;
 
   const {
@@ -78,17 +77,17 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
   // EFFECTS
   // =====================================================
 
-  // Fetch parent foundations for dropdown
+  // Fetch parent teachers for dropdown
   useEffect(() => {
-    const fetchFoundations = async () => {
+    const fetchUnits = async () => {
       try {
-        const response = await api.getFoundations?.();
-        if (response?.data) setFoundations(response.data);
+        const response = await api.getUnitOptions?.();
+        if (response?.data) setUnitOptions(response.data);
       } catch (err) {
-        console.error('Failed to fetch foundations:', err);
+        console.error('Failed to fetch teachers:', err);
       }
     };
-    fetchFoundations();
+    fetchUnits();
   }, []);
 
   // Populate form in edit mode
@@ -111,16 +110,16 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
       const payload = preparePayload(formData);
 
       const response = isEdit
-        ? await api.updateFoundation(data.id, payload)
-        : await api.createFoundation(payload);
+        ? await api.updateTeacher(data.id, payload)
+        : await api.createTeacher(payload);
 
-      alertSuccess(isEdit ? 'Foundation berhasil diperbarui' : 'Foundation berhasil ditambahkan');
+      alertSuccess(isEdit ? 'Teacher berhasil diperbarui' : 'Teacher berhasil ditambahkan');
       onSuccess?.(response);
       onClose();
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
-        `Gagal ${isEdit ? 'mengupdate' : 'menambahkan'} foundation`;
+        `Gagal ${isEdit ? 'mengupdate' : 'menambahkan'} teacher`;
       alertError(errorMessage);
     } finally {
       setLoading(false);
@@ -131,7 +130,7 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
     const payload = { ...formData };
 
     // Convert empty strings to null for optional fields
-    const optionalFields = ['code', 'foundation_type', 'parent_id', 'address', 'description', 'city', 'province', 'phone', 'email'];
+    const optionalFields = ['code', 'teacher_type', 'unit_id', 'address', 'description', 'city', 'province', 'phone', 'email'];
     optionalFields.forEach((key) => {
       if (payload[key] === '' || payload[key] === undefined) {
         payload[key] = null;
@@ -141,8 +140,8 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
     // Convert is_active to number
     payload.is_active = payload.is_active !== '' ? Number(payload.is_active) : null;
 
-    // Convert parent_id to number or null
-    payload.parent_id = payload.parent_id ? Number(payload.parent_id) : null;
+    // Convert unit_id to number or null
+    payload.unit_id = payload.unit_id ? Number(payload.unit_id) : null;
 
     return payload;
   };
@@ -155,7 +154,7 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="ti ti-building me-2"></i>
-          {isEdit ? 'Edit Foundation' : 'Tambah Foundation Baru'}
+          {isEdit ? 'Edit Teacher' : 'Tambah Teacher Baru'}
         </Modal.Title>
       </Modal.Header>
 
@@ -166,12 +165,12 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
           <FormSection title="Informasi Utama" icon="bi bi-building">
             <div className="row">
               <div className="col-md-8">
-                <FormInput label="Nama Foundation" error={errors.name} required>
+                <FormInput label="Nama Teacher" error={errors.name} required>
                   <input
                     className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                     placeholder="Contoh: Yayasan Pendidikan Nusantara"
                     {...register('name', {
-                      required: 'Nama foundation wajib diisi',
+                      required: 'Nama teacher wajib diisi',
                       minLength: { value: 3, message: 'Minimal 3 karakter' },
                     })}
                   />
@@ -193,13 +192,13 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
 
             <div className="row">
               <div className="col-md-6">
-                <FormInput label="Tipe Foundation" error={errors.foundation_type}>
+                <FormInput label="Tipe Teacher" error={errors.teacher_type}>
                   <select
-                    className={`form-select ${errors.foundation_type ? 'is-invalid' : ''}`}
-                    {...register('foundation_type')}
+                    className={`form-select ${errors.teacher_type ? 'is-invalid' : ''}`}
+                    {...register('teacher_type')}
                   >
                     <option value="">-- Pilih Tipe --</option>
-                    {FOUNDATION_TYPES.map((t) => (
+                    {TEACHER_STATUS.map((t) => (
                       <option key={t.value} value={t.value}>
                         {t.label}
                       </option>
@@ -209,28 +208,26 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
               </div>
 
               <div className="col-md-6">
-                <FormInput label="Parent Foundation" error={errors.parent_id}>
+                <FormInput label="Unit" error={errors.unit_id}>
                   <select
-                    className={`form-select ${errors.parent_id ? 'is-invalid' : ''}`}
-                    {...register('parent_id')}
+                    className={`form-select ${errors.unit_id ? 'is-invalid' : ''}`}
+                    {...register('unit_id')}
                   >
-                    <option value="">-- Tidak Ada (Root) --</option>
-                    {foundations
-                      .filter((f) => !isEdit || f.id !== data?.id) // Prevent self-reference
-                      .map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.name}
-                        </option>
-                      ))}
+                    <option value="">-- Pilih Unit --</option>
+                    {unitOptions.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
                   </select>
                 </FormInput>
               </div>
             </div>
 
-            <FormInput label="Deskripsi" error={errors.description}>
+            <FormInput label="Keterangan" error={errors.description}>
               <textarea
                 className={`form-control ${errors.description ? 'is-invalid' : ''}`}
-                placeholder="Deskripsi singkat tentang foundation"
+                placeholder="Keterangan singkat tentang teacher"
                 rows="3"
                 {...register('description', {
                   maxLength: { value: 1000, message: 'Maksimal 1000 karakter' },
@@ -249,7 +246,7 @@ export default function AddFoundationModal({ data, onClose, onSuccess }) {
                   <input
                     type="email"
                     className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    placeholder="email@foundation.org"
+                    placeholder="email@teacher.org"
                     {...register('email', {
                       pattern: {
                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,

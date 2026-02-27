@@ -47,9 +47,9 @@ const treeMenuConfig = [
         label: 'Karyawan Yayasan',
         icon: 'ti ti-users',
         children: [
-          { key: 'permanent', label: 'Permanent', href: '/dashboard/employees/permanent' },
-          { key: 'contract', label: 'Contract', href: '/dashboard/employees/contract' },
-          { key: 'honorary', label: 'Honorer', href: '/dashboard/employees/honorary' },
+          { key: 'permanent',icon: 'ti ti-package', label: 'Permanent', href: '/dashboard/employees/permanent' },
+          { key: 'contract',icon: 'ti ti-package', label: 'Contract', href: '/dashboard/employees/contract' },
+          { key: 'honorary',icon: 'ti ti-package', label: 'Honorer', href: '/dashboard/employees/honorary' },
         ]
       },
       {
@@ -58,7 +58,7 @@ const treeMenuConfig = [
         icon: 'ti ti-school',
         children: [
           // ini idealnya dinamis dari API berdasarkan unit yang ada
-          { key: 'teacher_list', label: 'All Teachers', href: '/dashboard/teachers' },
+          { key: 'teacher_list',icon: 'ti ti-package', label: 'All Teachers', href: '/dashboard/teachers' },
         ]
       }
     ]

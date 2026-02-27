@@ -2,7 +2,7 @@
 // backend/src/modules/units/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{CreateUnitRequest, UnitResponse, UpdateUnitRequest};
+use super::dto::{CreateUnitRequest, UnitOptionResponse, UnitResponse, UpdateUnitRequest};
 use super::repository::UnitRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -136,6 +136,15 @@ impl UnitService {
         let updated = self.repository.update(id, active_model).await?;
 
         Ok(UnitResponse::from(updated))
+    }
+
+    pub async fn get_options(
+        &self,
+        foundation_id: i64,
+    ) -> Result<Vec<UnitOptionResponse>, AppError> {
+        let units = self.repository.get_options(foundation_id).await?;
+
+        Ok(UnitOptionResponse::from_vec(units))
     }
 
     /// Delete unit

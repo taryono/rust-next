@@ -7,7 +7,7 @@ use crate::utils::pagination::PaginationParams;
 use entity::units::{self, Entity as Unit};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    Set,
+    QuerySelect, Set,
 };
 
 #[derive(Clone)]
@@ -136,5 +136,20 @@ impl UnitRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
         Ok(())
+    }
+
+    pub async fn get_options(&self, foundation_id: i64) -> Result<Vec<units::Model>, AppError> {
+        let units = Unit::find()
+            .select_only()
+            .column(units::Column::Id)
+            .column(units::Column::Name)
+            .filter(units::Column::DeletedAt.is_null())
+            .filter(units::Column::FoundationId.eq(foundation_id))
+            .order_by_asc(units::Column::Name)
+            .all(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))?; // ← tambah ? di sini
+
+        Ok(units)
     }
 }

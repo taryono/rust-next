@@ -4,6 +4,7 @@
 // ============================================================================
 use super::dto::{AttendanceResponse, CreateAttendanceRequest, UpdateAttendanceRequest};
 use super::repository::AttendanceRepository;
+use crate::context::ServiceContext;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use entity::attendances;
@@ -23,19 +24,14 @@ impl AttendanceService {
     /// Create new attendance with validation
     pub async fn create(
         &self,
-        request: CreateAttendanceRequest,
+        request: &CreateAttendanceRequest,
     ) -> Result<AttendanceResponse, AppError> {
         // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
-
         // Check duplicate name
-        if let Some(_) = self
-            .repository
-            .find_by_date(&request.date.to_string(), request.foundation_id)
-            .await?
-        {
+        if let Some(_) = self.repository.find_by_date(&request).await? {
             return Err(AppError::ConflictError(
                 "Attendance with this date already exists".to_string(),
             ));
@@ -48,8 +44,8 @@ impl AttendanceService {
             student_id: Set(request.student_id),
             class_subject_id: Set(request.class_subject_id),
             date: Set(request.date),
-            status: Set(request.status),
-            notes: Set(request.notes),
+            status: Set(request.status.clone()),
+            notes: Set(request.notes.clone()),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
@@ -76,15 +72,15 @@ impl AttendanceService {
     /// Get all attendances with pagination
     pub async fn get_all(
         &self,
+        ctx: &ServiceContext, // ✅ Pakai ServiceContext
         params: PaginationParams,
-        foundation_id: i64,
     ) -> Result<PaginatedResponse<AttendanceResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        let (items, total) = self.repository.find_all(&params, foundation_id).await?;
+        let (items, total) = self.repository.find_all(&ctx, &params).await?;
 
         let responses: Vec<AttendanceResponse> =
             items.into_iter().map(AttendanceResponse::from).collect();
@@ -101,7 +97,7 @@ impl AttendanceService {
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateAttendanceRequest,
+        request: &CreateAttendanceRequest,
     ) -> Result<AttendanceResponse, AppError> {
         // Validate request
         request
@@ -118,11 +114,7 @@ impl AttendanceService {
         // Langsung gunakan let biasa
         let date = request.date;
         if date != existing.date {
-            if let Some(_) = self
-                .repository
-                .find_by_date(&date.to_string(), request.foundation_id)
-                .await?
-            {
+            if let Some(_) = self.repository.find_by_date(&request).await? {
                 return Err(AppError::ConflictError(
                     "Attendance with this date already exists".to_string(),
                 ));
@@ -138,17 +130,13 @@ impl AttendanceService {
         // Langsung gunakan let biasa
         let date = request.date;
         if date != existing.date {
-            if let Some(_) = self
-                .repository
-                .find_by_date(&date.to_string(), request.foundation_id)
-                .await?
-            {
+            if let Some(_) = self.repository.find_by_date(&request).await? {
                 return Err(AppError::ConflictError(
                     "Attendance with this date already exists".to_string(),
                 ));
             }
         }
-        active_model.status = Set(request.status);
+        active_model.status = Set(request.status.clone());
         active_model.student_id = Set(request.student_id);
         active_model.date = Set(request.date);
         active_model.notes = Set(request.notes.clone());

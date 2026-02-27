@@ -3,6 +3,7 @@
 // ============================================================================
 use super::dto::{AttendanceResponse, CreateAttendanceRequest, UpdateAttendanceRequest};
 use crate::app_state::AppState;
+use crate::context::ServiceContext;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use actix_web::{web, HttpResponse};
@@ -23,10 +24,7 @@ pub async fn create(
     app_state: web::Data<AppState>,
     request: web::Json<CreateAttendanceRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = app_state
-        .attendance_service
-        .create(request.into_inner())
-        .await?;
+    let result = app_state.attendance_service.create(&request).await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -72,16 +70,12 @@ pub async fn get_by_id(
 )]
 pub async fn get_all(
     app_state: web::Data<AppState>,
+    ctx: ServiceContext, // ✅ Pakai ServiceContext
     query: web::Query<PaginationParams>,
-    // Optional: foundation_id dari auth/context
-    foundation_id: web::ReqData<i64>,
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = app_state
-        .attendance_service
-        .get_all(params, foundation_id.into_inner())
-        .await?;
+    let result = app_state.attendance_service.get_all(&ctx, params).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -104,11 +98,11 @@ pub async fn get_all(
 pub async fn update(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
-    request: web::Json<UpdateAttendanceRequest>,
+    request: web::Json<CreateAttendanceRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
         .attendance_service
-        .update(id.into_inner(), request.into_inner())
+        .update(id.into_inner(), &request)
         .await?;
     Ok(HttpResponse::Ok().json(result))
 }

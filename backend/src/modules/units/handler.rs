@@ -1,8 +1,10 @@
 // ============================================================================
 // handler.rs - HTTP Handlers
+// backend/src/modules/units/handler.rs
 // ============================================================================
-use super::dto::{CreateUnitRequest, UnitResponse, UpdateUnitRequest};
+use super::dto::{CreateUnitRequest, UnitOptionResponse, UnitResponse, UpdateUnitRequest};
 use crate::app_state::AppState;
+use crate::context::ServiceContext;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use actix_web::{web, HttpResponse};
@@ -101,6 +103,23 @@ pub async fn update(
         .unit_service
         .update(id.into_inner(), request.into_inner())
         .await?;
+    Ok(HttpResponse::Ok().json(result))
+}
+/// Get units for dropdown (id and name only)
+#[utoipa::path(
+    get,
+    path = "/api/units/options",
+    responses(
+        (status = 200, description = "List of units for dropdown", body = Vec<UnitOptionResponse>)
+    ),
+    tag = "Unit"
+)]
+pub async fn get_options(
+    app_state: web::Data<AppState>,
+    ctx: ServiceContext,
+) -> Result<HttpResponse, AppError> {
+    let foundation_id = ctx.foundation_id;
+    let result = app_state.unit_service.get_options(foundation_id).await?;
     Ok(HttpResponse::Ok().json(result))
 }
 

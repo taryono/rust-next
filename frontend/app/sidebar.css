@@ -89,11 +89,6 @@
   text-overflow: ellipsis;
 }
 
-.nav-link-toggle {
-  margin-left: auto;
-  transition: transform 0.3s ease;
-}
-
 /* Submenu Styles */
 .nav-submenu { 
   list-style: none;
@@ -114,6 +109,7 @@
 
 .nav-submenu .nav-link {
   font-size: 0.875rem;
+  width: 100%; /* penting untuk button element */
 }
 
 .nav-submenu .nav-item {

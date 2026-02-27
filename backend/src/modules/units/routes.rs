@@ -8,6 +8,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api/units")
             .wrap(JwtMiddleware)
+            .route("/options", web::get().to(handler::get_options)) // ← harus duluan
             .route("", web::post().to(handler::create))
             .route("", web::get().to(handler::get_all))
             .route("/{id}", web::get().to(handler::get_by_id))

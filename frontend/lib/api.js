@@ -223,12 +223,13 @@ export const api = {
     updateDepartment: (id, data) => axiosInstance.put(`/api/department/${id}`, data),
     deleteDepartment: (id) => axiosInstance.delete(`/api/department/${id}`),
 
-    // Units 
+    // Units
     getUnits: (params = '') => axiosInstance.get(`/api/units${params}`),
-    getUnitById: (id) => axiosInstance.get(`/api/unit/${id}`),
-    createUnit: (data) => axiosInstance.post('/api/unit', data),
-    updateUnit: (id, data) => axiosInstance.put(`/api/unit/${id}`, data),
-    deleteUnit: (id) => axiosInstance.delete(`/api/unit/${id}`),
+    getUnitOptions: () => axiosInstance.get(`/api/units/options`),  // hapus params, tidak dipakai
+    getUnitById: (id) => axiosInstance.get(`/api/units/${id}`),     // unit → units
+    createUnit: (data) => axiosInstance.post('/api/units', data),   // unit → units
+    updateUnit: (id, data) => axiosInstance.put(`/api/units/${id}`, data),  // unit → units
+    deleteUnit: (id) => axiosInstance.delete(`/api/units/${id}`),   // unit → units
 
     // UnitTypes 
     getUnitTypes: () => axiosInstance.get('/api/unit-types'),

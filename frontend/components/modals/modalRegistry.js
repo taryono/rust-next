@@ -33,6 +33,10 @@ const modalRegistry = {
         ssr: false,
         loading: () => <div className="p-4 text-center">Loading...</div>,
     }),
+    'add-teacher': dynamic(() => import('./AddTeacherModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
 };
 
 export default modalRegistry;

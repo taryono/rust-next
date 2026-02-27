@@ -1,7 +1,9 @@
 // ============================================================================
 // repository.rs - Database Operations Only
 // ============================================================================
+use super::dto::{AttendanceResponse, CreateAttendanceRequest, UpdateAttendanceRequest};
 use crate::config::database::Database;
+use crate::context::ServiceContext;
 use crate::errors::AppError;
 use crate::utils::pagination::PaginationParams;
 use entity::attendances::{self, Entity as Attendance};
@@ -46,9 +48,10 @@ impl AttendanceRepository {
     /// Find all with pagination and filters
     pub async fn find_all(
         &self,
+        ctx: &ServiceContext, // ✅ Pakai ServiceContext
         params: &PaginationParams,
-        foundation_id: i64,
     ) -> Result<(Vec<attendances::Model>, u64), AppError> {
+        let foundation_id = ctx.foundation_id;
         let mut query =
             Attendance::find().filter(attendances::Column::FoundationId.eq(foundation_id));
         // Apply sorting
@@ -89,12 +92,11 @@ impl AttendanceRepository {
     /// Find by name within a foundation
     pub async fn find_by_date(
         &self,
-        date: &str,
-        foundation_id: i64,
+        request: &CreateAttendanceRequest,
     ) -> Result<Option<attendances::Model>, AppError> {
         Attendance::find()
-            .filter(attendances::Column::FoundationId.eq(foundation_id))
-            .filter(attendances::Column::Date.eq(date))
+            .filter(attendances::Column::FoundationId.eq(request.foundation_id))
+            .filter(attendances::Column::Date.eq(request.date.to_string()))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
