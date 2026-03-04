@@ -4,18 +4,31 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "foundation_types")]
+#[sea_orm(table_name = "regulations")]
 pub struct Model {
-    #[sea_orm(primary_key, unique)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: i64,
     #[sea_orm(unique)]
+    pub code: String,
     pub name: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub description: Option<String>,
+    pub config_schema: Option<Json>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub deleted_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::foundation_regulations::Entity")]
+    FoundationRegulations,
+}
+
+impl Related<super::foundation_regulations::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::FoundationRegulations.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

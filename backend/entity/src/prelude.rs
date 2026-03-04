@@ -14,6 +14,7 @@ pub use super::employees::Entity as Employees;
 pub use super::extracurricular_activities::Entity as ExtracurricularActivities;
 pub use super::extracurricular_enrollments::Entity as ExtracurricularEnrollments;
 pub use super::facilities::Entity as Facilities;
+pub use super::foundation_regulations::Entity as FoundationRegulations;
 pub use super::foundations::Entity as Foundations;
 pub use super::grades::Entity as Grades;
 pub use super::homeroom_teachers::Entity as HomeroomTeachers;

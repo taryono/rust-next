@@ -7,11 +7,13 @@ use crate::modules::class_levels::ClassLevelService;
 use crate::modules::classes::ClassService;
 use crate::modules::departments::DepartmentService;
 use crate::modules::employees::EmployeeService;
+use crate::modules::foundation_regulations::FoundationRegulationService;
 use crate::modules::foundation_types::FoundationTypeService;
 use crate::modules::foundations::FoundationService;
 use crate::modules::menus::MenuService;
 use crate::modules::permissions::PermissionService;
 use crate::modules::positions::PositionService;
+use crate::modules::regulations::RegulationService;
 use crate::modules::roles::RoleService;
 use crate::modules::rooms::RoomService;
 use crate::modules::semesters::SemesterService;
@@ -35,10 +37,12 @@ pub struct AppState {
     pub department_service: Arc<DepartmentService>,
     pub employee_service: Arc<EmployeeService>,
     pub foundation_service: Arc<FoundationService>,
+    pub foundation_regulation_service: Arc<FoundationRegulationService>,
     pub foundation_type_service: Arc<FoundationTypeService>,
     pub menu_service: Arc<MenuService>,
     pub permission_service: Arc<PermissionService>,
     pub position_service: Arc<PositionService>,
+    pub regulation_service: Arc<RegulationService>,
     pub role_service: Arc<RoleService>,
     pub room_service: Arc<RoomService>,
     pub semester_service: Arc<SemesterService>,
@@ -62,10 +66,12 @@ impl AppState {
         department_service: DepartmentService,
         employee_service: EmployeeService,
         foundation_service: FoundationService,
+        foundation_regulation_service: FoundationRegulationService,
         foundation_type_service: FoundationTypeService,
         menu_service: MenuService,
         permission_service: PermissionService,
         position_service: PositionService,
+        regulation_service: RegulationService,
         role_service: RoleService,
         room_service: RoomService,
         semester_service: SemesterService,
@@ -88,10 +94,12 @@ impl AppState {
             department_service: Arc::new(department_service),
             employee_service: Arc::new(employee_service),
             foundation_service: Arc::new(foundation_service),
+            foundation_regulation_service: Arc::new(foundation_regulation_service),
             foundation_type_service: Arc::new(foundation_type_service),
             menu_service: Arc::new(menu_service),
             permission_service: Arc::new(permission_service),
             position_service: Arc::new(position_service),
+            regulation_service: Arc::new(regulation_service),
             role_service: Arc::new(role_service),
             room_service: Arc::new(room_service),
             semester_service: Arc::new(semester_service),

@@ -1,6 +1,6 @@
 <!-- jalankan ini untuk generate entity dari database -->
 ### 1. generate entity
-sea-orm-cli generate entity -u mysql://taryono:password@localhost/actix_db -o entity_temp --with-serde both --date-time-crate chrono
+sea-orm-cli generate entity -u mysql://taryono:password@localhost:3307/actix_db -o entity_temp --with-serde both --date-time-crate chrono
 
 
 cd /home/taryono/rust/silsilah/backend

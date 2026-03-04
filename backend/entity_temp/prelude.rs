@@ -18,6 +18,8 @@ pub use super::extracurricular_enrollments::Entity as ExtracurricularEnrollments
 pub use super::extracurricular_grades::Entity as ExtracurricularGrades;
 pub use super::extracurriculars::Entity as Extracurriculars;
 pub use super::facilities::Entity as Facilities;
+pub use super::foundation_regulations::Entity as FoundationRegulations;
+pub use super::foundation_types::Entity as FoundationTypes;
 pub use super::foundations::Entity as Foundations;
 pub use super::grades::Entity as Grades;
 pub use super::homeroom_teachers::Entity as HomeroomTeachers;
@@ -29,6 +31,7 @@ pub use super::menus::Entity as Menus;
 pub use super::notifications::Entity as Notifications;
 pub use super::permissions::Entity as Permissions;
 pub use super::positions::Entity as Positions;
+pub use super::regulations::Entity as Regulations;
 pub use super::report_card_details::Entity as ReportCardDetails;
 pub use super::report_cards::Entity as ReportCards;
 pub use super::role_permissions::Entity as RolePermissions;

@@ -12,6 +12,7 @@ pub struct Model {
     pub id: i64,
     #[sea_orm(unique)]
     pub user_id: i64,
+    pub name: Option<String>,
     pub foundation_id: i64,
     pub unit_id: Option<i64>,
     pub nik: Option<String>,
@@ -29,6 +30,7 @@ pub struct Model {
     pub gender: Option<Gender>,
     #[sea_orm(column_type = "Text", nullable)]
     pub address: Option<String>,
+    pub teacher_assignment_id: Option<i32>,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
     pub deleted_at: Option<DateTime>,

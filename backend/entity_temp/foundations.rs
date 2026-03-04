@@ -36,6 +36,8 @@ pub enum Relation {
     Employees,
     #[sea_orm(has_many = "super::extracurricular_activities::Entity")]
     ExtracurricularActivities,
+    #[sea_orm(has_many = "super::foundation_regulations::Entity")]
+    FoundationRegulations,
     #[sea_orm(
         belongs_to = "Entity",
         from = "Column::ParentId",
@@ -73,6 +75,12 @@ impl Related<super::employees::Entity> for Entity {
 impl Related<super::extracurricular_activities::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::ExtracurricularActivities.def()
+    }
+}
+
+impl Related<super::foundation_regulations::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::FoundationRegulations.def()
     }
 }
 

@@ -1,7 +1,7 @@
 // ============================================================================
 // repository.rs - Database Operations Only
 // ============================================================================
-use super::dto::{AttendanceResponse, CreateAttendanceRequest, UpdateAttendanceRequest};
+use super::dto::CreateAttendanceRequest;
 use crate::config::database::Database;
 use crate::context::ServiceContext;
 use crate::errors::AppError;

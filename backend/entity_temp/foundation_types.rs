@@ -12,7 +12,7 @@ pub struct Model {
     pub name: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub deleted_at: Option<DateTimeUtc>,
+    pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

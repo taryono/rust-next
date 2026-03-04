@@ -2,7 +2,7 @@
 // backend/src/modules/attendances/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{AttendanceResponse, CreateAttendanceRequest, UpdateAttendanceRequest};
+use super::dto::{AttendanceResponse, CreateAttendanceRequest};
 use super::repository::AttendanceRepository;
 use crate::context::ServiceContext;
 use crate::errors::AppError;
