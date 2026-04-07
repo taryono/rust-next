@@ -12,7 +12,7 @@ pub struct RoomResponse {
     pub room_type_id: i64,
     pub capacity: i32,
     pub is_available: Option<bool>,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 

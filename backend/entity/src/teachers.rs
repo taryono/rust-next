@@ -47,7 +47,7 @@ pub enum Relation {
         to = "super::teacher_assignments::Column::Id"
     )]
     TeacherAssignment,
-     #[sea_orm(
+    #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::UserId",
         to = "super::users::Column::Id",
@@ -69,3 +69,8 @@ impl Related<super::users::Entity> for Entity {
     }
 }
 impl ActiveModelBehavior for ActiveModel {}
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Users.def()
+    }
+}

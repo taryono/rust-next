@@ -61,3 +61,9 @@ impl Related<super::roles::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl crate::traits::soft_delete::SoftDelete for Entity {
+    fn deleted_at_col() -> Column {
+        Column::DeletedAt
+    }
+}

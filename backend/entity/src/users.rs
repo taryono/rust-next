@@ -67,10 +67,19 @@ impl Related<super::permissions::Entity> for Entity {
         Some(super::user_permissions::Relation::Users.def().rev())
     }
 }
+
+// SALAH — students::Relation::Users.def().rev() berarti "dari users ke student via Users relation" yang circular
+// impl Related<super::students::Entity> for Entity {
+//     fn to() -> RelationDef {
+//         super::students::Relation::Users.def().rev()
+//     }
+// }
+
 impl Related<super::students::Entity> for Entity {
     fn to() -> RelationDef {
-        super::students::Relation::Users.def().rev()
+        Relation::Students.def() // pakai Relation di users.rs sendiri
     }
+    // tidak perlu via() karena ini direct has_many
 }
 
 impl Related<super::teachers::Entity> for Entity {

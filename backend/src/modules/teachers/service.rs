@@ -56,7 +56,7 @@ impl TeacherService {
         active_model.qualification = Set(request.qualification);
         active_model.salary = Set(request.salary);
         active_model.employment_status = Set(request.employment_status);
-        active_model.end_date = Set(request.end_date); // ← Tambah ini (good practice)
+        active_model.end_date = Set(request.end_date);
         active_model.hire_date = Set(request.hire_date);
         active_model.created_at = Set(chrono::Utc::now());
         active_model.updated_at = Set(chrono::Utc::now());
@@ -147,7 +147,7 @@ impl TeacherService {
         active_model.qualification = Set(request.qualification);
         active_model.salary = Set(request.salary);
         active_model.employment_status = Set(request.employment_status);
-        active_model.end_date = Set(request.end_date); // ← Tambah ini (good practice)
+        active_model.end_date = Set(request.end_date);
         active_model.hire_date = Set(request.hire_date);
         active_model.created_at = Set(chrono::Utc::now());
         active_model.updated_at = Set(chrono::Utc::now());

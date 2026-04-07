@@ -7,7 +7,7 @@ use validator::Validate;
 pub struct FoundationResponse {
     pub id: i64,
     pub name: String,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 

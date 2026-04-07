@@ -13,7 +13,7 @@ pub struct SemesterResponse {
     pub end_date: String,
     pub is_active: bool,
     pub name: String,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 

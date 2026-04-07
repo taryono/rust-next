@@ -28,7 +28,7 @@ pub struct EmployeeResponse {
     pub salary: Option<String>,
     pub specialization: Option<String>,
     pub qualification: Option<String>,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String,
 }
 

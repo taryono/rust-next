@@ -8,7 +8,7 @@ pub struct PositionResponse {
     pub id: i64,
     pub foundation_id: i64,
     pub name: String,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 

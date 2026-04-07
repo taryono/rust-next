@@ -9,7 +9,7 @@ pub struct DepartmentResponse {
     pub foundation_id: i64,
     pub name: String,
     pub created_at: String,
-    pub updated_at: String, // ← Tambah ini (good practice)
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]

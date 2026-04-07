@@ -13,6 +13,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(handler::get_by_id))
             .route("/{id}", web::put().to(handler::update))
             .route("/{id}", web::delete().to(handler::delete))
-            .route("/menus", web::delete().to(handler::get_my_menus)),
+            .route("/my-menus", web::get().to(handler::get_my_menus))
     );
 }

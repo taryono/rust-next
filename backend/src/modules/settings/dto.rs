@@ -13,7 +13,7 @@ pub struct SettingResponse {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
     pub is_active: bool,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 
@@ -27,7 +27,7 @@ pub struct CreateSettingRequest {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
     pub is_active: bool,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 
@@ -41,7 +41,7 @@ pub struct UpdateSettingRequest {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
     pub is_active: bool,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 #[derive(Debug, Serialize, ToSchema)]

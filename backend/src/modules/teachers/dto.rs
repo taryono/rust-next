@@ -15,8 +15,8 @@ pub struct TeacherResponse {
     pub employee_number: String,
     pub specialization: Option<String>,
     pub qualification: Option<String>,
-    pub hire_date: Option<String>, // ← Tambah ini (good practice)
-    pub end_date: Option<String>,  // ← Tambah ini (good practice)
+    pub hire_date: Option<String>,
+    pub end_date: Option<String>,
     pub salary: Option<String>,
     pub employment_status: Option<EmploymentStatus>,
     pub created_at: String,
@@ -37,7 +37,7 @@ pub struct CreateTeacherRequest {
     pub hire_date: Option<NaiveDate>,
     pub salary: Option<String>,
     pub employment_status: Option<EmploymentStatus>,
-    pub end_date: Option<NaiveDate>, // ← Tambah ini (good practice)
+    pub end_date: Option<NaiveDate>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -54,7 +54,7 @@ pub struct UpdateTeacherRequest {
     pub specialization: Option<String>,
     pub qualification: Option<String>,
     pub hire_date: Option<NaiveDate>,
-    pub end_date: Option<NaiveDate>, // ← Tambah ini (good practice)
+    pub end_date: Option<NaiveDate>,
     pub salary: Option<String>,
     pub employment_status: Option<EmploymentStatus>,
     pub created_at: String,

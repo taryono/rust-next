@@ -37,6 +37,14 @@ const modalRegistry = {
         ssr: false,
         loading: () => <div className="p-4 text-center">Loading...</div>,
     }),
+    'add-unit': dynamic(() => import('./AddUnitModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
+    'add-unit-type': dynamic(() => import('./AddUnitTypeModal'), {
+        ssr: false,
+        loading: () => <div className="p-4 text-center">Loading...</div>,
+    }),
 };
 
 export default modalRegistry;

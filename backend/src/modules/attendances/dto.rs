@@ -14,7 +14,7 @@ pub struct AttendanceResponse {
     pub status: Status,
     pub notes: Option<String>,
     pub created_at: String,
-    pub updated_at: String, // ← Tambah ini (good practice)
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]

@@ -48,14 +48,10 @@ impl UnitTypeRepository {
     pub async fn find_all(
         &self,
         params: &PaginationParams,
-        foundation_id: Option<i64>,
+        foundation_id: i64,
     ) -> Result<(Vec<unit_types::Model>, u64), AppError> {
         let mut query = UnitType::find();
-
-        // Filter by foundation_id if provided
-        if let Some(fid) = foundation_id {
-            query = query.filter(unit_types::Column::FoundationId.eq(fid));
-        }
+        query = query.filter(unit_types::Column::FoundationId.eq(foundation_id));
 
         // Apply search filter if provided
         if let Some(ref search) = params.search {

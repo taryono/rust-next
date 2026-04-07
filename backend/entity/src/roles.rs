@@ -26,13 +26,23 @@ pub enum Relation {
     RolePermissions,
 }
 
+// impl Related<super::users::Entity> for Entity {
+//     fn to() -> RelationDef {
+//         super::role_users::Relation::Users.def()
+//     }
+
+//     fn via() -> Option<RelationDef> {
+//         Some(super::users::Relation::RoleUsers.def().rev())
+//     }
+// }
+
 impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
         super::role_users::Relation::Users.def()
     }
 
     fn via() -> Option<RelationDef> {
-        Some(super::users::Relation::RoleUsers.def().rev())
+        Some(super::role_users::Relation::Roles.def().rev())
     }
 }
 

@@ -9,7 +9,7 @@ pub struct PermissionResponse {
     pub foundation_id: i64,
     pub code: String,
     pub name: String,
-    pub created_at: String, // ← Tambah ini (good practice)
+    pub created_at: String,
     pub updated_at: String, // ← Tambah ini
 }
 

@@ -73,7 +73,7 @@ impl UnitTypeService {
     pub async fn get_all(
         &self,
         params: PaginationParams,
-        foundation_id: Option<i64>,
+        foundation_id: i64,
     ) -> Result<PaginatedResponse<UnitTypeResponse>, AppError> {
         // Validate pagination params
         params

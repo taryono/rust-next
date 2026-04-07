@@ -6,7 +6,7 @@ use actix_web::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/api/unit_types")
+        web::scope("/api/unit-types")
             .wrap(JwtMiddleware)
             .route("", web::post().to(handler::create))
             .route("", web::get().to(handler::get_all))

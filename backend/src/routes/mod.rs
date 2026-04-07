@@ -7,10 +7,13 @@ use crate::modules::{
     classes,
     departments,
     employees,
+    foundation_regulations,
     foundation_types,
     foundations,
+    menus,
     permissions,
     positions,
+    regulations,
     roles,
     rooms,
     semesters,
@@ -38,9 +41,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     departments::routes::configure(cfg);
     employees::routes::configure(cfg);
     foundations::routes::configure(cfg);
+    foundation_regulations::routes::configure(cfg);
     foundation_types::routes::configure(cfg);
+    menus::routes::configure(cfg);
     permissions::routes::configure(cfg);
     positions::routes::configure(cfg);
+    regulations::routes::configure(cfg);
     roles::routes::configure(cfg);
     rooms::routes::configure(cfg);
     semesters::routes::configure(cfg);

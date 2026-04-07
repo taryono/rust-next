@@ -12,7 +12,7 @@ pub struct AcademicYearResponse {
     pub end_date: String,   // ✅ Correct
     pub is_active: i8,      // ✅ Correct - NOT NULL di DB
     pub created_at: String,
-    pub updated_at: String, // ← Tambah ini (good practice)
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]

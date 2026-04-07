@@ -15,7 +15,7 @@ pub struct ApplicantResponse {
     pub phone: Option<String>,
     pub address: Option<String>,
     pub created_at: String,
-    pub updated_at: String, // ← Tambah ini (good practice)
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
@@ -30,7 +30,7 @@ pub struct CreateApplicantRequest {
     pub phone: Option<String>,
     pub address: Option<String>,
     pub created_at: String,
-    pub updated_at: String, // ← Tambah ini (good practice)
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
@@ -44,7 +44,7 @@ pub struct UpdateApplicantRequest {
     pub phone: Option<String>,
     pub address: Option<String>,
     pub created_at: String,
-    pub updated_at: String, // ← Tambah ini (good practice)
+    pub updated_at: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]

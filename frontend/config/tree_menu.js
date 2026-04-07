@@ -16,7 +16,8 @@ const treeMenuConfig = [
     menuContext: 'system_owner',
     children: [
       { key: 'foundation_list', label: 'All Foundations', href: '/dashboard/foundations', icon: 'ti ti-list' },
-      { key: 'foundation_units', label: 'Units', href: '/dashboard/foundations/units', icon: 'ti ti-building-community' },
+      { key: 'units', label: 'Unit', href: '/dashboard/units', icon: 'ti ti-building-community' },
+      { key: 'unit_types', label: 'Tipe Unit', href: '/dashboard/unit_types', icon: 'ti ti-building-community' },
     ]
   },
 
