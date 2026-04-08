@@ -1,13 +1,47 @@
 # backend/Cargo.toml
+# Penjelasan:
+# [workspace] → Menandakan ini project multi-crate (monorepo Rust)
+# members = [".", "entity"]
+# "." → root project (backend utama)
+# "entity" → crate terpisah (biasanya untuk model DB SeaORM)
+# resolver = "2"
+# Dependency resolver versi baru (lebih akurat & efisien)
+# WAJIB untuk Rust modern
+
 [workspace]
 members = [".", "entity"]
 resolver = "2"
+
+# Penjelasan:
+# Ini dependency global yang bisa dipakai semua crate.
+# chrono → library tanggal & waktu
+# serde → biar bisa serialize ke JSON
+# sea-orm → ORM (database layer)
+# sea-orm-codegen → generate entity otomatis
+# serde → serialize / deserialize struct
+
+# 👉 Keuntungan:
+
+# Tidak perlu define ulang di tiap crate
+# Versi selalu konsisten
 
 [workspace.dependencies]
 chrono = {version = "0.4", features = ["serde"]}
 sea-orm = {version = "2.0.0-rc.30"}# ✅ Sudah benar
 sea-orm-codegen = {version = "2.0.0-rc.30"}# ✅ Sudah benar
 serde = {version = "1.0", features = ["derive"]}
+
+# Penjelasan:
+# build = "build.rs"
+# Script build custom (biasanya untuk generate code)
+# default-run = "silsilah"
+# Binary default saat cargo run
+# edition = "2021"
+# Versi fitur Rust
+# name = "silsilah"
+# Nama project
+# version = "0.1.0"
+# Versi aplikasi
 
 [package]
 build = "build.rs"
@@ -16,21 +50,41 @@ edition = "2021"
 name = "silsilah"
 version = "0.1.0"
 
+# async-trait → biar trait bisa pakai async
+# entity → crate lokal (model DB)
+
 [dependencies]
 async-trait = "0.1"
 entity = {path = "entity"}
+
+# actix-web → framework HTTP server
+# actix-rt → runtime async (berbasis tokio)
+# actix-cors → handle CORS (frontend beda domain)
 
 # Actix Web Framework
 actix-cors = "0.7"
 actix-rt = "2"
 actix-web = "4"
 
+# serde → convert struct ↔ JSON
+# serde_json → khusus JSON
+
 # Serialization
 serde = {workspace = true}
 serde_json = "1.0"
 
+# Digunakan untuk async programming (stream, future)
 # Futures
 futures = "0.3"
+
+# sqlx-mysql → pakai MySQL
+# runtime-tokio-rustls → async runtime + TLS tanpa OpenSSL
+# macros → enable derive macro (Entity, Model, dll)
+# with-chrono → support datetime
+# with-uuid → support UUID
+# 👉 Catatan penting:
+# Kamu sudah benar mengganti native-tls → rustls
+# ➡️ ini best practice modern (lebih ringan & aman)
 
 # Database - SeaORM
 sea-orm = {workspace = true, features = [
@@ -41,11 +95,20 @@ sea-orm = {workspace = true, features = [
   "with-uuid", # ← Tambahkan
 ]}
 
+# Runtime async utama di Rust
+# full → semua fitur aktif (thread, fs, net, dll)
+
 # Async runtime
 tokio = {version = "1", features = ["full"]}
 
+# Validasi request (email, length, dll)
+# derive → bisa pakai #[derive(Validate)]
+
 # Validation
 validator = {version = "0.18", features = ["derive"]}
+
+# jsonwebtoken → JWT auth
+# bcrypt → hash password
 
 # JWT Authentication
 jsonwebtoken = "9"
@@ -53,16 +116,28 @@ jsonwebtoken = "9"
 # Password hashing
 bcrypt = "0.15"
 
+# Load .env file
 # Environment variables
 dotenv = "0.15"
+
+# log → logging interface
+# env_logger → implementasi logger
 
 # Logging
 env_logger = "0.11"
 log = "0.4"
 
+# anyhow → error general (quick & simple)
+# thiserror → custom error struct
+
 # Error handling
 anyhow = "1.0"
 thiserror = "1.0"
+
+# chrono → waktu
+# uuid → unique ID
+#   - v4 → random UUID
+#   - serde → bisa ke JSON
 
 # Date and time
 chrono = {workspace = true}
@@ -70,26 +145,62 @@ chrono = {workspace = true}
 # UUID
 uuid = {version = "1.0", features = ["serde", "v4"]}
 
+# utoipa → generate dokumentasi API
+# utoipa-swagger-ui → UI Swagger di browser
+
 # API Documentation - Swagger/OpenAPI
 futures-util = "0.3.31"
 utoipa = {version = "5", features = ["actix_extras", "chrono", "uuid"]}
 utoipa-swagger-ui = {version = "8", features = ["actix-web"]}
 
+# actix-governor → rate limiting
+# actix-web-httpauth → middleware auth
+
 # Rate Limiting
 actix-governor = "0.5"
 actix-web-httpauth = "0.8.2"
 
+# regex → regex
+# tracing → logging modern (lebih advanced dari log)
+# tracing-subscriber → output tracing
+# actix-multipart → upload file
+
+actix-multipart = "0.7.2"
 regex = "1.10"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-actix-multipart = "0.7.2"
+
+# Digunakan untuk testing
+# mock → simulate database
 
 [dev-dependencies]
 sea-orm = {workspace = true, features = ["mock"]}
 
+# Dipakai di build.rs
+# Biasanya generate entity otomatis dari DB
+
 [build-dependencies]
 sea-orm-codegen = {workspace = true}
+
+# Menambahkan executable tambahan
+# Bisa dijalankan:
+# -- cargo run --bin gen_module
+# 👉 Biasanya untuk:
+
+# generate module
+# scaffolding code
 
 [[bin]]
 name = "gen_module"
 path = "scripts/gen_module.rs"
+
+# 🔚 Kesimpulan Arsitektur
+
+# Project ini sudah enterprise-ready:
+
+# ✅ Actix Web → high performance API
+# ✅ SeaORM → ORM modern
+# ✅ JWT + bcrypt → auth lengkap
+# ✅ Swagger → dokumentasi otomatis
+# ✅ Rate limit + middleware → security
+# ✅ Workspace → scalable
