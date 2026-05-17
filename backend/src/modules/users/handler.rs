@@ -1,6 +1,26 @@
 // ============================================================================
 // backend/src/modules/users/handler.rs
 // ============================================================================
+// use super::dto_multipart::{CreateUserMultipart, CreateUserMultipartRequest};
+// use crate::context::ServiceContext;
+// use crate::utils::pagination::PaginationParams;
+// use crate::{
+//     app_state::AppState,
+//     errors::AppError,
+//     modules::users::dto::{
+//         AssignRoleRequest, ChangePasswordRequest, CreateUserRequest, SyncRolesRequest,
+//         UpdateUserRequest, UserListResponse, UserResponse,
+//     },
+//     utils::response::ApiResponse,
+// };
+// use actix_multipart::{Field, Multipart};
+// use actix_web::{web, HttpResponse, Result};
+// use futures_util::StreamExt;
+// use std::fs;
+// use std::io::Write;
+// use tokio::io::AsyncWriteExt;
+// use uuid::Uuid;
+// use validator::Validate;
 use super::dto_multipart::{CreateUserMultipart, CreateUserMultipartRequest};
 use crate::context::ServiceContext;
 use crate::utils::pagination::PaginationParams;
@@ -16,8 +36,7 @@ use crate::{
 use actix_multipart::{Field, Multipart};
 use actix_web::{web, HttpResponse, Result};
 use futures_util::StreamExt;
-use std::fs;
-use std::io::Write;
+use tokio::io::AsyncWriteExt; // ✅ hanya tokio, hapus std::fs & std::io::Write
 use uuid::Uuid;
 use validator::Validate;
 
@@ -372,23 +391,35 @@ pub async fn sync_roles(
     ),
     security(("bearer_auth" = []))
 )]
+// ============================================================================
+// MULTIPART
+// ============================================================================
+
 pub async fn create_multipart(
     app_state: web::Data<AppState>,
+    ctx: ServiceContext,
     mut payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
     let mut user_data = CreateUserMultipart::default();
     let mut roles: Vec<String> = Vec::new();
+    let mut saved_image_path: Option<String> = None; // ✅ Fix #1: None bukan null
 
+    // ✅ Fix #2: Satu while loop saja, tidak ada duplikasi
     while let Some(item) = payload.next().await {
         let mut field = item.map_err(|e| AppError::BadRequest(e.to_string()))?;
 
         let field_name = match field.name() {
             Some(name) => name.to_string(),
-            None => continue, // skip field tanpa nama
+            None => continue,
         };
 
         if field_name == "image" {
-            user_data.image_path = process_image_field(&mut field).await?;
+            // ✅ Fix #3: simpan ke variabel terpisah dulu
+            // ✅ upload_dir dari config, bukan hardcoded
+            let upload_dir = app_state.config.upload_dir_for("users");
+            let path = process_image_field(&mut field, &upload_dir, &app_state).await?;
+            user_data.image_path = path.clone();
+            saved_image_path = path; // untuk keperluan cleanup
             continue;
         }
 
@@ -398,6 +429,7 @@ pub async fn create_multipart(
             "name" => user_data.name = value,
             "email" => user_data.email = value,
             "password" => user_data.password = value,
+            "status" => user_data.status = value,
             "dob" => user_data.dob = Some(value),
             "pob" => user_data.pob = Some(value),
             "phone" => user_data.phone = Some(value),
@@ -416,7 +448,7 @@ pub async fn create_multipart(
                     .parse()
                     .map_err(|_| AppError::BadRequest("Invalid foundation_id".to_string()))?;
             }
-            field if field.starts_with("roles") => roles.push(value),
+            "roles[]" | "roles" => roles.push(value),
             unknown => tracing::warn!("Unknown multipart field: {}", unknown),
         }
     }
@@ -425,39 +457,87 @@ pub async fn create_multipart(
         user_data.roles = Some(roles);
     }
 
+    user_data
+        .validate()
+        .map_err(|e| AppError::ValidationError(e.to_string()))?;
+
+    // ✅ Fix #4: cleanup orphaned image jika service gagal
     let result = app_state
         .user_service
         .create_from_multipart(user_data)
-        .await?;
+        .await
+        .map_err(|e| {
+            if let Some(ref path) = saved_image_path {
+                let path = path.clone();
+                tokio::spawn(async move {
+                    let _ = tokio::fs::remove_file(path).await;
+                });
+            }
+            e
+        })?;
 
     Ok(HttpResponse::Created().json(ApiResponse::success(result)))
 }
 
-// ============================================================================
-// HELPERS (Private)
-// ============================================================================
+async fn process_image_field(
+    field: &mut Field,
+    upload_dir: &str,
+    app_state: &AppState,
+) -> Result<Option<String>, AppError> {
+    let max_size = app_state.config.max_upload_size;
 
-async fn process_image_field(field: &mut Field) -> Result<Option<String>, AppError> {
+    let allowed_ext = &app_state.config.allowed_image_extensions;
+
     let filename = field
         .content_disposition()
         .and_then(|cd| cd.get_filename())
         .map(|f| f.to_string());
 
+    // Jika tidak ada filename atau kosong, skip
     let filename = match filename {
         Some(f) if !f.is_empty() => f,
         _ => return Ok(None),
     };
 
+    // ✅ SESUDAH
+    let ext = filename.as_str(); // ← jelas &str
+
+    if !allowed_ext.iter().any(|e| e == ext) {
+        // ← iter().any() untuk Vec<String> vs &str
+        return Err(AppError::BadRequest(format!(
+            "Format tidak didukung. Gunakan: {}",
+            allowed_ext.join(", ")
+        )));
+    }
+
+    // ✅ Fix #6: tokio::fs (non-blocking), bukan std::fs
     let upload_dir = "uploads/users";
-    fs::create_dir_all(upload_dir).map_err(|e| AppError::InternalServerError(e.to_string()))?;
+    tokio::fs::create_dir_all(upload_dir)
+        .await
+        .map_err(|e| AppError::InternalServerError(e.to_string()))?;
 
     let filepath = format!("{}/{}_{}", upload_dir, Uuid::new_v4(), filename);
-    let mut file =
-        fs::File::create(&filepath).map_err(|e| AppError::InternalServerError(e.to_string()))?;
+    let mut file = tokio::fs::File::create(&filepath)
+        .await
+        .map_err(|e| AppError::InternalServerError(e.to_string()))?;
 
+    // ✅ Fix #7: validasi ukuran file saat streaming
+    let mut total_size = 0usize;
     while let Some(chunk) = field.next().await {
         let data = chunk.map_err(|e| AppError::BadRequest(e.to_string()))?;
+        total_size += data.len();
+
+        if total_size > max_size {
+            // Cleanup file yang terlanjur dibuat
+            let _ = tokio::fs::remove_file(&filepath).await;
+            return Err(AppError::BadRequest(
+                "Ukuran gambar maksimal 5MB".to_string(),
+            ));
+        }
+
+        // ✅ Fix #8: write_all async, error di-map bukan pakai ?
         file.write_all(&data)
+            .await
             .map_err(|e| AppError::InternalServerError(e.to_string()))?;
     }
 
@@ -471,4 +551,8 @@ async fn process_text_field(field: &mut Field) -> Result<String, AppError> {
         bytes.extend_from_slice(&data);
     }
     String::from_utf8(bytes).map_err(|e| AppError::BadRequest(e.to_string()))
+}
+
+async fn process_json_field(field: &mut Field) -> Result<String, AppError> {
+    process_text_field(field).await
 }

@@ -4,6 +4,7 @@ mod config;
 mod context;
 mod docs;
 mod errors;
+mod filters;
 mod middleware;
 mod modules;
 mod routes;

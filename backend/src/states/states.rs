@@ -1,8 +1,11 @@
 // src/states/state.rs
 use crate::config::database::Database;
+use crate::config::AppConfig;
 use crate::AppState;
 use actix_web::web;
+
 pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
+    let config = AppConfig::from_env(); // ← inisialisasi config
     let applicant_service = crate::modules::applicants::init_service(db.clone());
     let auth_service = crate::modules::auth::init_service(db.clone());
     let academic_year_service = crate::modules::academic_years::init_service(db.clone());
@@ -34,6 +37,7 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
     // ✨ Create AppState
 
     Ok(web::Data::new(AppState::new(
+        config,
         academic_year_service,
         applicant_service,
         attendance_service,

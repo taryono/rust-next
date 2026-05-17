@@ -1,4 +1,5 @@
-// src/app_state.rs
+// backend/src/app_state.rs
+use crate::config::AppConfig;
 use crate::modules::academic_years::AcademicYearService;
 use crate::modules::applicants::ApplicantService;
 use crate::modules::attendances::AttendanceService;
@@ -28,6 +29,7 @@ use crate::modules::users::UserService;
 use std::sync::Arc;
 #[derive(Clone)]
 pub struct AppState {
+    pub config: AppConfig,
     pub academic_year_service: Arc<AcademicYearService>,
     pub applicant_service: Arc<ApplicantService>,
     pub attendance_service: Arc<AttendanceService>,
@@ -57,6 +59,7 @@ pub struct AppState {
 }
 impl AppState {
     pub fn new(
+        config: AppConfig,
         academic_year_service: AcademicYearService,
         applicant_service: ApplicantService,
         attendance_service: AttendanceService,
@@ -85,6 +88,7 @@ impl AppState {
         user_service: UserService,
     ) -> Self {
         Self {
+            config,
             academic_year_service: Arc::new(academic_year_service),
             applicant_service: Arc::new(applicant_service),
             attendance_service: Arc::new(attendance_service),

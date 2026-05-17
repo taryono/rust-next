@@ -1,5 +1,5 @@
 // ============================================================================
-// handler.rs - HTTP Handlers
+// src/modules/students/handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{CreateStudentRequest, StudentResponse, UpdateStudentRequest};
 use crate::app_state::AppState;

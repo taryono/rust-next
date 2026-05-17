@@ -3,13 +3,13 @@
 // ============================================================================
 use crate::config::database::Database;
 use crate::errors::AppError;
+use crate::filters::global_search::{GlobalSearch, SearchColumn, SearchRelation};
 use crate::utils::pagination::PaginationParams;
 use entity::students::{self, Entity as Student};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    Set,
+    QueryTrait, Set,
 };
-
 #[derive(Clone)]
 pub struct StudentRepository {
     db: Database,
@@ -44,8 +44,8 @@ impl StudentRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    /// Find all with pagination and filters
-    pub async fn find_all(
+    // Find all with pagination and filters tanpa global_search
+    pub async fn find_all_old(
         &self,
         params: &PaginationParams,
         foundation_id: Option<i64>,
@@ -61,6 +61,72 @@ impl StudentRepository {
         if let Some(ref search) = params.search {
             query = query.filter(Condition::any().add(students::Column::Name.contains(search)));
         }
+
+        // Apply sorting
+        if let Some(ref sort_by) = params.sort_by {
+            let is_desc = params.sort_order.as_deref() == Some("desc");
+
+            query = match sort_by.as_str() {
+                "name" => {
+                    if is_desc {
+                        query.order_by_desc(students::Column::Name)
+                    } else {
+                        query.order_by_asc(students::Column::Name)
+                    }
+                }
+                "created_at" => {
+                    if is_desc {
+                        query.order_by_desc(students::Column::CreatedAt)
+                    } else {
+                        query.order_by_asc(students::Column::CreatedAt)
+                    }
+                }
+                _ => query.order_by_desc(students::Column::CreatedAt),
+            };
+        } else {
+            query = query.order_by_desc(students::Column::CreatedAt);
+        }
+
+        // Paginate dengan validasi
+        let per_page = params.per_page();
+        let paginator = query.paginate(self.conn(), per_page as u64);
+
+        let total = paginator
+            .num_items()
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+        let items = paginator
+            .fetch_page(params.page() - 1)
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+        Ok((items, total.try_into().unwrap_or(0)))
+    }
+
+    // Find all with pagination and filters with global_search
+    pub async fn find_all(
+        &self,
+        params: &PaginationParams,
+        foundation_id: Option<i64>,
+    ) -> Result<(Vec<students::Model>, u64), AppError> {
+        let mut query = Student::find();
+
+        // Filter by foundation_id if provided
+        if let Some(fid) = foundation_id {
+            query = query.filter(students::Column::FoundationId.eq(fid));
+        }
+
+        let db_name = self.db.get_db_name()?;
+
+        query = GlobalSearch::apply_from_entity::<Student>(
+            self.conn(),
+            query,
+            &db_name,
+            params.search.as_deref(),
+        )
+        .await
+        .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
         // Apply sorting
         if let Some(ref sort_by) = params.sort_by {
