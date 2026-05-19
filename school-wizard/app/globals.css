@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.wz-root { max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
+
+/* Progress */
+.wz-progress { display: flex; position: relative; margin-bottom: 2rem; }
+.wz-progress-track {
+  position: absolute; top: 17px; left: 18px; right: 18px;
+  height: 2px; background: #e5e7eb;
+}
+.wz-progress-fill {
+  position: absolute; top: 17px; left: 18px;
+  height: 2px; background: #2563eb;
+  transition: width .4s ease;
+}
+.wz-dot-wrap { flex: 1; text-align: center; z-index: 2; }
+.wz-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+}
+.wz-dot.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.wz-dot.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+.wz-dot-label { font-size: 11px; color: #9ca3af; }
+
+/* Panel */
+.wz-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.wz-title { font-size: 18px; font-weight: 700; }
+.wz-sub { font-size: 13px; color: #6b7280; margin-bottom: 1rem; }
+
+/* Card */
+.wz-card {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  background: #fafafa;
+  transition: .2s;
+}
+.wz-card:hover { border-color: #2563eb; background: #eff6ff; }
+.wz-card.selected { border-color: #2563eb; background: #eff6ff; }
+
+/* Button */
+.wz-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.wz-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+.wz-btn.primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
