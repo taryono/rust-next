@@ -1,0 +1,159 @@
+// src/modules/users/dto.rs
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
+use validator::Validate;
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
+pub struct CreateUserRequest {
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    // 🔥 INI BIAR STRING "1" TETAP DITERIMA
+    #[serde(deserialize_with = "string_to_i64")]
+    pub foundation_id: i64,
+    #[serde(default = "default_is_active")]
+    pub is_active: i8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub roles: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct UserResponse {
+    pub id: i64,
+    pub name: String,
+    pub email: String,
+    pub foundation_id: i64,
+    pub created_at: String,
+    pub updated_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub roles: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct UserWithRolesResponse {
+    pub id: i64,
+    pub name: String,
+    pub email: String,
+    pub username: Option<String>,
+    pub is_active: Option<i8>,
+    pub is_verified: Option<i8>,
+    pub foundation_id: i64,
+    pub created_at: String,
+    pub updated_at: String,
+    pub roles: Vec<RoleResponse>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RoleResponse {
+    pub id: i64,
+    pub name: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct UserListResponse {
+    pub users: Vec<UserResponse>,
+    pub total: usize,
+    pub page: u64,
+    pub per_page: i64,
+    pub total_pages: i64,
+}
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct UpdateUserRequest {
+    #[validate(length(min = 3, max = 50))]
+    pub name: Option<String>,
+    pub is_active: Option<i8>,
+    #[validate(email)]
+    pub email: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct ChangePasswordRequest {
+    #[validate(length(min = 1))]
+    pub old_password: String,
+
+    #[validate(length(min = 6))]
+    pub new_password: String,
+}
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct AssignRoleRequest {
+    pub role_id: i64,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct SyncRolesRequest {
+    pub role_ids: Vec<i64>,
+}
+
+impl UserResponse {
+    pub fn from_user_with_roles(
+        user: &entity::users::Model,
+        roles: &[entity::roles::Model],
+    ) -> Self {
+        let codes: Vec<String> = roles.iter().map(|r| r.code.clone()).collect();
+        Self {
+            id: user.id,
+            name: user.name.clone(),
+            email: user.email.clone(),
+            foundation_id: user.foundation_id.clone(),
+            created_at: user.created_at.to_string(),
+            //  Dipakai jika updated_at adalah Option (tipe: Option<DateTime>)
+            // user.updated_at.as_ref().map(|dt| dt.to_string()),
+            // Dipakai jika updated_at bukan Option (tipe: DateTime)
+            updated_at: user.updated_at.to_string(),
+            roles: Some(codes),
+        }
+    }
+
+    pub fn from_entity(user: &entity::users::Model) -> Self {
+        Self {
+            id: user.id,
+            name: user.name.clone(),
+            email: user.email.clone(),
+            foundation_id: user.foundation_id.clone(),
+            created_at: user.created_at.to_string(),
+            //  Dipakai jika updated_at adalah Option (tipe: Option<DateTime>)
+            // user.updated_at.as_ref().map(|dt| dt.to_string()),
+            // Dipakai jika updated_at bukan Option (tipe: DateTime)
+            updated_at: user.updated_at.to_string(),
+            roles: None,
+        }
+    }
+}
+
+impl From<entity::users::Model> for UserResponse {
+    fn from(model: entity::users::Model) -> Self {
+        Self {
+            id: model.id,
+            foundation_id: model.foundation_id,
+            name: model.name,
+            email: model.email,
+            created_at: model.created_at.to_string(),
+            updated_at: model.updated_at.to_string(),
+            roles: None,
+        }
+    }
+}
+
+fn default_is_active() -> i8 {
+    1 // default active
+}
+
+fn string_to_i64<'de, D>(deserializer: D) -> Result<i64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::Deserialize;
+
+    let value = serde_json::Value::deserialize(deserializer)?;
+
+    match value {
+        serde_json::Value::String(s) => s.parse::<i64>().map_err(serde::de::Error::custom),
+
+        serde_json::Value::Number(n) => n
+            .as_i64()
+            .ok_or_else(|| serde::de::Error::custom("invalid number")),
+
+        _ => Err(serde::de::Error::custom("invalid type")),
+    }
+}

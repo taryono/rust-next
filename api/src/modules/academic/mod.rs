@@ -1,0 +1,14 @@
+pub mod academic_years;
+pub mod attendances;
+pub mod class_levels;
+pub mod classes;
+pub mod departments;
+pub mod employees;
+pub mod positions;
+pub mod regulations;
+pub mod rooms;
+pub mod semesters;
+pub mod subjects;
+pub mod teachers;
+pub mod unit_types;
+pub mod units;
