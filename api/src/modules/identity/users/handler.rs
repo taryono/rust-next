@@ -7,7 +7,7 @@
 // use crate::{
 //     app_state::AppState,
 //     errors::AppError,
-//     modules::users::dto::{
+//     modules::identity::users::dto::{
 //         AssignRoleRequest, ChangePasswordRequest, CreateUserRequest, SyncRolesRequest,
 //         UpdateUserRequest, UserListResponse, UserResponse,
 //     },
@@ -27,7 +27,7 @@ use crate::utils::pagination::PaginationParams;
 use crate::{
     app_state::AppState,
     errors::AppError,
-    modules::users::dto::{
+    modules::identity::users::dto::{
         AssignRoleRequest, ChangePasswordRequest, CreateUserRequest, SyncRolesRequest,
         UpdateUserRequest, UserListResponse, UserResponse,
     },

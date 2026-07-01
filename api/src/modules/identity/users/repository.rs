@@ -3,7 +3,7 @@
 // ============================================================================
 use crate::config::database::Database;
 use crate::errors::AppError;
-use crate::modules::users::dto::UserResponse;
+use crate::modules::identity::users::dto::UserResponse;
 use crate::utils::pagination::PaginationParams;
 use entity::{
     role_users::{self, Entity as RoleUser},

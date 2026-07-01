@@ -1,12 +1,12 @@
 // src/modules/auth/service.rs
-use crate::modules::permissions::PermissionService;
+use crate::modules::identity::permissions::PermissionService;
 use crate::{
     errors::AppError,
-    modules::auth::{
+    modules::identity::auth::{
         dto::{AuthResponse, LoginRequest, RefreshTokenResponse, RegisterRequest},
         repository::AuthRepository,
     },
-    modules::users::dto::UserResponse,
+    modules::identity::users::dto::UserResponse,
     utils::{jwt, password},
 };
 use std::env;

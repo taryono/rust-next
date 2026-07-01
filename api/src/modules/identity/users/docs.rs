@@ -1,7 +1,7 @@
 // ============================================
 // src/modules/users/docs.rs
 // ============================================
-use crate::modules::users::{dto, dto_multipart, handler};
+use crate::modules::identity::users::{dto, dto_multipart, handler};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]

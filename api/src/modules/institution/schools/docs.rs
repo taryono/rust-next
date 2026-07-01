@@ -26,7 +26,7 @@ use utoipa::OpenApi;
         )
     ),
     tags(
-        (name = "Foundation Type ", description = "Foundation Type management endpoints")
+        (name = "School ", description = "School management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

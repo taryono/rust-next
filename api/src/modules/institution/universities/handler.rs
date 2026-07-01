@@ -24,7 +24,7 @@ pub async fn create(
     request: web::Json<CreateUniversityRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
-        .foundation_type_service
+        .university_service
         .create(request.into_inner())
         .await?;
     Ok(HttpResponse::Created().json(result))
@@ -48,7 +48,7 @@ pub async fn get_by_id(
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
-        .foundation_type_service
+        .university_service
         .get_by_id(id.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -66,7 +66,7 @@ pub async fn get_by_id(
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
     ),
     responses(
-        (status = 200, description = "List of Foundation Types", body = PaginatedResponse<UniversityResponse>)
+        (status = 200, description = "List of Universitys", body = PaginatedResponse<UniversityResponse>)
     ),
     tag = "University "
 )]
@@ -76,7 +76,7 @@ pub async fn get_all(
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = app_state.foundation_type_service.get_all(params).await?;
+    let result = app_state.university_service.get_all(params).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -102,7 +102,7 @@ pub async fn update(
     request: web::Json<UpdateUniversityRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
-        .foundation_type_service
+        .university_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -125,9 +125,6 @@ pub async fn delete(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    app_state
-        .foundation_type_service
-        .delete(id.into_inner())
-        .await?;
+    app_state.university_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }

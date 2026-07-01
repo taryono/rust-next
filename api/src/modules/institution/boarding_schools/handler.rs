@@ -1,4 +1,4 @@
-// api/src/modules/institution/boarding_school/handler.rs
+// api/src/modules/institution/boarding_schools/handler.rs
 // ============================================================================
 // handler.rs - HTTP Handlers
 // ============================================================================
@@ -69,7 +69,7 @@ pub async fn get_by_id(
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
     ),
     responses(
-        (status = 200, description = "List of Foundation Types", body = PaginatedResponse<BoardingSchoolResponse>)
+        (status = 200, description = "List of Boarding Schooles", body = PaginatedResponse<BoardingSchoolResponse>)
     ),
     tag = "BoardingSchool "
 )]

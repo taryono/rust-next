@@ -1,5 +1,5 @@
 // src/modules/auth/dto.rs
-use crate::modules::users::dto::UserResponse;
+use crate::modules::identity::users::dto::UserResponse;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;

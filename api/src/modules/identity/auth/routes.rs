@@ -1,5 +1,5 @@
 // src/modules/auth/routes.rs
-use crate::modules::auth::handler;
+use crate::modules::identity::auth::handler;
 use actix_web::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {

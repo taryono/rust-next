@@ -2,7 +2,7 @@
 // ============================================================================
 // routes.rs - Route Configuration
 // ============================================================================
-use crate::{middleware::auth::JwtMiddleware, modules::user_profiles::handler};
+use crate::{middleware::auth::JwtMiddleware, modules::identity::user_profiles::handler};
 use actix_web::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {

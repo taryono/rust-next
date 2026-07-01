@@ -1,6 +1,6 @@
 // src/modules/auth/handler.rs
 use crate::app_state::AppState;
-use crate::modules::auth::dto::{
+use crate::modules::identity::auth::dto::{
     AuthResponse, LoginRequest, RefreshTokenRequest, RefreshTokenResponse, RegisterRequest,
 };
 use crate::utils::response::ApiResponse;

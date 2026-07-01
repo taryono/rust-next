@@ -27,7 +27,7 @@ use utoipa::OpenApi;
         )
     ),
     tags(
-        (name = "Foundation Type ", description = "Foundation Type management endpoints")
+        (name = "Sport ", description = "Sport management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

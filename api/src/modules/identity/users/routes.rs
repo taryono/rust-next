@@ -1,5 +1,5 @@
 // api/src/modules/users/routes.rs
-use crate::{middleware::auth::JwtMiddleware, modules::users::handler};
+use crate::{middleware::auth::JwtMiddleware, modules::identity::users::handler};
 use actix_web::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {

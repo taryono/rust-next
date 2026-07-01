@@ -6,34 +6,44 @@ use actix_web::web;
 
 pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let config = AppConfig::from_env(); // ← inisialisasi config
-    let applicant_service = crate::modules::applicants::init_service(db.clone());
-    let auth_service = crate::modules::auth::init_service(db.clone());
-    let academic_year_service = crate::modules::academic_years::init_service(db.clone());
-    let attendance_service = crate::modules::attendances::init_service(db.clone());
-    let class_level_service = crate::modules::class_levels::init_service(db.clone());
-    let class_service = crate::modules::classes::init_service(db.clone());
-    let department_service = crate::modules::departments::init_service(db.clone());
-    let employee_service = crate::modules::employees::init_service(db.clone());
-    let foundation_service = crate::modules::foundations::init_service(db.clone());
+    let applicant_service = crate::modules::admission::applicants::init_service(db.clone());
+    let auth_service = crate::modules::identity::auth::init_service(db.clone());
+    let academic_year_service = crate::modules::academic::academic_years::init_service(db.clone());
+    let attendance_service = crate::modules::academic::attendances::init_service(db.clone());
+    let boarding_school_service =
+        crate::modules::institution::boarding_schools::init_service(db.clone());
+    let course_service = crate::modules::institution::courses::init_service(db.clone());
+    let school_service = crate::modules::institution::schools::init_service(db.clone());
+    let sport_service = crate::modules::institution::sports::init_service(db.clone());
+    let university_service = crate::modules::institution::universities::init_service(db.clone());
+    let book_service = crate::modules::library::books::init_service(db.clone());
+    let borrowing_service = crate::modules::library::borrowings::init_service(db.clone());
+    let class_level_service = crate::modules::academic::class_levels::init_service(db.clone());
+    let class_service = crate::modules::academic::classes::init_service(db.clone());
+    let department_service = crate::modules::academic::departments::init_service(db.clone());
+    let employee_service = crate::modules::academic::employees::init_service(db.clone());
+    let guardian_service = crate::modules::student::guardians::init_service(db.clone());
+    let foundation_service = crate::modules::platform::foundations::init_service(db.clone());
     let foundation_regulation_service =
-        crate::modules::foundation_regulations::init_service(db.clone());
-    let foundation_type_service = crate::modules::foundation_types::init_service(db.clone());
-    let menu_service = crate::modules::menus::init_service(db.clone());
-    let permission_service = crate::modules::permissions::init_service(db.clone());
-    let position_service = crate::modules::positions::init_service(db.clone());
-    let regulation_service = crate::modules::regulations::init_service(db.clone());
-    let role_service = crate::modules::roles::init_service(db.clone());
-    let room_service = crate::modules::rooms::init_service(db.clone());
-    let semester_service = crate::modules::semesters::init_service(db.clone());
-    let setting_service = crate::modules::settings::init_service(db.clone());
-    let student_service = crate::modules::students::init_service(db.clone());
-    let subject_service = crate::modules::subjects::init_service(db.clone());
-    let teacher_service = crate::modules::teachers::init_service(db.clone());
-    let unit_service = crate::modules::units::init_service(db.clone());
-    let unit_type_service = crate::modules::unit_types::init_service(db.clone());
-    let user_profile_service = crate::modules::user_profiles::init_service(db.clone());
-    let user_service = crate::modules::users::init_service(db.clone());
-
+        crate::modules::platform::foundation_regulations::init_service(db.clone());
+    let foundation_type_service =
+        crate::modules::platform::foundation_types::init_service(db.clone());
+    let menu_service = crate::modules::identity::menus::init_service(db.clone());
+    let permission_service = crate::modules::identity::permissions::init_service(db.clone());
+    let position_service = crate::modules::academic::positions::init_service(db.clone());
+    let regulation_service = crate::modules::academic::regulations::init_service(db.clone());
+    let role_service = crate::modules::identity::roles::init_service(db.clone());
+    let room_service = crate::modules::academic::rooms::init_service(db.clone());
+    let semester_service = crate::modules::academic::semesters::init_service(db.clone());
+    let setting_service = crate::modules::platform::settings::init_service(db.clone());
+    let student_service = crate::modules::student::students::init_service(db.clone());
+    let subject_service = crate::modules::academic::subjects::init_service(db.clone());
+    let teacher_service = crate::modules::academic::teachers::init_service(db.clone());
+    let unit_service = crate::modules::academic::units::init_service(db.clone());
+    let unit_type_service = crate::modules::academic::unit_types::init_service(db.clone());
+    let user_profile_service = crate::modules::identity::user_profiles::init_service(db.clone());
+    let user_service = crate::modules::identity::users::init_service(db.clone());
+    let guardian_service = crate::modules::student::guardians::init_service(db);
     // ✨ Create AppState
 
     Ok(web::Data::new(AppState::new(
