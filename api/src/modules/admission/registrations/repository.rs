@@ -4,18 +4,18 @@
 use crate::config::database::Database;
 use crate::errors::AppError;
 use crate::utils::pagination::PaginationParams;
-use entity::applicants::{self, Entity as Applicant};
+use entity::registrations::{self, Entity as Registration};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     Set,
 };
 
 #[derive(Clone)]
-pub struct ApplicantRepository {
+pub struct RegistrationRepository {
     db: Database,
 }
 
-impl ApplicantRepository {
+impl RegistrationRepository {
     pub fn new(db: Database) -> Self {
         Self { db }
     }
@@ -25,11 +25,11 @@ impl ApplicantRepository {
         self.db.get_connection()
     }
 
-    /// Create new applicant
+    /// Create new registration
     pub async fn create(
         &self,
-        active_model: applicants::ActiveModel,
-    ) -> Result<applicants::Model, AppError> {
+        active_model: registrations::ActiveModel,
+    ) -> Result<registrations::Model, AppError> {
         active_model
             .insert(self.conn())
             .await
@@ -37,8 +37,8 @@ impl ApplicantRepository {
     }
 
     /// Find by ID
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<applicants::Model>, AppError> {
-        Applicant::find_by_id(id)
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<registrations::Model>, AppError> {
+        Registration::find_by_id(id)
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
@@ -49,15 +49,16 @@ impl ApplicantRepository {
         &self,
         params: &PaginationParams,
         foundation_id: i64,
-    ) -> Result<(Vec<applicants::Model>, u64), AppError> {
-        let mut query = Applicant::find();
+    ) -> Result<(Vec<registrations::Model>, u64), AppError> {
+        let mut query = Registration::find();
 
         // Filter by foundation_id if provided
-        query = query.filter(applicants::Column::FoundationId.eq(foundation_id));
+        query = query.filter(registrations::Column::FoundationId.eq(foundation_id));
 
         // Apply search filter if provided
         if let Some(ref search) = params.search {
-            query = query.filter(Condition::any().add(applicants::Column::Name.contains(search)));
+            query =
+                query.filter(Condition::any().add(registrations::Column::Name.contains(search)));
         }
 
         // Apply sorting
@@ -67,22 +68,22 @@ impl ApplicantRepository {
             query = match sort_by.as_str() {
                 "name" => {
                     if is_desc {
-                        query.order_by_desc(applicants::Column::Name)
+                        query.order_by_desc(registrations::Column::Name)
                     } else {
-                        query.order_by_asc(applicants::Column::Name)
+                        query.order_by_asc(registrations::Column::Name)
                     }
                 }
                 "created_at" => {
                     if is_desc {
-                        query.order_by_desc(applicants::Column::CreatedAt)
+                        query.order_by_desc(registrations::Column::CreatedAt)
                     } else {
-                        query.order_by_asc(applicants::Column::CreatedAt)
+                        query.order_by_asc(registrations::Column::CreatedAt)
                     }
                 }
-                _ => query.order_by_desc(applicants::Column::CreatedAt),
+                _ => query.order_by_desc(registrations::Column::CreatedAt),
             };
         } else {
-            query = query.order_by_desc(applicants::Column::CreatedAt);
+            query = query.order_by_desc(registrations::Column::CreatedAt);
         }
 
         // Paginate dengan validasi
@@ -107,20 +108,20 @@ impl ApplicantRepository {
         &self,
         name: &str,
         foundation_id: i64,
-    ) -> Result<Option<applicants::Model>, AppError> {
-        Applicant::find()
-            .filter(applicants::Column::FoundationId.eq(foundation_id))
-            .filter(applicants::Column::Name.eq(name))
+    ) -> Result<Option<registrations::Model>, AppError> {
+        Registration::find()
+            .filter(registrations::Column::FoundationId.eq(foundation_id))
+            .filter(registrations::Column::Name.eq(name))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
-    /// Update applicant
+    /// Update registration
     pub async fn update(
         &self,
         id: i64,
-        active_model: applicants::ActiveModel,
-    ) -> Result<applicants::Model, AppError> {
+        active_model: registrations::ActiveModel,
+    ) -> Result<registrations::Model, AppError> {
         let mut model = active_model;
         model.id = Set(id);
         model
@@ -129,9 +130,9 @@ impl ApplicantRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    /// Delete applicant
+    /// Delete registration
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
-        Applicant::delete_by_id(id)
+        Registration::delete_by_id(id)
             .exec(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;

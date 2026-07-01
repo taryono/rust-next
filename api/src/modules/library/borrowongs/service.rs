@@ -2,8 +2,8 @@
 // api/src/modules/students/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{CreateStudentRequest, StudentResponse, UpdateStudentRequest};
-use super::repository::StudentRepository;
+use super::dto::{CreateBorrowingRequest, BorrowingResponse, UpdateBorrowingRequest};
+use super::repository::BorrowingRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use entity::students;
@@ -11,17 +11,17 @@ use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
-pub struct StudentService {
-    repository: StudentRepository,
+pub struct BorrowingService {
+    repository: BorrowingRepository,
 }
 
-impl StudentService {
-    pub fn new(repository: StudentRepository) -> Self {
+impl BorrowingService {
+    pub fn new(repository: BorrowingRepository) -> Self {
         Self { repository }
     }
 
     /// Create new student with validation
-    pub async fn create(&self, request: CreateStudentRequest) -> Result<StudentResponse, AppError> {
+    pub async fn create(&self, request: CreateBorrowingRequest) -> Result<BorrowingResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -34,7 +34,7 @@ impl StudentService {
             .await?
         {
             return Err(AppError::ConflictError(
-                "Student with this name already exists".to_string(),
+                "Borrowing with this name already exists".to_string(),
             ));
         }
 
@@ -52,18 +52,18 @@ impl StudentService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(StudentResponse::from(created))
+        Ok(BorrowingResponse::from(created))
     }
 
     /// Get student by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<StudentResponse, AppError> {
+    pub async fn get_by_id(&self, id: i64) -> Result<BorrowingResponse, AppError> {
         let student = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Borrowing not found".to_string()))?;
 
-        Ok(StudentResponse::from(student))
+        Ok(BorrowingResponse::from(student))
     }
 
     /// Get all students with pagination
@@ -71,7 +71,7 @@ impl StudentService {
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<StudentResponse>, AppError> {
+    ) -> Result<PaginatedResponse<BorrowingResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -79,8 +79,8 @@ impl StudentService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<StudentResponse> =
-            items.into_iter().map(StudentResponse::from).collect();
+        let responses: Vec<BorrowingResponse> =
+            items.into_iter().map(BorrowingResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -94,8 +94,8 @@ impl StudentService {
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateStudentRequest,
-    ) -> Result<StudentResponse, AppError> {
+        request: UpdateBorrowingRequest,
+    ) -> Result<BorrowingResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -106,7 +106,7 @@ impl StudentService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Borrowing not found".to_string()))?;
 
         // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
@@ -117,7 +117,7 @@ impl StudentService {
                     .await?
                 {
                     return Err(AppError::ConflictError(
-                        "Student with this name already exists".to_string(),
+                        "Borrowing with this name already exists".to_string(),
                     ));
                 }
             }
@@ -136,7 +136,7 @@ impl StudentService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(StudentResponse::from(updated))
+        Ok(BorrowingResponse::from(updated))
     }
 
     /// Delete student
@@ -145,7 +145,7 @@ impl StudentService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Borrowing not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related students

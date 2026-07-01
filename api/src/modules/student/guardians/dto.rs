@@ -1,4 +1,4 @@
-// api/src/modules/students/dto.rs
+// api/src/modules/guardians/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -8,14 +8,14 @@ use validator::Validate;
 // ============================================================
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct StudentResponse {
+pub struct GuardianResponse {
     pub id: i64,
     pub user_id: i64,
     pub foundation_id: i64,
     pub unit_id: Option<i64>,
     pub class_id: Option<i64>,
     pub name: String,
-    pub student_number: String,
+    pub guardian_number: String,
     pub parent_name: Option<String>,
     pub parent_phone: Option<String>,
     pub enrollment_date: Option<String>,
@@ -25,8 +25,8 @@ pub struct StudentResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct StudentListResponse {
-    pub data: Vec<StudentResponse>,
+pub struct GuardianListResponse {
+    pub data: Vec<GuardianResponse>,
     pub total: u64,
     pub page: u64,
     pub per_page: u64,
@@ -38,7 +38,7 @@ pub struct StudentListResponse {
 // ============================================================
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct CreateStudentRequest {
+pub struct CreateGuardianRequest {
     pub user_id: i64,
     pub foundation_id: i64,
     pub unit_id: Option<i64>,
@@ -48,7 +48,7 @@ pub struct CreateStudentRequest {
     pub name: String,
 
     #[validate(length(min = 1, max = 50))]
-    pub student_number: String, // ✅ wajib ada
+    pub guardian_number: String, // ✅ wajib ada
 
     pub parent_name: Option<String>,
     pub parent_phone: Option<String>,
@@ -57,7 +57,7 @@ pub struct CreateStudentRequest {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct UpdateStudentRequest {
+pub struct UpdateGuardianRequest {
     pub unit_id: Option<i64>,
     pub class_id: Option<i64>,
 
@@ -65,7 +65,7 @@ pub struct UpdateStudentRequest {
     pub name: Option<String>,
 
     #[validate(length(min = 1, max = 50))]
-    pub student_number: Option<String>,
+    pub guardian_number: Option<String>,
 
     pub parent_name: Option<String>,
     pub parent_phone: Option<String>,
@@ -77,8 +77,8 @@ pub struct UpdateStudentRequest {
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::students::Model> for StudentResponse {
-    fn from(model: entity::students::Model) -> Self {
+impl From<entity::guardians::Model> for GuardianResponse {
+    fn from(model: entity::guardians::Model) -> Self {
         Self {
             id: model.id,
             user_id: model.user_id,
@@ -86,7 +86,7 @@ impl From<entity::students::Model> for StudentResponse {
             unit_id: model.unit_id,
             class_id: model.class_id,
             name: model.name,
-            student_number: model.student_number,
+            guardian_number: model.guardian_number,
             parent_name: model.parent_name,
             parent_phone: model.parent_phone,
             enrollment_date: model.enrollment_date.map(|d| d.to_rfc3339()),
@@ -97,8 +97,8 @@ impl From<entity::students::Model> for StudentResponse {
     }
 }
 
-impl StudentResponse {
-    pub fn from_vec(models: Vec<entity::students::Model>) -> Vec<Self> {
+impl GuardianResponse {
+    pub fn from_vec(models: Vec<entity::guardians::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }
 }

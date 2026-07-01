@@ -1,27 +1,27 @@
 // ============================================================================
-// api/src/modules/students/service.rs
+// api/src/modules/invoices/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{CreateStudentRequest, StudentResponse, UpdateStudentRequest};
-use super::repository::StudentRepository;
+use super::dto::{CreateInvoiceRequest, InvoiceResponse, UpdateInvoiceRequest};
+use super::repository::InvoiceRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
-use entity::students;
+use entity::invoices;
 use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
-pub struct StudentService {
-    repository: StudentRepository,
+pub struct InvoiceService {
+    repository: InvoiceRepository,
 }
 
-impl StudentService {
-    pub fn new(repository: StudentRepository) -> Self {
+impl InvoiceService {
+    pub fn new(repository: InvoiceRepository) -> Self {
         Self { repository }
     }
 
     /// Create new student with validation
-    pub async fn create(&self, request: CreateStudentRequest) -> Result<StudentResponse, AppError> {
+    pub async fn create(&self, request: CreateInvoiceRequest) -> Result<InvoiceResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -34,13 +34,13 @@ impl StudentService {
             .await?
         {
             return Err(AppError::ConflictError(
-                "Student with this name already exists".to_string(),
+                "Invoice with this name already exists".to_string(),
             ));
         }
 
         // Parse start_date and end_date to NaiveDate
         // Build entity with parsed dates
-        let active_model = students::ActiveModel {
+        let active_model = invoices::ActiveModel {
             foundation_id: Set(request.foundation_id),
             name: Set(request.name),
             created_at: Set(chrono::Utc::now()),
@@ -52,26 +52,26 @@ impl StudentService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(StudentResponse::from(created))
+        Ok(InvoiceResponse::from(created))
     }
 
     /// Get student by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<StudentResponse, AppError> {
+    pub async fn get_by_id(&self, id: i64) -> Result<InvoiceResponse, AppError> {
         let student = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Invoice not found".to_string()))?;
 
-        Ok(StudentResponse::from(student))
+        Ok(InvoiceResponse::from(student))
     }
 
-    /// Get all students with pagination
+    /// Get all invoices with pagination
     pub async fn get_all(
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<StudentResponse>, AppError> {
+    ) -> Result<PaginatedResponse<InvoiceResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -79,8 +79,8 @@ impl StudentService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<StudentResponse> =
-            items.into_iter().map(StudentResponse::from).collect();
+        let responses: Vec<InvoiceResponse> =
+            items.into_iter().map(InvoiceResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -94,8 +94,8 @@ impl StudentService {
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateStudentRequest,
-    ) -> Result<StudentResponse, AppError> {
+        request: UpdateInvoiceRequest,
+    ) -> Result<InvoiceResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -106,7 +106,7 @@ impl StudentService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Invoice not found".to_string()))?;
 
         // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
@@ -117,13 +117,13 @@ impl StudentService {
                     .await?
                 {
                     return Err(AppError::ConflictError(
-                        "Student with this name already exists".to_string(),
+                        "Invoice with this name already exists".to_string(),
                     ));
                 }
             }
         }
         // Build update model
-        let mut active_model = students::ActiveModel {
+        let mut active_model = invoices::ActiveModel {
             id: Set(id),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
@@ -136,7 +136,7 @@ impl StudentService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(StudentResponse::from(updated))
+        Ok(InvoiceResponse::from(updated))
     }
 
     /// Delete student
@@ -145,10 +145,10 @@ impl StudentService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Invoice not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
-        // e.g., cannot delete if has related students
+        // e.g., cannot delete if has related invoices
         // You can add repository method to check relations
 
         self.repository.delete(id).await

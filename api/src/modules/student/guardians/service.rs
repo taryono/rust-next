@@ -1,27 +1,30 @@
 // ============================================================================
-// api/src/modules/students/service.rs
+// api/src/modules/guardians/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{CreateStudentRequest, StudentResponse, UpdateStudentRequest};
-use super::repository::StudentRepository;
+use super::dto::{CreateGuardianRequest, GuardianResponse, UpdateGuardianRequest};
+use super::repository::GuardianRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
-use entity::students;
+use entity::guardians;
 use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
-pub struct StudentService {
-    repository: StudentRepository,
+pub struct GuardianService {
+    repository: GuardianRepository,
 }
 
-impl StudentService {
-    pub fn new(repository: StudentRepository) -> Self {
+impl GuardianService {
+    pub fn new(repository: GuardianRepository) -> Self {
         Self { repository }
     }
 
-    /// Create new student with validation
-    pub async fn create(&self, request: CreateStudentRequest) -> Result<StudentResponse, AppError> {
+    /// Create new guardian with validation
+    pub async fn create(
+        &self,
+        request: CreateGuardianRequest,
+    ) -> Result<GuardianResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -34,13 +37,13 @@ impl StudentService {
             .await?
         {
             return Err(AppError::ConflictError(
-                "Student with this name already exists".to_string(),
+                "Guardian with this name already exists".to_string(),
             ));
         }
 
         // Parse start_date and end_date to NaiveDate
         // Build entity with parsed dates
-        let active_model = students::ActiveModel {
+        let active_model = guardians::ActiveModel {
             foundation_id: Set(request.foundation_id),
             name: Set(request.name),
             created_at: Set(chrono::Utc::now()),
@@ -52,26 +55,26 @@ impl StudentService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(StudentResponse::from(created))
+        Ok(GuardianResponse::from(created))
     }
 
-    /// Get student by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<StudentResponse, AppError> {
-        let student = self
+    /// Get guardian by ID
+    pub async fn get_by_id(&self, id: i64) -> Result<GuardianResponse, AppError> {
+        let guardian = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Guardian not found".to_string()))?;
 
-        Ok(StudentResponse::from(student))
+        Ok(GuardianResponse::from(guardian))
     }
 
-    /// Get all students with pagination
+    /// Get all guardians with pagination
     pub async fn get_all(
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<StudentResponse>, AppError> {
+    ) -> Result<PaginatedResponse<GuardianResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -79,8 +82,8 @@ impl StudentService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<StudentResponse> =
-            items.into_iter().map(StudentResponse::from).collect();
+        let responses: Vec<GuardianResponse> =
+            items.into_iter().map(GuardianResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -90,12 +93,12 @@ impl StudentService {
         ))
     }
 
-    /// Update student
+    /// Update guardian
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateStudentRequest,
-    ) -> Result<StudentResponse, AppError> {
+        request: UpdateGuardianRequest,
+    ) -> Result<GuardianResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -106,7 +109,7 @@ impl StudentService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Guardian not found".to_string()))?;
 
         // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
@@ -117,13 +120,13 @@ impl StudentService {
                     .await?
                 {
                     return Err(AppError::ConflictError(
-                        "Student with this name already exists".to_string(),
+                        "Guardian with this name already exists".to_string(),
                     ));
                 }
             }
         }
         // Build update model
-        let mut active_model = students::ActiveModel {
+        let mut active_model = guardians::ActiveModel {
             id: Set(id),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
@@ -136,19 +139,19 @@ impl StudentService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(StudentResponse::from(updated))
+        Ok(GuardianResponse::from(updated))
     }
 
-    /// Delete student
+    /// Delete guardian
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
         // Check if exists
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Student not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Guardian not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
-        // e.g., cannot delete if has related students
+        // e.g., cannot delete if has related guardians
         // You can add repository method to check relations
 
         self.repository.delete(id).await

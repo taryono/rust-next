@@ -1,10 +1,10 @@
-// api/src/modules/applicants/dto.rs
+// api/src/modules/registrations/dto.rs
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
 #[derive(Debug, Serialize, ToSchema)]
-pub struct ApplicantResponse {
+pub struct RegistrationResponse {
     pub id: i64,
     pub foundation_id: i64,
     pub name: String,
@@ -19,7 +19,7 @@ pub struct ApplicantResponse {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct CreateApplicantRequest {
+pub struct CreateRegistrationRequest {
     pub foundation_id: i64,
     #[validate(length(min = 3, max = 100))]
     pub name: String,
@@ -34,7 +34,7 @@ pub struct CreateApplicantRequest {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct UpdateApplicantRequest {
+pub struct UpdateRegistrationRequest {
     #[validate(length(min = 3, max = 100))]
     pub name: String,
     pub birth_place: String,
@@ -48,16 +48,16 @@ pub struct UpdateApplicantRequest {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct ApplicantListResponse {
-    pub data: Vec<ApplicantResponse>,
+pub struct RegistrationListResponse {
+    pub data: Vec<RegistrationResponse>,
     pub total: i64,
     pub page: u64,
     pub per_page: i64,
     pub total_pages: i64,
 }
 // Implement From trait untuk convert entity ke response
-impl From<entity::applicants::Model> for ApplicantResponse {
-    fn from(model: entity::applicants::Model) -> Self {
+impl From<entity::registrations::Model> for RegistrationResponse {
+    fn from(model: entity::registrations::Model) -> Self {
         Self {
             id: model.id,
             foundation_id: model.foundation_id,
@@ -73,13 +73,13 @@ impl From<entity::applicants::Model> for ApplicantResponse {
         }
     }
 }
-impl ApplicantResponse {
+impl RegistrationResponse {
     #[warn(unused_imports)]
-    pub fn from_entity(model: entity::applicants::Model) -> Self {
+    pub fn from_entity(model: entity::registrations::Model) -> Self {
         Self::from(model)
     }
     #[warn(unused_imports)]
-    pub fn from_vec(dto: Vec<entity::applicants::Model>) -> Vec<Self> {
+    pub fn from_vec(dto: Vec<entity::registrations::Model>) -> Vec<Self> {
         dto.into_iter().map(Self::from).collect()
     }
 }

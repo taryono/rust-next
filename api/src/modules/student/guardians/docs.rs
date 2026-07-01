@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateStudentRequest, StudentResponse, UpdateStudentRequest};
+use super::dto::{CreateGuardianRequest, GuardianResponse, UpdateGuardianRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -17,19 +17,19 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            StudentResponse,
-            CreateStudentRequest,
-            UpdateStudentRequest,
-            PaginatedResponse<StudentResponse>,
+            GuardianResponse,
+            CreateGuardianRequest,
+            UpdateGuardianRequest,
+            PaginatedResponse<GuardianResponse>,
             PaginationParams,
         )
     ),
     tags(
-        (name = "Student ", description = "Student management endpoints")
+        (name = "Guardian ", description = "Guardian management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct StudentsApiDoc;
+pub struct GuardiansApiDoc;
 
 struct SecurityAddon;
 

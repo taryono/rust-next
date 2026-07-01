@@ -5,17 +5,17 @@ use crate::config::database::Database;
 use crate::errors::AppError;
 use crate::filters::global_search::{GlobalSearch, SearchColumn, SearchRelation};
 use crate::utils::pagination::PaginationParams;
-use entity::students::{self, Entity as Student};
+use entity::payments::{self, Entity as Payment};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QueryTrait, Set,
 };
 #[derive(Clone)]
-pub struct StudentRepository {
+pub struct PaymentRepository {
     db: Database,
 }
 
-impl StudentRepository {
+impl PaymentRepository {
     pub fn new(db: Database) -> Self {
         Self { db }
     }
@@ -28,8 +28,8 @@ impl StudentRepository {
     /// Create new student
     pub async fn create(
         &self,
-        active_model: students::ActiveModel,
-    ) -> Result<students::Model, AppError> {
+        active_model: payments::ActiveModel,
+    ) -> Result<payments::Model, AppError> {
         active_model
             .insert(self.conn())
             .await
@@ -37,8 +37,8 @@ impl StudentRepository {
     }
 
     /// Find by ID
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<students::Model>, AppError> {
-        Student::find_by_id(id)
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<payments::Model>, AppError> {
+        Payment::find_by_id(id)
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
@@ -49,17 +49,17 @@ impl StudentRepository {
         &self,
         params: &PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<(Vec<students::Model>, u64), AppError> {
-        let mut query = Student::find();
+    ) -> Result<(Vec<payments::Model>, u64), AppError> {
+        let mut query = Payment::find();
 
         // Filter by foundation_id if provided
         if let Some(fid) = foundation_id {
-            query = query.filter(students::Column::FoundationId.eq(fid));
+            query = query.filter(payments::Column::FoundationId.eq(fid));
         }
 
         // Apply search filter if provided
         if let Some(ref search) = params.search {
-            query = query.filter(Condition::any().add(students::Column::Name.contains(search)));
+            query = query.filter(Condition::any().add(payments::Column::Name.contains(search)));
         }
 
         // Apply sorting
@@ -69,22 +69,22 @@ impl StudentRepository {
             query = match sort_by.as_str() {
                 "name" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::Name)
+                        query.order_by_desc(payments::Column::Name)
                     } else {
-                        query.order_by_asc(students::Column::Name)
+                        query.order_by_asc(payments::Column::Name)
                     }
                 }
                 "created_at" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::CreatedAt)
+                        query.order_by_desc(payments::Column::CreatedAt)
                     } else {
-                        query.order_by_asc(students::Column::CreatedAt)
+                        query.order_by_asc(payments::Column::CreatedAt)
                     }
                 }
-                _ => query.order_by_desc(students::Column::CreatedAt),
+                _ => query.order_by_desc(payments::Column::CreatedAt),
             };
         } else {
-            query = query.order_by_desc(students::Column::CreatedAt);
+            query = query.order_by_desc(payments::Column::CreatedAt);
         }
 
         // Paginate dengan validasi
@@ -109,17 +109,17 @@ impl StudentRepository {
         &self,
         params: &PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<(Vec<students::Model>, u64), AppError> {
-        let mut query = Student::find();
+    ) -> Result<(Vec<payments::Model>, u64), AppError> {
+        let mut query = Payment::find();
 
         // Filter by foundation_id if provided
         if let Some(fid) = foundation_id {
-            query = query.filter(students::Column::FoundationId.eq(fid));
+            query = query.filter(payments::Column::FoundationId.eq(fid));
         }
 
         let db_name = self.db.get_db_name()?;
 
-        query = GlobalSearch::apply_from_entity::<Student>(
+        query = GlobalSearch::apply_from_entity::<Payment>(
             self.conn(),
             query,
             &db_name,
@@ -135,22 +135,22 @@ impl StudentRepository {
             query = match sort_by.as_str() {
                 "name" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::Name)
+                        query.order_by_desc(payments::Column::Name)
                     } else {
-                        query.order_by_asc(students::Column::Name)
+                        query.order_by_asc(payments::Column::Name)
                     }
                 }
                 "created_at" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::CreatedAt)
+                        query.order_by_desc(payments::Column::CreatedAt)
                     } else {
-                        query.order_by_asc(students::Column::CreatedAt)
+                        query.order_by_asc(payments::Column::CreatedAt)
                     }
                 }
-                _ => query.order_by_desc(students::Column::CreatedAt),
+                _ => query.order_by_desc(payments::Column::CreatedAt),
             };
         } else {
-            query = query.order_by_desc(students::Column::CreatedAt);
+            query = query.order_by_desc(payments::Column::CreatedAt);
         }
 
         // Paginate dengan validasi
@@ -175,10 +175,10 @@ impl StudentRepository {
         &self,
         name: &str,
         foundation_id: i64,
-    ) -> Result<Option<students::Model>, AppError> {
-        Student::find()
-            .filter(students::Column::FoundationId.eq(foundation_id))
-            .filter(students::Column::Name.eq(name))
+    ) -> Result<Option<payments::Model>, AppError> {
+        Payment::find()
+            .filter(payments::Column::FoundationId.eq(foundation_id))
+            .filter(payments::Column::Name.eq(name))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
@@ -187,8 +187,8 @@ impl StudentRepository {
     pub async fn update(
         &self,
         id: i64,
-        active_model: students::ActiveModel,
-    ) -> Result<students::Model, AppError> {
+        active_model: payments::ActiveModel,
+    ) -> Result<payments::Model, AppError> {
         let mut model = active_model;
         model.id = Set(id);
         model
@@ -199,7 +199,7 @@ impl StudentRepository {
 
     /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
-        Student::delete_by_id(id)
+        Payment::delete_by_id(id)
             .exec(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;

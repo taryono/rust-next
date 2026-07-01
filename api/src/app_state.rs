@@ -1,37 +1,59 @@
 // api/src/app_state.rs
 use crate::config::AppConfig;
-use crate::modules::academic_years::AcademicYearService;
-use crate::modules::applicants::ApplicantService;
-use crate::modules::attendances::AttendanceService;
-use crate::modules::auth::AuthService;
-use crate::modules::class_levels::ClassLevelService;
-use crate::modules::classes::ClassService;
-use crate::modules::departments::DepartmentService;
-use crate::modules::employees::EmployeeService;
-use crate::modules::foundation_regulations::FoundationRegulationService;
-use crate::modules::foundation_types::FoundationTypeService;
-use crate::modules::foundations::FoundationService;
-use crate::modules::menus::MenuService;
-use crate::modules::permissions::PermissionService;
-use crate::modules::positions::PositionService;
-use crate::modules::regulations::RegulationService;
-use crate::modules::roles::RoleService;
-use crate::modules::rooms::RoomService;
-use crate::modules::semesters::SemesterService;
-use crate::modules::settings::SettingService;
-use crate::modules::students::StudentService;
-use crate::modules::subjects::SubjectService;
-use crate::modules::teachers::TeacherService;
-use crate::modules::unit_types::UnitTypeService;
-use crate::modules::units::UnitService;
-use crate::modules::user_profiles::UserProfileService;
-use crate::modules::users::UserService;
+use crate::modules::academic::academic_years::AcademicYearService;
+use crate::modules::academic::attendances::AttendanceService;
+use crate::modules::academic::class_levels::ClassLevelService;
+use crate::modules::academic::classes::ClassService;
+use crate::modules::academic::departments::DepartmentService;
+use crate::modules::academic::employees::EmployeeService;
+use crate::modules::academic::positions::PositionService;
+use crate::modules::academic::regulations::RegulationService;
+use crate::modules::academic::rooms::RoomService;
+use crate::modules::academic::semesters::SemesterService;
+use crate::modules::academic::subjects::SubjectService;
+use crate::modules::academic::teachers::TeacherService;
+use crate::modules::academic::unit_types::UnitTypeService;
+use crate::modules::academic::units::UnitService;
+use crate::modules::admission::applicants::ApplicantService;
+use crate::modules::admission::registrations::RegistrationService;
+use crate::modules::finance::invoices::InvoiceService;
+use crate::modules::finance::payments::PaymentService;
+use crate::modules::identity::auth::AuthService;
+use crate::modules::identity::menus::MenuService;
+use crate::modules::identity::permissions::PermissionService;
+use crate::modules::identity::roles::RoleService;
+use crate::modules::identity::user_profiles::UserProfileService;
+use crate::modules::identity::users::UserService;
+use crate::modules::institution::boarding_schools::BoardingSchoolService;
+use crate::modules::institution::courses::CourseService;
+use crate::modules::institution::schools::SchoolService;
+use crate::modules::institution::sports::SportService;
+use crate::modules::institution::universities::UniversityService;
+use crate::modules::library::books::BookService;
+use crate::modules::library::borrowongs::BorrowingService;
+use crate::modules::platform::foundation_regulations::FoundationRegulationService;
+use crate::modules::platform::foundation_types::FoundationTypeService;
+use crate::modules::platform::foundations::FoundationService;
+use crate::modules::platform::settings::SettingService;
+use crate::modules::student::guardians::GuardianService;
+use crate::modules::student::students::StudentService;
 use std::sync::Arc;
 #[derive(Clone)]
 pub struct AppState {
     pub config: AppConfig,
     pub academic_year_service: Arc<AcademicYearService>,
+    pub boarding_school_service: Arc<BoardingSchoolService>,
+    pub book_service: Arc<BookService>,
+    pub borrowong_service: Arc<BorrowingService>,
+    pub course_service: Arc<CourseService>,
+    pub school_service: Arc<SchoolService>,
+    pub sport_service: Arc<SportService>,
+    pub university_service: Arc<UniversityService>,
+    pub guardian_service: Arc<GuardianService>,
     pub applicant_service: Arc<ApplicantService>,
+    pub registration_service: Arc<RegistrationService>,
+    pub invoice_service: Arc<InvoiceService>,
+    pub payment_service: Arc<PaymentService>,
     pub attendance_service: Arc<AttendanceService>,
     pub auth_service: Arc<AuthService>,
     pub class_level_service: Arc<ClassLevelService>,
@@ -98,6 +120,17 @@ impl AppState {
             department_service: Arc::new(department_service),
             employee_service: Arc::new(employee_service),
             foundation_service: Arc::new(foundation_service),
+            borrowong_service: Arc::new(BorrowingService::default()),
+            boarding_school_service: Arc::new(BoardingSchoolService::default()),
+            book_service: Arc::new(BookService::default()),
+            course_service: Arc::new(CourseService::default()),
+            school_service: Arc::new(SchoolService::default()),
+            sport_service: Arc::new(SportService::default()),
+            university_service: Arc::new(UniversityService::default()),
+            guardian_service: Arc::new(GuardianService::default()),
+            invoice_service: Arc::new(InvoiceService::default()),
+            payment_service: Arc::new(PaymentService::default()),
+            registration_service: Arc::new(RegistrationService::default()),
             foundation_regulation_service: Arc::new(foundation_regulation_service),
             foundation_type_service: Arc::new(foundation_type_service),
             menu_service: Arc::new(menu_service),

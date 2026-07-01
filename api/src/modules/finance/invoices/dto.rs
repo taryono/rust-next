@@ -1,4 +1,4 @@
-// api/src/modules/students/dto.rs
+// api/src/modules/invoices/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -8,7 +8,7 @@ use validator::Validate;
 // ============================================================
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct StudentResponse {
+pub struct InvoiceResponse {
     pub id: i64,
     pub user_id: i64,
     pub foundation_id: i64,
@@ -25,8 +25,8 @@ pub struct StudentResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct StudentListResponse {
-    pub data: Vec<StudentResponse>,
+pub struct InvoiceListResponse {
+    pub data: Vec<InvoiceResponse>,
     pub total: u64,
     pub page: u64,
     pub per_page: u64,
@@ -38,7 +38,7 @@ pub struct StudentListResponse {
 // ============================================================
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct CreateStudentRequest {
+pub struct CreateInvoiceRequest {
     pub user_id: i64,
     pub foundation_id: i64,
     pub unit_id: Option<i64>,
@@ -57,7 +57,7 @@ pub struct CreateStudentRequest {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct UpdateStudentRequest {
+pub struct UpdateInvoiceRequest {
     pub unit_id: Option<i64>,
     pub class_id: Option<i64>,
 
@@ -77,8 +77,8 @@ pub struct UpdateStudentRequest {
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::students::Model> for StudentResponse {
-    fn from(model: entity::students::Model) -> Self {
+impl From<entity::invoices::Model> for InvoiceResponse {
+    fn from(model: entity::invoices::Model) -> Self {
         Self {
             id: model.id,
             user_id: model.user_id,
@@ -97,8 +97,8 @@ impl From<entity::students::Model> for StudentResponse {
     }
 }
 
-impl StudentResponse {
-    pub fn from_vec(models: Vec<entity::students::Model>) -> Vec<Self> {
+impl InvoiceResponse {
+    pub fn from_vec(models: Vec<entity::invoices::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }
 }

@@ -1,5 +1,5 @@
-pub mod boarding_school;
+pub mod boarding_schools;
 pub mod course;
-pub mod school;
-pub mod sport;
-pub mod university;
+pub mod schools;
+pub mod sports;
+pub mod universities;

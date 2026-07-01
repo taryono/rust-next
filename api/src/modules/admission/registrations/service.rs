@@ -1,30 +1,30 @@
 // ============================================================================
-// api/src/modules/applicants/service.rs
+// api/src/modules/registrations/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{ApplicantResponse, CreateApplicantRequest, UpdateApplicantRequest};
-use super::repository::ApplicantRepository;
+use super::dto::{RegistrationResponse, CreateRegistrationRequest, UpdateRegistrationRequest};
+use super::repository::RegistrationRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 
-use entity::applicants;
+use entity::registrations;
 use sea_orm::Set;
 use validator::Validate;
 #[derive(Clone)]
-pub struct ApplicantService {
-    repository: ApplicantRepository,
+pub struct RegistrationService {
+    repository: RegistrationRepository,
 }
 
-impl ApplicantService {
-    pub fn new(repository: ApplicantRepository) -> Self {
+impl RegistrationService {
+    pub fn new(repository: RegistrationRepository) -> Self {
         Self { repository }
     }
 
-    /// Create new applicant with validation
+    /// Create new registration with validation
     pub async fn create(
         &self,
-        request: CreateApplicantRequest,
-    ) -> Result<ApplicantResponse, AppError> {
+        request: CreateRegistrationRequest,
+    ) -> Result<RegistrationResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -37,13 +37,13 @@ impl ApplicantService {
             .await?
         {
             return Err(AppError::ConflictError(
-                "Applicant with this name already exists".to_string(),
+                "Registration with this name already exists".to_string(),
             ));
         }
 
         // Parse start_date and end_date to NaiveDate
         // Build entity with parsed dates
-        let active_model = applicants::ActiveModel {
+        let active_model = registrations::ActiveModel {
             foundation_id: Set(request.foundation_id),
             name: Set(request.name),
             birth_place: Set(request.birth_place),
@@ -61,26 +61,26 @@ impl ApplicantService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(ApplicantResponse::from(created))
+        Ok(RegistrationResponse::from(created))
     }
 
-    /// Get applicant by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<ApplicantResponse, AppError> {
-        let applicant = self
+    /// Get registration by ID
+    pub async fn get_by_id(&self, id: i64) -> Result<RegistrationResponse, AppError> {
+        let registration = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Applicant not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Registration not found".to_string()))?;
 
-        Ok(ApplicantResponse::from(applicant))
+        Ok(RegistrationResponse::from(registration))
     }
 
-    /// Get all applicants with pagination
+    /// Get all registrations with pagination
     pub async fn get_all(
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<ApplicantResponse>, AppError> {
+    ) -> Result<PaginatedResponse<RegistrationResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -91,8 +91,8 @@ impl ApplicantService {
             .find_all(&params, foundation_id.unwrap())
             .await?;
 
-        let responses: Vec<ApplicantResponse> =
-            items.into_iter().map(ApplicantResponse::from).collect();
+        let responses: Vec<RegistrationResponse> =
+            items.into_iter().map(RegistrationResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -102,12 +102,12 @@ impl ApplicantService {
         ))
     }
 
-    /// Update applicant
+    /// Update registration
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateApplicantRequest,
-    ) -> Result<ApplicantResponse, AppError> {
+        request: UpdateRegistrationRequest,
+    ) -> Result<RegistrationResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -117,10 +117,10 @@ impl ApplicantService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Applicant not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Registration not found".to_string()))?;
 
         // Build update model
-        let mut active_model = applicants::ActiveModel {
+        let mut active_model = registrations::ActiveModel {
             id: Set(id),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
@@ -138,16 +138,16 @@ impl ApplicantService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(ApplicantResponse::from(updated))
+        Ok(RegistrationResponse::from(updated))
     }
 
-    /// Delete applicant
+    /// Delete registration
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
         // Check if exists
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Applicant not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Registration not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related semesters

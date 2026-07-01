@@ -46,32 +46,6 @@
         macro_rules! generate_openapi {
             () => {{
                 merge_api_docs!(
-                    crate::modules::academic_years::docs::AcademicYearsApiDoc,
-            crate::modules::applicants::docs::ApplicantsApiDoc,
-            crate::modules::attendances::docs::AttendancesApiDoc,
-            crate::modules::auth::docs::AuthApiDoc,
-            crate::modules::class_levels::docs::ClassLevelsApiDoc,
-            crate::modules::classes::docs::ClassesApiDoc,
-            crate::modules::departments::docs::DepartmentsApiDoc,
-            crate::modules::employees::docs::EmployeesApiDoc,
-            crate::modules::foundation_regulations::docs::FoundationRegulationsApiDoc,
-            crate::modules::foundation_types::docs::FoundationTypesApiDoc,
-            crate::modules::foundations::docs::FoundationsApiDoc,
-            crate::modules::menus::docs::MenusApiDoc,
-            crate::modules::permissions::docs::PermissionsApiDoc,
-            crate::modules::positions::docs::PositionsApiDoc,
-            crate::modules::regulations::docs::RegulationsApiDoc,
-            crate::modules::roles::docs::RolesApiDoc,
-            crate::modules::rooms::docs::RoomsApiDoc,
-            crate::modules::semesters::docs::SemestersApiDoc,
-            crate::modules::settings::docs::SettingsApiDoc,
-            crate::modules::students::docs::StudentsApiDoc,
-            crate::modules::subjects::docs::SubjectsApiDoc,
-            crate::modules::teachers::docs::TeachersApiDoc,
-            crate::modules::unit_types::docs::UnitTypesApiDoc,
-            crate::modules::units::docs::UnitsApiDoc,
-            crate::modules::user_profiles::docs::UserProfilesApiDoc,
-            crate::modules::users::docs::UsersApiDoc,
-        )
+                )
     }};
 }

@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateApplicantRequest, ApplicantResponse, UpdateApplicantRequest};
+use super::dto::{CreateRegistrationRequest, RegistrationResponse, UpdateRegistrationRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -17,19 +17,19 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            ApplicantResponse,
-            CreateApplicantRequest,
-            UpdateApplicantRequest,
-            PaginatedResponse<ApplicantResponse>,
+            RegistrationResponse,
+            CreateRegistrationRequest,
+            UpdateRegistrationRequest,
+            PaginatedResponse<RegistrationResponse>,
             PaginationParams,
         )
     ),
     tags(
-        (name = "Applicant ", description = "Applicant management endpoints")
+        (name = "Registration ", description = "Registration management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct ApplicantsApiDoc;
+pub struct RegistrationsApiDoc;
 
 struct SecurityAddon;
 

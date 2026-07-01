@@ -1,4 +1,4 @@
-// api/src/modules/applicants/mod.rs
+// api/src/modules/registrations/mod.rs
 // ============================================================================
 // mod.rs - Module Entry Point
 // ============================================================================
@@ -9,15 +9,15 @@ pub mod repository;
 pub mod routes;
 pub mod service;
 
-pub use repository::ApplicantRepository;
+pub use repository::RegistrationRepository;
 // pub use routes::configure;
-pub use service::ApplicantService;
+pub use service::RegistrationService;
 
 // Helper untuk initialize service dengan dependencies
 use crate::config::database::Database;
 
-pub fn init_service(db: Database) -> ApplicantService {
-    let repository = ApplicantRepository::new(db);
-    ApplicantService::new(repository)
+pub fn init_service(db: Database) -> RegistrationService {
+    let repository = RegistrationRepository::new(db);
+    RegistrationService::new(repository)
 }
-// File: api/src/modules/applicants/repository.rs
+// File: api/src/modules/registrations/repository.rs

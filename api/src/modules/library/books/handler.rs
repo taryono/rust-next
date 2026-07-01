@@ -1,7 +1,7 @@
 // ============================================================================
 // src/modules/students/handler.rs - HTTP Handlers
 // ============================================================================
-use super::dto::{CreateStudentRequest, StudentResponse, UpdateStudentRequest};
+use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
 use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -11,17 +11,17 @@ use actix_web::{web, HttpResponse};
 #[utoipa::path(
     post,
     path = "/api/students",
-    request_body = CreateStudentRequest,
+    request_body = CreateBookRequest,
     responses(
-        (status = 201, description = "Student created successfully", body = StudentResponse),
+        (status = 201, description = "Book created successfully", body = BookResponse),
         (status = 400, description = "Bad request"),
         (status = 409, description = "Conflict - duplicate name or overlapping dates")
     ),
-    tag = "Student "
+    tag = "Book "
 )]
 pub async fn create(
     app_state: web::Data<AppState>,
-    request: web::Json<CreateStudentRequest>,
+    request: web::Json<CreateBookRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
         .student_service
@@ -35,13 +35,13 @@ pub async fn create(
     get,
     path = "/api/students/{id}",
     params(
-        ("id" = i64, Path, description = "Student ID")
+        ("id" = i64, Path, description = "Book ID")
     ),
     responses(
-        (status = 200, description = "Student found", body = StudentResponse),
-        (status = 404, description = "Student not found")
+        (status = 200, description = "Book found", body = BookResponse),
+        (status = 404, description = "Book not found")
     ),
-    tag = "Student "
+    tag = "Book "
 )]
 pub async fn get_by_id(
     app_state: web::Data<AppState>,
@@ -63,9 +63,9 @@ pub async fn get_by_id(
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
     ),
     responses(
-        (status = 200, description = "List of students", body = PaginatedResponse<StudentResponse>)
+        (status = 200, description = "List of students", body = PaginatedResponse<BookResponse>)
     ),
-    tag = "Student "
+    tag = "Book "
 )]
 pub async fn get_all(
     app_state: web::Data<AppState>,
@@ -85,20 +85,20 @@ pub async fn get_all(
     put,
     path = "/api/students/{id}",
     params(
-        ("id" = i64, Path, description = "Student ID")
+        ("id" = i64, Path, description = "Book ID")
     ),
-    request_body = UpdateStudentRequest,
+    request_body = UpdateBookRequest,
     responses(
-        (status = 200, description = "Student updated", body = StudentResponse),
-        (status = 404, description = "Student not found"),
+        (status = 200, description = "Book updated", body = BookResponse),
+        (status = 404, description = "Book not found"),
         (status = 409, description = "Conflict")
     ),
-    tag = "Student "
+    tag = "Book "
 )]
 pub async fn update(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
-    request: web::Json<UpdateStudentRequest>,
+    request: web::Json<UpdateBookRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
         .student_service
@@ -112,13 +112,13 @@ pub async fn update(
     delete,
     path = "/api/students/{id}",
     params(
-        ("id" = i64, Path, description = "Student ID")
+        ("id" = i64, Path, description = "Book ID")
     ),
     responses(
-        (status = 204, description = "Student deleted"),
-        (status = 404, description = "Student not found")
+        (status = 204, description = "Book deleted"),
+        (status = 404, description = "Book not found")
     ),
-    tag = "Student "
+    tag = "Book "
 )]
 pub async fn delete(
     app_state: web::Data<AppState>,

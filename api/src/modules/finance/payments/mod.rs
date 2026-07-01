@@ -1,4 +1,4 @@
-// api/src/modules/students/mod.rs
+// api/src/modules/payments/mod.rs
 // ============================================================================
 // mod.rs - Module Entry Point
 // ============================================================================
@@ -9,15 +9,15 @@ pub mod repository;
 pub mod routes;
 pub mod searchable;
 pub mod service;
-pub use repository::StudentRepository;
+pub use repository::PaymentRepository;
 // pub use routes::configure;
-pub use service::StudentService;
+pub use service::PaymentService;
 
 // Helper untuk initialize service dengan dependencies
 use crate::config::database::Database;
 
-pub fn init_service(db: Database) -> StudentService {
-    let repository = StudentRepository::new(db);
-    StudentService::new(repository)
+pub fn init_service(db: Database) -> PaymentService {
+    let repository = PaymentRepository::new(db);
+    PaymentService::new(repository)
 }
-// File: api/src/modules/students/repository.rs
+// File: api/src/modules/payments/repository.rs

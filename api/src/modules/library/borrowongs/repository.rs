@@ -5,17 +5,17 @@ use crate::config::database::Database;
 use crate::errors::AppError;
 use crate::filters::global_search::{GlobalSearch, SearchColumn, SearchRelation};
 use crate::utils::pagination::PaginationParams;
-use entity::students::{self, Entity as Student};
+use entity::students::{self, Entity as Borrowing};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QueryTrait, Set,
 };
 #[derive(Clone)]
-pub struct StudentRepository {
+pub struct BorrowingRepository {
     db: Database,
 }
 
-impl StudentRepository {
+impl BorrowingRepository {
     pub fn new(db: Database) -> Self {
         Self { db }
     }
@@ -38,7 +38,7 @@ impl StudentRepository {
 
     /// Find by ID
     pub async fn find_by_id(&self, id: i64) -> Result<Option<students::Model>, AppError> {
-        Student::find_by_id(id)
+        Borrowing::find_by_id(id)
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
@@ -50,7 +50,7 @@ impl StudentRepository {
         params: &PaginationParams,
         foundation_id: Option<i64>,
     ) -> Result<(Vec<students::Model>, u64), AppError> {
-        let mut query = Student::find();
+        let mut query = Borrowing::find();
 
         // Filter by foundation_id if provided
         if let Some(fid) = foundation_id {
@@ -110,7 +110,7 @@ impl StudentRepository {
         params: &PaginationParams,
         foundation_id: Option<i64>,
     ) -> Result<(Vec<students::Model>, u64), AppError> {
-        let mut query = Student::find();
+        let mut query = Borrowing::find();
 
         // Filter by foundation_id if provided
         if let Some(fid) = foundation_id {
@@ -119,7 +119,7 @@ impl StudentRepository {
 
         let db_name = self.db.get_db_name()?;
 
-        query = GlobalSearch::apply_from_entity::<Student>(
+        query = GlobalSearch::apply_from_entity::<Borrowing>(
             self.conn(),
             query,
             &db_name,
@@ -176,7 +176,7 @@ impl StudentRepository {
         name: &str,
         foundation_id: i64,
     ) -> Result<Option<students::Model>, AppError> {
-        Student::find()
+        Borrowing::find()
             .filter(students::Column::FoundationId.eq(foundation_id))
             .filter(students::Column::Name.eq(name))
             .one(self.conn())
@@ -199,7 +199,7 @@ impl StudentRepository {
 
     /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
-        Student::delete_by_id(id)
+        Borrowing::delete_by_id(id)
             .exec(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
