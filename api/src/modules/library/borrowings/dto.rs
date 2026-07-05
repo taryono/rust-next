@@ -1,4 +1,4 @@
-// api/src/modules/students/dto.rs
+// api/src/modules/borrowings/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;

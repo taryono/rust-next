@@ -1,4 +1,4 @@
-// api/src/modules/students/mod.rs
+// api/src/modules/books/mod.rs
 // ============================================================================
 // mod.rs - Module Entry Point
 // ============================================================================
@@ -20,4 +20,4 @@ pub fn init_service(db: Database) -> BookService {
     let repository = BookRepository::new(db);
     BookService::new(repository)
 }
-// File: api/src/modules/students/repository.rs
+// File: api/src/modules/books/repository.rs

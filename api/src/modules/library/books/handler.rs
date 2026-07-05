@@ -1,5 +1,5 @@
 // ============================================================================
-// src/modules/students/handler.rs - HTTP Handlers
+// src/modules/books/handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
 use crate::app_state::AppState;
@@ -10,7 +10,7 @@ use actix_web::{web, HttpResponse};
 /// Create student
 #[utoipa::path(
     post,
-    path = "/api/students",
+    path = "/api/books",
     request_body = CreateBookRequest,
     responses(
         (status = 201, description = "Book created successfully", body = BookResponse),
@@ -30,7 +30,7 @@ pub async fn create(
 /// Get student by ID
 #[utoipa::path(
     get,
-    path = "/api/students/{id}",
+    path = "/api/books/{id}",
     params(
         ("id" = i64, Path, description = "Book ID")
     ),
@@ -51,7 +51,7 @@ pub async fn get_by_id(
 /// Get all students with pagination
 #[utoipa::path(
     get,
-    path = "/api/students",
+    path = "/api/books",
     params(
         ("page" = Option<i64>, Query, description = "Page number (default: 1)"),
         ("per_page" = Option<i64>, Query, description = "Items per page (default: 10, max: 100)"),
@@ -80,7 +80,7 @@ pub async fn get_all(
 /// Update student
 #[utoipa::path(
     put,
-    path = "/api/students/{id}",
+    path = "/api/books/{id}",
     params(
         ("id" = i64, Path, description = "Book ID")
     ),
@@ -107,7 +107,7 @@ pub async fn update(
 /// Delete student
 #[utoipa::path(
     delete,
-    path = "/api/students/{id}",
+    path = "/api/books/{id}",
     params(
         ("id" = i64, Path, description = "Book ID")
     ),

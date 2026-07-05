@@ -1,4 +1,4 @@
-// src/modules/students/searchable.rs
+// src/modules/books/searchable.rs
 use crate::filters::global_search::{SearchColumn, SearchRelation, Searchable};
 use entity::students; // ← import entity dari crate entity
 

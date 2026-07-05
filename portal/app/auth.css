@@ -1,0 +1,21 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.auth-card::-webkit-scrollbar {
+  width: 0px;
+}
+
+.auth-card::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}

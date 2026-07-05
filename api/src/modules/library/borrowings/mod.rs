@@ -1,4 +1,4 @@
-// api/src/modules/students/mod.rs
+// api/src/modules/borrowings/mod.rs
 // ============================================================================
 // mod.rs - Module Entry Point
 // ============================================================================
@@ -20,4 +20,4 @@ pub fn init_service(db: Database) -> BorrowingService {
     let repository = BorrowingRepository::new(db);
     BorrowingService::new(repository)
 }
-// File: api/src/modules/students/repository.rs
+// File: api/src/modules/borrowings/repository.rs

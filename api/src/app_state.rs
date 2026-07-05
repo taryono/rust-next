@@ -30,7 +30,7 @@ use crate::modules::institution::schools::SchoolService;
 use crate::modules::institution::sports::SportService;
 use crate::modules::institution::universities::UniversityService;
 use crate::modules::library::books::BookService;
-use crate::modules::library::borrowongs::BorrowingService;
+use crate::modules::library::borrowings::BorrowingService;
 use crate::modules::platform::foundation_regulations::FoundationRegulationService;
 use crate::modules::platform::foundation_types::FoundationTypeService;
 use crate::modules::platform::foundations::FoundationService;

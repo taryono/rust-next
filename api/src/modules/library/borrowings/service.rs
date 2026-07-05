@@ -1,5 +1,5 @@
 // ============================================================================
-// api/src/modules/students/service.rs
+// api/src/modules/borrowings/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
 use super::dto::{CreateBorrowingRequest, BorrowingResponse, UpdateBorrowingRequest};

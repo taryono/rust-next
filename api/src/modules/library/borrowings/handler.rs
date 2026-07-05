@@ -1,5 +1,5 @@
 // ============================================================================
-// src/modules/students/handler.rs - HTTP Handlers
+// src/modules/borrowings/handler.rs - HTTP Handlers
 // ============================================================================
 use super::dto::{BorrowingResponse, CreateBorrowingRequest, UpdateBorrowingRequest};
 use crate::app_state::AppState;
@@ -10,7 +10,7 @@ use actix_web::{web, HttpResponse};
 /// Create student
 #[utoipa::path(
     post,
-    path = "/api/students",
+    path = "/api/borrowings",
     request_body = CreateBorrowingRequest,
     responses(
         (status = 201, description = "Borrowing created successfully", body = BorrowingResponse),
@@ -33,7 +33,7 @@ pub async fn create(
 /// Get student by ID
 #[utoipa::path(
     get,
-    path = "/api/students/{id}",
+    path = "/api/borrowings/{id}",
     params(
         ("id" = i64, Path, description = "Borrowing ID")
     ),
@@ -54,7 +54,7 @@ pub async fn get_by_id(
 /// Get all students with pagination
 #[utoipa::path(
     get,
-    path = "/api/students",
+    path = "/api/borrowings",
     params(
         ("page" = Option<i64>, Query, description = "Page number (default: 1)"),
         ("per_page" = Option<i64>, Query, description = "Items per page (default: 10, max: 100)"),
@@ -83,7 +83,7 @@ pub async fn get_all(
 /// Update student
 #[utoipa::path(
     put,
-    path = "/api/students/{id}",
+    path = "/api/borrowings/{id}",
     params(
         ("id" = i64, Path, description = "Borrowing ID")
     ),
@@ -110,7 +110,7 @@ pub async fn update(
 /// Delete student
 #[utoipa::path(
     delete,
-    path = "/api/students/{id}",
+    path = "/api/borrowings/{id}",
     params(
         ("id" = i64, Path, description = "Borrowing ID")
     ),

@@ -1,12 +1,12 @@
 // ============================================================================
 // routes.rs - Route Configuration
 // ============================================================================
-use crate::{middleware::auth::JwtMiddleware, modules::library::borrowongs::handler};
+use crate::{middleware::auth::JwtMiddleware, modules::library::borrowings::handler};
 use actix_web::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/api/students")
+        web::scope("/api/borrowings")
             .wrap(JwtMiddleware)
             .route("", web::post().to(handler::create))
             .route("", web::get().to(handler::get_all))

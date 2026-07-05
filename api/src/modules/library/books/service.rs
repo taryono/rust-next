@@ -1,8 +1,8 @@
 // ============================================================================
-// api/src/modules/students/service.rs
+// api/src/modules/books/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{CreateBookRequest, BookResponse, UpdateBookRequest};
+use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
 use super::repository::BookRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -79,8 +79,7 @@ impl BookService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<BookResponse> =
-            items.into_iter().map(BookResponse::from).collect();
+        let responses: Vec<BookResponse> = items.into_iter().map(BookResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
