@@ -1,4 +1,4 @@
-// api/src/modules/books/dto.rs
+// api/src/modules/publisher/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -57,8 +57,8 @@ pub struct UpdateBookRequest {
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::books::Model> for BookResponse {
-    fn from(model: entity::books::Model) -> Self {
+impl From<entity::publisher::Model> for BookResponse {
+    fn from(model: entity::publisher::Model) -> Self {
         Self {
             id: model.id,
             foundation_id: model.foundation_id,
@@ -72,7 +72,7 @@ impl From<entity::books::Model> for BookResponse {
 }
 
 impl BookResponse {
-    pub fn from_vec(models: Vec<entity::books::Model>) -> Vec<Self> {
+    pub fn from_vec(models: Vec<entity::publisher::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }
 }

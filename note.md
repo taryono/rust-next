@@ -19,6 +19,9 @@ touch src/services/mod.rs
 touch src/utils/mod.rs
 Lihat struktur project Mode direktori saja (tanpa file)
 tree -d -I "vendor|node_modules|target|entity_temp|migrations"
+tree -d -L 1
+-d = hanya folder
+-L 1 = kedalaman 1 tingkat sa
 
 # /etc/nginx/sites-available/your-api
 
@@ -692,3 +695,53 @@ Generator kamu:
 👉 Hubungan:
 
 Database → SeaORM CLI → Entity → Gen Module → Full Backend
+
+taryono@DESKTOP-IKET6ID:~/rust-next/api/src/modules$ tree -d -L 2
+.
+├── academic
+│   ├── academic_years
+│   ├── attendances
+│   ├── class_levels
+│   ├── classes
+│   ├── departments
+│   ├── employees
+│   ├── positions
+│   ├── regulations
+│   ├── rooms
+│   ├── semesters
+│   ├── subjects
+│   ├── teachers
+│   ├── unit_types
+│   └── units
+├── admission
+│   ├── applicants
+│   └── registrations
+├── finance
+│   ├── invoices
+│   └── payments
+├── identity
+│   ├── auth
+│   ├── menus
+│   ├── permissions
+│   ├── roles
+│   ├── user_profiles
+│   └── users
+├── institution
+│   ├── boarding_schools
+│   ├── courses
+│   ├── schools
+│   ├── sports
+│   └── universities
+├── library
+│   ├── books
+│   └── borrowings
+├── platform
+│   ├── foundation_regulations
+│   ├── foundation_types
+│   ├── foundations
+│   └── settings
+└── student
+    ├── guardians
+    └── students
+
+46 directories

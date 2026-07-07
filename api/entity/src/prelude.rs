@@ -3,6 +3,10 @@
 pub use super::academic_calendars::Entity as AcademicCalendars;
 pub use super::academic_years::Entity as AcademicYears;
 pub use super::attendances::Entity as Attendances;
+pub use super::boarding_schools::Entity as BoardingSchools;
+pub use super::book_copies::Entity as BookCopies;
+pub use super::books::Entity as Books;
+pub use super::borrowings::Entity as Borrowings;
 pub use super::character_assessments::Entity as CharacterAssessments;
 pub use super::character_traits::Entity as CharacterTraits;
 pub use super::class_levels::Entity as ClassLevels;
@@ -25,6 +29,7 @@ pub use super::menu_permissions::Entity as MenuPermissions;
 pub use super::menu_roles::Entity as MenuRoles;
 pub use super::menus::Entity as Menus;
 pub use super::notifications::Entity as Notifications;
+pub use super::payments::Entity as Payments;
 pub use super::permissions::Entity as Permissions;
 pub use super::registrations::Entity as Registrations;
 pub use super::report_cards::Entity as ReportCards;
