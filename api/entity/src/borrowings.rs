@@ -1,7 +1,7 @@
 //! `SeaORM` Entity
 use super::traits::Tenanted;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::foundations::Entity",
-        from = "Column::AuthorId",
+        from = "Column::FoundationId",
         to = "super::foundations::Column::Id"
     )]
     Foundation,

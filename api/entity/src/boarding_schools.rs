@@ -2,7 +2,7 @@
 
 use super::traits::Tenanted;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{Utc};
 use sea_orm::{entity::prelude::*, Set};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "boarding_schools")]

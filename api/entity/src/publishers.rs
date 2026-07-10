@@ -1,7 +1,6 @@
-//! `SeaORM` Entity
-use super::traits::Tenanted;
+//! `SeaORM` Entity 
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]

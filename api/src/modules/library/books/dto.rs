@@ -13,7 +13,7 @@ pub struct BookResponse {
     pub foundation_id: i64,
     pub title: String,
     pub nib: String,
-    pub author: Option<String>,
+    pub author_id: Option<i64>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -64,7 +64,7 @@ impl From<entity::books::Model> for BookResponse {
             foundation_id: model.foundation_id,
             title: model.title,
             nib: model.nib,
-            author: Some(model.author).unwrap_or_default(),
+            author_id: model.author_id,
             created_at: model.created_at.to_rfc3339(), // ✅ format ISO 8601
             updated_at: model.updated_at.to_rfc3339(),
         }
