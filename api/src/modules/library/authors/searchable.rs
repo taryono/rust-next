@@ -1,6 +1,6 @@
 // src/modules/author/searchable.rs
 use crate::filters::global_search::{SearchColumn, SearchRelation, Searchable};
-use entity::author; // ← import entity dari crate entity
+use entity::authors; // ← import entity dari crate entity
 
 impl Searchable for author::Entity {
     fn searchable_columns() -> Vec<SearchColumn> {

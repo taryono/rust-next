@@ -1,6 +1,6 @@
 // src/modules/categories/searchable.rs
 use crate::filters::global_search::{SearchColumn, SearchRelation, Searchable};
-use entity::categories; // ← import entity dari crate entity
+use entity::book_categories; // ← import entity dari crate entity
 
 impl Searchable for categories::Entity {
     fn searchable_columns() -> Vec<SearchColumn> {
