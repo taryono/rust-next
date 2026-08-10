@@ -23,7 +23,10 @@ pub async fn create(
     app_state: web::Data<AppState>,
     request: web::Json<CreateBookCopiesRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = app_state.book_service.create(request.into_inner()).await?;
+    let result = app_state
+        .book_copy_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -44,7 +47,10 @@ pub async fn get_by_id(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = app_state.book_service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .book_copy_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -72,7 +78,7 @@ pub async fn get_all(
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = app_state.book_service.get_all(params, None).await?;
+    let result = app_state.book_copy_service.get_all(params, None).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -98,7 +104,7 @@ pub async fn update(
     request: web::Json<UpdateBookCopiesRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
-        .book_service
+        .book_copy_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -121,6 +127,6 @@ pub async fn delete(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    app_state.book_service.delete(id.into_inner()).await?;
+    app_state.book_copy_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }

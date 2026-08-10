@@ -11,6 +11,7 @@ pub struct Model {
     pub name: String,
     pub cellphone: String,
     pub salary: String,
+    pub address: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub deleted_at: Option<DateTimeUtc>,

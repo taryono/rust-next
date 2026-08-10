@@ -21,7 +21,10 @@ impl BookCopiesService {
     }
 
     /// Create new student with validation
-    pub async fn create(&self, request: CreateBookCopiesRequest) -> Result<BookCopiesResponse, AppError> {
+    pub async fn create(
+        &self,
+        request: CreateBookCopiesRequest,
+    ) -> Result<BookCopiesResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -79,7 +82,8 @@ impl BookCopiesService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<BookCopiesResponse> = items.into_iter().map(BookCopiesResponse::from).collect();
+        let responses: Vec<BookCopiesResponse> =
+            items.into_iter().map(BookCopiesResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,

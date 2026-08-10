@@ -26,10 +26,8 @@ const initialState = {
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-
   isLoading: false,
   isInitialized: false,
-
   error: null,
 };
 
@@ -38,7 +36,6 @@ const initialState = {
 ======================================================== */
 
 const useAuthStore = create((set, get) => ({
-
   ...initialState,
 
   /* ---------------------------------------------
