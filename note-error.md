@@ -345,3 +345,57 @@ error[E0605]: non-primitive cast: `std::string::String` as `i64`
     |
 394 |                 let role_id = role_name.clone() as i64;
     |                               ^^^^^^^^^^^^^^^^^^^^^^^^ an `as` expression can only be used to convert between primitive types or to coerce to a specific trait object
+
+
+    cargo fix --lib -p entity
+    Ya, saya tahu! Perintah `cargo fix --lib -p entity` digunakan untuk **memperbaiki secara otomatis** peringatan atau error yang bisa diperbaiki otomatis oleh Rust compiler.
+
+## Penjelasan per bagian:
+
+### `cargo fix`
+- Perintah bawaan Cargo untuk **memperbaiki kode secara otomatis**
+- Biasanya digunakan untuk mengatasi **warning** (peringatan) atau **linting issues**
+- Contoh perbaikan: menghapus `use` yang tidak terpakai, mengganti syntax yang sudah usang, menambahkan `#![allow]` yang diperlukan
+
+### `--lib`
+- Menentukan bahwa yang akan diperbaiki adalah **library target** (bukan binary)
+- Artinya akan memperbaiki kode di `src/lib.rs` dan modul-modul di dalamnya
+- Jika targetnya binary, pakai `--bin` atau `--example`
+
+### `-p entity`
+- `-p` = `--package`
+- Menentukan **package spesifik** yang akan diperbaiki
+- Hanya berlaku jika kamu berada di **workspace** (banyak package dalam satu proyek)
+- `entity` adalah nama package yang dituju
+
+## Contoh penggunaan:
+
+```bash
+# Di dalam workspace dengan banyak package
+cargo fix --lib -p entity
+# Hanya akan perbaiki package "entity", ignore package lain
+
+# Tanpa -p (jika hanya 1 package atau di root)
+cargo fix --lib
+```
+
+## Efek samping:
+- Perintah ini akan **mengubah file kode kamu secara langsung**
+- **Disarankan commit dulu** sebelum menjalankan (pakai git)
+- Bisa ditambah `--allow-dirty` jika ada file belum di-commit
+
+## Tambahan opsi yang sering dipakai:
+```bash
+# Perbaiki semua target (lib, bin, test, dll)
+cargo fix --all-targets -p entity
+
+# Perbaiki sampai ke edition terbaru
+cargo fix --edition -p entity
+
+# Hanya tampilkan perubahan tanpa menulis ke file
+cargo fix --lib -p entity --dry-run
+```
+
+---
+
+**Kesimpulan:** Perintah ini berguna untuk **membersihkan kode secara otomatis** tanpa harus manual menghapus warning satu per satu. Sangat praktis untuk maintain kode! 😊

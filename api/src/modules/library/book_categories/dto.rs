@@ -11,9 +11,7 @@ use validator::Validate;
 pub struct BookResponse {
     pub id: i64,
     pub foundation_id: i64,
-    pub title: String,
-    pub nib: String,
-    pub author: Option<String>,
+    pub name: String, 
     pub created_at: String,
     pub updated_at: String,
 }
