@@ -11,11 +11,11 @@ use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
-pub struct BookService {
+pub struct AuthorService {
     repository: BookRepository,
 }
 
-impl BookService {
+impl AuthorService {
     pub fn new(repository: BookRepository) -> Self {
         Self { repository }
     }

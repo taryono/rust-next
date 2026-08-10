@@ -8,8 +8,9 @@ pub struct Model {
     #[sea_orm(primary_key, unique)]
     pub id: i64,
     pub foundation_id: i64,
+    pub user_id: i64,
     pub name: String,
-    pub cellphone: String,
+    pub cellphone: Option<String>,
     pub salary: String,
     pub address: String,
     pub created_at: DateTimeUtc,

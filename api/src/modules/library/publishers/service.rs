@@ -2,8 +2,8 @@
 // api/src/modules/publisher/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
-use super::repository::BookRepository;
+use super::dto::{PublisherResponse, CreatePublisherRequest, UpdatePublisherRequest};
+use super::repository::PublisherRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use entity::students;
@@ -11,17 +11,17 @@ use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
-pub struct BookService {
-    repository: BookRepository,
+pub struct PublisherService {
+    repository: PublisherRepository,
 }
 
-impl BookService {
-    pub fn new(repository: BookRepository) -> Self {
+impl PublisherService {
+    pub fn new(repository: PublisherRepository) -> Self {
         Self { repository }
     }
 
     /// Create new student with validation
-    pub async fn create(&self, request: CreateBookRequest) -> Result<BookResponse, AppError> {
+    pub async fn create(&self, request: CreatePublisherRequest) -> Result<PublisherResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -52,18 +52,18 @@ impl BookService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(BookResponse::from(created))
+        Ok(PublisherResponse::from(created))
     }
 
     /// Get student by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<BookResponse, AppError> {
+    pub async fn get_by_id(&self, id: i64) -> Result<PublisherResponse, AppError> {
         let student = self
             .repository
             .find_by_id(id)
             .await?
             .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
 
-        Ok(BookResponse::from(student))
+        Ok(PublisherResponse::from(student))
     }
 
     /// Get all students with pagination
@@ -71,7 +71,7 @@ impl BookService {
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<BookResponse>, AppError> {
+    ) -> Result<PaginatedResponse<PublisherResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -79,7 +79,7 @@ impl BookService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<BookResponse> = items.into_iter().map(BookResponse::from).collect();
+        let responses: Vec<PublisherResponse> = items.into_iter().map(PublisherResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -93,8 +93,8 @@ impl BookService {
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateBookRequest,
-    ) -> Result<BookResponse, AppError> {
+        request: UpdatePublisherRequest,
+    ) -> Result<PublisherResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -135,7 +135,7 @@ impl BookService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(BookResponse::from(updated))
+        Ok(PublisherResponse::from(updated))
     }
 
     /// Delete student

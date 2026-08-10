@@ -11,11 +11,11 @@ use sea_orm::{
     QueryTrait, Set,
 };
 #[derive(Clone)]
-pub struct BookRepository {
+pub struct PublisherRepository {
     db: Database,
 }
 
-impl BookRepository {
+impl PublisherRepository {
     pub fn new(db: Database) -> Self {
         Self { db }
     }

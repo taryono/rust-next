@@ -40,7 +40,7 @@ use crate::modules::library::authors::AuthorService;
 use crate::modules::library::book_categories::BookCategoryService;
 use crate::modules::library::book_copies::BookCopyService;
 use crate::modules::library::books::BookService;
-use crate::modules::library::books::PublisherService;
+use crate::modules::library::publishers::PublisherService;
 use crate::modules::library::borrowings::BorrowingService;
 
 // platform modules

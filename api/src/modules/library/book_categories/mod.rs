@@ -11,13 +11,13 @@ pub mod searchable;
 pub mod service;
 pub use repository::BookRepository;
 // pub use routes::configure;
-pub use service::BookService;
+pub use service::BookCategoryService;
 
 // Helper untuk initialize service dengan dependencies
 use crate::config::database::Database;
 
-pub fn init_service(db: Database) -> BookService {
+pub fn init_service(db: Database) -> BookCategoryService {
     let repository = BookRepository::new(db);
-    BookService::new(repository)
+    BookCategoryService::new(repository)
 }
 // File: api/src/modules/categories/repository.rs
