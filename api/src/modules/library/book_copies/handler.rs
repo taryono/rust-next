@@ -1,7 +1,7 @@
 // ============================================================================
 // src/modules/book_copies/handler.rs - HTTP Handlers
 // ============================================================================
-use super::dto::{BookCopiesResponse, CreateBookCopiesRequest, UpdateBookCopiesRequest};
+use super::dto::{BookCopyResponse, CreateBookCopyRequest, UpdateBookCopyRequest};
 use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -11,17 +11,17 @@ use actix_web::{web, HttpResponse};
 #[utoipa::path(
     post,
     path = "/api/book_copies",
-    request_body = CreateBookCopiesRequest,
+    request_body = CreateBookCopyRequest,
     responses(
-        (status = 201, description = "BookCopies created successfully", body = BookCopiesResponse),
+        (status = 201, description = "BookCopy created successfully", body = BookCopyResponse),
         (status = 400, description = "Bad request"),
         (status = 409, description = "Conflict - duplicate name or overlapping dates")
     ),
-    tag = "BookCopies "
+    tag = "BookCopy "
 )]
 pub async fn create(
     app_state: web::Data<AppState>,
-    request: web::Json<CreateBookCopiesRequest>,
+    request: web::Json<CreateBookCopyRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
         .book_copy_service
@@ -35,13 +35,13 @@ pub async fn create(
     get,
     path = "/api/book_copies/{id}",
     params(
-        ("id" = i64, Path, description = "BookCopies ID")
+        ("id" = i64, Path, description = "BookCopy ID")
     ),
     responses(
-        (status = 200, description = "BookCopies found", body = BookCopiesResponse),
-        (status = 404, description = "BookCopies not found")
+        (status = 200, description = "BookCopy found", body = BookCopyResponse),
+        (status = 404, description = "BookCopy not found")
     ),
-    tag = "BookCopies "
+    tag = "BookCopy "
 )]
 pub async fn get_by_id(
     app_state: web::Data<AppState>,
@@ -66,9 +66,9 @@ pub async fn get_by_id(
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
     ),
     responses(
-        (status = 200, description = "List of students", body = PaginatedResponse<BookCopiesResponse>)
+        (status = 200, description = "List of students", body = PaginatedResponse<BookCopyResponse>)
     ),
-    tag = "BookCopies "
+    tag = "BookCopy "
 )]
 pub async fn get_all(
     app_state: web::Data<AppState>,
@@ -88,20 +88,20 @@ pub async fn get_all(
     put,
     path = "/api/book_copies/{id}",
     params(
-        ("id" = i64, Path, description = "BookCopies ID")
+        ("id" = i64, Path, description = "BookCopy ID")
     ),
-    request_body = UpdateBookCopiesRequest,
+    request_body = UpdateBookCopyRequest,
     responses(
-        (status = 200, description = "BookCopies updated", body = BookCopiesResponse),
-        (status = 404, description = "BookCopies not found"),
+        (status = 200, description = "BookCopy updated", body = BookCopyResponse),
+        (status = 404, description = "BookCopy not found"),
         (status = 409, description = "Conflict")
     ),
-    tag = "BookCopies "
+    tag = "BookCopy "
 )]
 pub async fn update(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
-    request: web::Json<UpdateBookCopiesRequest>,
+    request: web::Json<UpdateBookCopyRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
         .book_copy_service
@@ -115,13 +115,13 @@ pub async fn update(
     delete,
     path = "/api/book_copies/{id}",
     params(
-        ("id" = i64, Path, description = "BookCopies ID")
+        ("id" = i64, Path, description = "BookCopy ID")
     ),
     responses(
-        (status = 204, description = "BookCopies deleted"),
-        (status = 404, description = "BookCopies not found")
+        (status = 204, description = "BookCopy deleted"),
+        (status = 404, description = "BookCopy not found")
     ),
-    tag = "BookCopies "
+    tag = "BookCopy "
 )]
 pub async fn delete(
     app_state: web::Data<AppState>,

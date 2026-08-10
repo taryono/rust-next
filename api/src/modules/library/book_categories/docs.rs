@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateBookRequest, BookResponse, UpdateBookRequest};
+use super::dto::{CreateBookCategoryRequest, BookCategoryResponse, UpdateBookCategoryRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -17,10 +17,10 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            BookResponse,
-            CreateBookRequest,
-            UpdateBookRequest,
-            PaginatedResponse<BookResponse>,
+            BookCategoryResponse,
+            CreateBookCategoryRequest,
+            UpdateBookCategoryRequest,
+            PaginatedResponse<BookCategoryResponse>,
             PaginationParams,
         )
     ),

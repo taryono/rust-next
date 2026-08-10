@@ -2,8 +2,8 @@
 // api/src/modules/book_copies/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{BookCopiesResponse, CreateBookCopiesRequest, UpdateBookCopiesRequest};
-use super::repository::BookCopiesRepository;
+use super::dto::{BookCopyResponse, CreateBookCopyRequest, UpdateBookCopyRequest};
+use super::repository::BookCopyRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use entity::students;
@@ -11,20 +11,20 @@ use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
-pub struct BookCopiesService {
-    repository: BookCopiesRepository,
+pub struct BookCopyService {
+    repository: BookCopyRepository,
 }
 
-impl BookCopiesService {
-    pub fn new(repository: BookCopiesRepository) -> Self {
+impl BookCopyService {
+    pub fn new(repository: BookCopyRepository) -> Self {
         Self { repository }
     }
 
     /// Create new student with validation
     pub async fn create(
         &self,
-        request: CreateBookCopiesRequest,
-    ) -> Result<BookCopiesResponse, AppError> {
+        request: CreateBookCopyRequest,
+    ) -> Result<BookCopyResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -37,7 +37,7 @@ impl BookCopiesService {
             .await?
         {
             return Err(AppError::ConflictError(
-                "BookCopies with this name already exists".to_string(),
+                "BookCopy with this name already exists".to_string(),
             ));
         }
 
@@ -55,18 +55,18 @@ impl BookCopiesService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(BookCopiesResponse::from(created))
+        Ok(BookCopyResponse::from(created))
     }
 
     /// Get student by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<BookCopiesResponse, AppError> {
+    pub async fn get_by_id(&self, id: i64) -> Result<BookCopyResponse, AppError> {
         let student = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("BookCopies not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("BookCopy not found".to_string()))?;
 
-        Ok(BookCopiesResponse::from(student))
+        Ok(BookCopyResponse::from(student))
     }
 
     /// Get all students with pagination
@@ -74,7 +74,7 @@ impl BookCopiesService {
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<BookCopiesResponse>, AppError> {
+    ) -> Result<PaginatedResponse<BookCopyResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -82,8 +82,8 @@ impl BookCopiesService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<BookCopiesResponse> =
-            items.into_iter().map(BookCopiesResponse::from).collect();
+        let responses: Vec<BookCopyResponse> =
+            items.into_iter().map(BookCopyResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -97,8 +97,8 @@ impl BookCopiesService {
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateBookCopiesRequest,
-    ) -> Result<BookCopiesResponse, AppError> {
+        request: UpdateBookCopyRequest,
+    ) -> Result<BookCopyResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -109,7 +109,7 @@ impl BookCopiesService {
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("BookCopies not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("BookCopy not found".to_string()))?;
 
         // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
@@ -120,7 +120,7 @@ impl BookCopiesService {
                     .await?
                 {
                     return Err(AppError::ConflictError(
-                        "BookCopies with this name already exists".to_string(),
+                        "BookCopy with this name already exists".to_string(),
                     ));
                 }
             }
@@ -139,7 +139,7 @@ impl BookCopiesService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(BookCopiesResponse::from(updated))
+        Ok(BookCopyResponse::from(updated))
     }
 
     /// Delete student
@@ -148,7 +148,7 @@ impl BookCopiesService {
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("BookCopies not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("BookCopy not found".to_string()))?;
 
         // Business rule: Add any deletion constraints here
         // e.g., cannot delete if has related students

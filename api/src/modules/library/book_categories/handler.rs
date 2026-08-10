@@ -1,7 +1,7 @@
 // ============================================================================
 // src/modules/categories/handler.rs - HTTP Handlers
 // ============================================================================
-use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
+use super::dto::{BookCategoryResponse, CreateBookCategoryRequest, UpdateBookCategoryRequest};
 use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -11,9 +11,9 @@ use actix_web::{web, HttpResponse};
 #[utoipa::path(
     post,
     path = "/api/categories",
-    request_body = CreateBookRequest,
+    request_body = CreateBookCategoryRequest,
     responses(
-        (status = 201, description = "Book created successfully", body = BookResponse),
+        (status = 201, description = "Book created successfully", body = BookCategoryResponse),
         (status = 400, description = "Bad request"),
         (status = 409, description = "Conflict - duplicate name or overlapping dates")
     ),
@@ -21,9 +21,12 @@ use actix_web::{web, HttpResponse};
 )]
 pub async fn create(
     app_state: web::Data<AppState>,
-    request: web::Json<CreateBookRequest>,
+    request: web::Json<CreateBookCategoryRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let result = app_state.book_service.create(request.into_inner()).await?;
+    let result = app_state
+        .book_catgory_service
+        .create(request.into_inner())
+        .await?;
     Ok(HttpResponse::Created().json(result))
 }
 
@@ -35,7 +38,7 @@ pub async fn create(
         ("id" = i64, Path, description = "Book ID")
     ),
     responses(
-        (status = 200, description = "Book found", body = BookResponse),
+        (status = 200, description = "Book found", body = BookCategoryResponse),
         (status = 404, description = "Book not found")
     ),
     tag = "Book "
@@ -44,7 +47,10 @@ pub async fn get_by_id(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    let result = app_state.book_service.get_by_id(id.into_inner()).await?;
+    let result = app_state
+        .book_catgory_service
+        .get_by_id(id.into_inner())
+        .await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -60,7 +66,7 @@ pub async fn get_by_id(
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
     ),
     responses(
-        (status = 200, description = "List of students", body = PaginatedResponse<BookResponse>)
+        (status = 200, description = "List of students", body = PaginatedResponse<BookCategoryResponse>)
     ),
     tag = "Book "
 )]
@@ -72,7 +78,7 @@ pub async fn get_all(
 ) -> Result<HttpResponse, AppError> {
     let params = query.into_inner();
     // Untuk admin (semua foundation)
-    let result = app_state.book_service.get_all(params, None).await?;
+    let result = app_state.book_catgory_service.get_all(params, None).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -84,9 +90,9 @@ pub async fn get_all(
     params(
         ("id" = i64, Path, description = "Book ID")
     ),
-    request_body = UpdateBookRequest,
+    request_body = UpdateBookCategoryRequest,
     responses(
-        (status = 200, description = "Book updated", body = BookResponse),
+        (status = 200, description = "Book updated", body = BookCategoryResponse),
         (status = 404, description = "Book not found"),
         (status = 409, description = "Conflict")
     ),
@@ -95,10 +101,10 @@ pub async fn get_all(
 pub async fn update(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
-    request: web::Json<UpdateBookRequest>,
+    request: web::Json<UpdateBookCategoryRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
-        .book_service
+        .book_catgory_service
         .update(id.into_inner(), request.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(result))
@@ -121,6 +127,9 @@ pub async fn delete(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
 ) -> Result<HttpResponse, AppError> {
-    app_state.book_service.delete(id.into_inner()).await?;
+    app_state
+        .book_catgory_service
+        .delete(id.into_inner())
+        .await?;
     Ok(HttpResponse::NoContent().finish())
 }

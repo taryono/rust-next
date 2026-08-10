@@ -8,17 +8,17 @@ use validator::Validate;
 // ============================================================
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct BookResponse {
+pub struct BookCategoryResponse {
     pub id: i64,
     pub foundation_id: i64,
-    pub name: String, 
+    pub name: String,
     pub created_at: String,
     pub updated_at: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct BookListResponse {
-    pub data: Vec<BookResponse>,
+    pub data: Vec<BookCategoryResponse>,
     pub total: u64,
     pub page: u64,
     pub per_page: u64,
@@ -30,7 +30,7 @@ pub struct BookListResponse {
 // ============================================================
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct CreateBookRequest {
+pub struct CreateBookCategoryRequest {
     pub user_id: i64,
     pub foundation_id: i64,
 
@@ -43,7 +43,7 @@ pub struct CreateBookRequest {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct UpdateBookRequest {
+pub struct UpdateBookCategoryRequest {
     pub foundation_id: Option<i64>,
     #[validate(length(min = 1, max = 50))]
     pub title: Option<String>,
@@ -55,7 +55,7 @@ pub struct UpdateBookRequest {
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::categories::Model> for BookResponse {
+impl From<entity::categories::Model> for BookCategoryResponse {
     fn from(model: entity::categories::Model) -> Self {
         Self {
             id: model.id,
@@ -69,7 +69,7 @@ impl From<entity::categories::Model> for BookResponse {
     }
 }
 
-impl BookResponse {
+impl BookCategoryResponse {
     pub fn from_vec(models: Vec<entity::categories::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }

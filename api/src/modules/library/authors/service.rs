@@ -2,7 +2,7 @@
 // api/src/modules/author/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
+use super::dto::{AuthorResponse, CreateAuthorRequest, UpdateAuthorRequest};
 use super::repository::BookRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -21,7 +21,7 @@ impl BookService {
     }
 
     /// Create new student with validation
-    pub async fn create(&self, request: CreateBookRequest) -> Result<BookResponse, AppError> {
+    pub async fn create(&self, request: CreateAuthorRequest) -> Result<AuthorResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -52,18 +52,18 @@ impl BookService {
         let created = self.repository.create(active_model).await?;
 
         // Convert to response (Date → String otomatis lewat From trait)
-        Ok(BookResponse::from(created))
+        Ok(AuthorResponse::from(created))
     }
 
     /// Get student by ID
-    pub async fn get_by_id(&self, id: i64) -> Result<BookResponse, AppError> {
+    pub async fn get_by_id(&self, id: i64) -> Result<AuthorResponse, AppError> {
         let student = self
             .repository
             .find_by_id(id)
             .await?
             .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
 
-        Ok(BookResponse::from(student))
+        Ok(AuthorResponse::from(student))
     }
 
     /// Get all students with pagination
@@ -71,7 +71,7 @@ impl BookService {
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<PaginatedResponse<BookResponse>, AppError> {
+    ) -> Result<PaginatedResponse<AuthorResponse>, AppError> {
         // Validate pagination params
         params
             .validate()
@@ -79,7 +79,7 @@ impl BookService {
 
         let (items, total) = self.repository.find_all(&params, foundation_id).await?;
 
-        let responses: Vec<BookResponse> = items.into_iter().map(BookResponse::from).collect();
+        let responses: Vec<AuthorResponse> = items.into_iter().map(AuthorResponse::from).collect();
 
         Ok(PaginatedResponse::new(
             responses,
@@ -93,8 +93,8 @@ impl BookService {
     pub async fn update(
         &self,
         id: i64,
-        request: UpdateBookRequest,
-    ) -> Result<BookResponse, AppError> {
+        request: UpdateAuthorRequest,
+    ) -> Result<AuthorResponse, AppError> {
         // Validate request
         request
             .validate()
@@ -135,7 +135,7 @@ impl BookService {
         // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
 
-        Ok(BookResponse::from(updated))
+        Ok(AuthorResponse::from(updated))
     }
 
     /// Delete student

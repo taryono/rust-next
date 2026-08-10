@@ -1,7 +1,7 @@
 // ============================================================================
 // src/modules/author/handler.rs - HTTP Handlers
 // ============================================================================
-use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
+use super::dto::{AuthorResponse, CreateAuthorRequest, UpdateAuthorRequest};
 use crate::app_state::AppState;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
@@ -11,9 +11,9 @@ use actix_web::{web, HttpResponse};
 #[utoipa::path(
     post,
     path = "/api/author",
-    request_body = CreateBookRequest,
+    request_body = CreateAuthorRequest,
     responses(
-        (status = 201, description = "Book created successfully", body = BookResponse),
+        (status = 201, description = "Book created successfully", body = AuthorResponse),
         (status = 400, description = "Bad request"),
         (status = 409, description = "Conflict - duplicate name or overlapping dates")
     ),
@@ -21,7 +21,7 @@ use actix_web::{web, HttpResponse};
 )]
 pub async fn create(
     app_state: web::Data<AppState>,
-    request: web::Json<CreateBookRequest>,
+    request: web::Json<CreateAuthorRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state.book_service.create(request.into_inner()).await?;
     Ok(HttpResponse::Created().json(result))
@@ -35,7 +35,7 @@ pub async fn create(
         ("id" = i64, Path, description = "Book ID")
     ),
     responses(
-        (status = 200, description = "Book found", body = BookResponse),
+        (status = 200, description = "Book found", body = AuthorResponse),
         (status = 404, description = "Book not found")
     ),
     tag = "Book "
@@ -60,7 +60,7 @@ pub async fn get_by_id(
         ("sort_order" = Option<String>, Query, description = "Sort order: asc or desc (default: desc)"),
     ),
     responses(
-        (status = 200, description = "List of students", body = PaginatedResponse<BookResponse>)
+        (status = 200, description = "List of students", body = PaginatedResponse<AuthorResponse>)
     ),
     tag = "Book "
 )]
@@ -84,9 +84,9 @@ pub async fn get_all(
     params(
         ("id" = i64, Path, description = "Book ID")
     ),
-    request_body = UpdateBookRequest,
+    request_body = UpdateAuthorRequest,
     responses(
-        (status = 200, description = "Book updated", body = BookResponse),
+        (status = 200, description = "Book updated", body = AuthorResponse),
         (status = 404, description = "Book not found"),
         (status = 409, description = "Conflict")
     ),
@@ -95,7 +95,7 @@ pub async fn get_all(
 pub async fn update(
     app_state: web::Data<AppState>,
     id: web::Path<i64>,
-    request: web::Json<UpdateBookRequest>,
+    request: web::Json<UpdateAuthorRequest>,
 ) -> Result<HttpResponse, AppError> {
     let result = app_state
         .book_service

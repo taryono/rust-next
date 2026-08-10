@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateBookCopiesRequest, BookCopiesResponse, UpdateBookCopiesRequest};
+use super::dto::{CreateBookCopyRequest, BookCopyResponse, UpdateBookCopyRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -17,19 +17,19 @@ use utoipa::OpenApi;
     ),
     components(
         schemas(
-            BookCopiesResponse,
-            CreateBookCopiesRequest,
-            UpdateBookCopiesRequest,
-            PaginatedResponse<BookCopiesResponse>,
+            BookCopyResponse,
+            CreateBookCopyRequest,
+            UpdateBookCopyRequest,
+            PaginatedResponse<BookCopyResponse>,
             PaginationParams,
         )
     ),
     tags(
-        (name = "BookCopies ", description = "BookCopies management endpoints")
+        (name = "BookCopy ", description = "BookCopy management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct BookCopiessApiDoc;
+pub struct BookCopysApiDoc;
 
 struct SecurityAddon;
 

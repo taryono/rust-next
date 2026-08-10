@@ -8,7 +8,7 @@ use validator::Validate;
 // ============================================================
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct BookCopiesResponse {
+pub struct BookCopyResponse {
     pub id: i64,
     pub foundation_id: i64,
     pub title: String,
@@ -19,8 +19,8 @@ pub struct BookCopiesResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct BookCopiesListResponse {
-    pub data: Vec<BookCopiesResponse>,
+pub struct BookCopyListResponse {
+    pub data: Vec<BookCopyResponse>,
     pub total: u64,
     pub page: u64,
     pub per_page: u64,
@@ -32,7 +32,7 @@ pub struct BookCopiesListResponse {
 // ============================================================
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct CreateBookCopiesRequest {
+pub struct CreateBookCopyRequest {
     pub user_id: i64,
     pub foundation_id: i64,
 
@@ -45,7 +45,7 @@ pub struct CreateBookCopiesRequest {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct UpdateBookCopiesRequest {
+pub struct UpdateBookCopyRequest {
     pub foundation_id: Option<i64>,
     #[validate(length(min = 1, max = 50))]
     pub title: Option<String>,
@@ -57,7 +57,7 @@ pub struct UpdateBookCopiesRequest {
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::book_copies::Model> for BookCopiesResponse {
+impl From<entity::book_copies::Model> for BookCopyResponse {
     fn from(model: entity::book_copies::Model) -> Self {
         Self {
             id: model.id,
@@ -71,7 +71,7 @@ impl From<entity::book_copies::Model> for BookCopiesResponse {
     }
 }
 
-impl BookCopiesResponse {
+impl BookCopyResponse {
     pub fn from_vec(models: Vec<entity::book_copies::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }

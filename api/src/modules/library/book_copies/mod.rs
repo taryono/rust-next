@@ -9,15 +9,15 @@ pub mod repository;
 pub mod routes;
 pub mod searchable;
 pub mod service;
-pub use repository::BookCopiesRepository;
+pub use repository::BookCopyRepository;
 // pub use routes::configure;
-pub use service::BookCopiesService;
+pub use service::BookCopyService;
 
 // Helper untuk initialize service dengan dependencies
 use crate::config::database::Database;
 
-pub fn init_service(db: Database) -> BookCopiesService {
-    let repository = BookCopiesRepository::new(db);
-    BookCopiesService::new(repository)
+pub fn init_service(db: Database) -> BookCopyService {
+    let repository = BookCopyRepository::new(db);
+    BookCopyService::new(repository)
 }
 // File: api/src/modules/book_copies/repository.rs

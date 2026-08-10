@@ -8,7 +8,7 @@ use validator::Validate;
 // ============================================================
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct BookResponse {
+pub struct AuthorResponse {
     pub id: i64,
     pub foundation_id: i64,
     pub title: String,
@@ -20,7 +20,7 @@ pub struct BookResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct BookListResponse {
-    pub data: Vec<BookResponse>,
+    pub data: Vec<AuthorResponse>,
     pub total: u64,
     pub page: u64,
     pub per_page: u64,
@@ -32,7 +32,7 @@ pub struct BookListResponse {
 // ============================================================
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct CreateBookRequest {
+pub struct CreateAuthorRequest {
     pub user_id: i64,
     pub foundation_id: i64,
 
@@ -45,7 +45,7 @@ pub struct CreateBookRequest {
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
-pub struct UpdateBookRequest {
+pub struct UpdateAuthorRequest {
     pub foundation_id: Option<i64>,
     #[validate(length(min = 1, max = 50))]
     pub title: Option<String>,
@@ -57,7 +57,7 @@ pub struct UpdateBookRequest {
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::author::Model> for BookResponse {
+impl From<entity::author::Model> for AuthorResponse {
     fn from(model: entity::author::Model) -> Self {
         Self {
             id: model.id,
@@ -71,7 +71,7 @@ impl From<entity::author::Model> for BookResponse {
     }
 }
 
-impl BookResponse {
+impl AuthorResponse {
     pub fn from_vec(models: Vec<entity::author::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }
