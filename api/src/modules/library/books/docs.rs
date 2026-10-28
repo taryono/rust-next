@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateBookRequest, BookResponse, UpdateBookRequest};
+use super::dto::{BookResponse, CreateBookRequest, UpdateBookRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -25,7 +25,7 @@ use utoipa::OpenApi;
         )
     ),
     tags(
-        (name = "Book ", description = "Book management endpoints")
+        (name = "Book", description = "Book management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

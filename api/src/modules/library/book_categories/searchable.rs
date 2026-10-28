@@ -1,22 +1,18 @@
-// src/modules/categories/searchable.rs
 use crate::filters::global_search::{SearchColumn, SearchRelation, Searchable};
-use entity::book_categories; // ← import entity dari crate entity
+use entity::book_categories;
 
-impl Searchable for categories::Entity {
+impl Searchable for book_categories::Entity {
     fn searchable_columns() -> Vec<SearchColumn> {
         vec![
-            // ✅ Sesuaikan dengan field yang ada di Model kamu
-            SearchColumn::new("categories", "name"),
-            SearchColumn::new("categories", "nis"),
-            SearchColumn::new("categories", "nib"),
-            SearchColumn::new("categories", "author"),
+            SearchColumn::new("book_categories", "name"),
+            SearchColumn::new("book_categories", "code"),
+            SearchColumn::new("book_categories", "description"),
         ]
     }
 
     fn searchable_relations() -> Vec<SearchRelation> {
         vec![
-            SearchRelation::new("classes", "categories.class_id = classes.id"),
-            SearchRelation::new("foundations", "categories.foundation_id = foundations.id"),
+            SearchRelation::new("foundations", "book_categories.foundation_id = foundations.id"),
         ]
     }
 }

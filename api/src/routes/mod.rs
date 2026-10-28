@@ -12,7 +12,9 @@ use crate::modules::identity::{auth, menus, permissions, roles, user_profiles, u
 // ====================== INSTITUTION MODULE ======================
 use crate::modules::institution::{boarding_schools, courses, schools, sports, universities};
 // ====================== LIBRARY MODULE ======================
-use crate::modules::library::{books, borrowings};
+use crate::modules::library::{
+    authors, book_categories, book_copies, books, borrowings, publishers,
+};
 // ====================== PLATFORM MODULE ======================
 use crate::modules::platform::{foundation_regulations, foundation_types, foundations, settings};
 // ====================== STUDENT MODULE ======================
@@ -59,8 +61,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     sports::routes::configure(cfg);
     universities::routes::configure(cfg);
     // LIBRARY
+    authors::routes::configure(cfg);
+    book_categories::routes::configure(cfg);
+    book_copies::routes::configure(cfg);
     books::routes::configure(cfg);
     borrowings::routes::configure(cfg);
+    publishers::routes::configure(cfg);
 
     // PLATFORM
     foundations::routes::configure(cfg);

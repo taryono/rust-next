@@ -1,12 +1,13 @@
 // ============================================================================
-// api/src/modules/book_copies/service.rs
+// api/src/modules/library/book_copies/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
 use super::dto::{BookCopyResponse, CreateBookCopyRequest, UpdateBookCopyRequest};
 use super::repository::BookCopyRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
-use entity::students;
+use chrono::NaiveDate;
+use entity::book_copies;
 use sea_orm::Set;
 use validator::Validate;
 
@@ -20,62 +21,66 @@ impl BookCopyService {
         Self { repository }
     }
 
-    /// Create new student with validation
     pub async fn create(
         &self,
         request: CreateBookCopyRequest,
     ) -> Result<BookCopyResponse, AppError> {
-        // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        // Check duplicate name
         if let Some(_) = self
             .repository
-            .find_by_name(&request.name, request.foundation_id)
+            .find_by_inventory_number(&request.inventory_number, request.foundation_id)
             .await?
         {
             return Err(AppError::ConflictError(
-                "BookCopy with this name already exists".to_string(),
+                "BookCopy with this inventory number already exists".to_string(),
             ));
         }
 
-        // Parse start_date and end_date to NaiveDate
-        // Build entity with parsed dates
-        let active_model = students::ActiveModel {
+        let acquisition_date = request
+            .acquisition_date
+            .as_deref()
+            .and_then(|d| NaiveDate::parse_from_str(d, "%Y-%m-%d").ok())
+            .unwrap_or_else(|| chrono::Utc::now().date_naive());
+
+        let active_model = book_copies::ActiveModel {
+            book_id: Set(request.book_id),
             foundation_id: Set(request.foundation_id),
-            name: Set(request.name),
+            inventory_number: Set(request.inventory_number),
+            barcode: Set(request.barcode),
+            rack_code: Set(request.rack_code),
+            shelf_number: Set(request.shelf_number),
+            condition: Set(request.condition.unwrap_or_else(|| "good".to_string())),
+            acquisition_date: Set(acquisition_date),
+            price: Set(request.price),
+            status: Set(request.status.unwrap_or_else(|| "available".to_string())),
+            notes: Set(request.notes),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
         };
 
-        // Delegate to repository
         let created = self.repository.create(active_model).await?;
-
-        // Convert to response (Date → String otomatis lewat From trait)
         Ok(BookCopyResponse::from(created))
     }
 
-    /// Get student by ID
     pub async fn get_by_id(&self, id: i64) -> Result<BookCopyResponse, AppError> {
-        let student = self
+        let copy = self
             .repository
             .find_by_id(id)
             .await?
             .ok_or_else(|| AppError::not_found("BookCopy not found".to_string()))?;
 
-        Ok(BookCopyResponse::from(student))
+        Ok(BookCopyResponse::from(copy))
     }
 
-    /// Get all students with pagination
     pub async fn get_all(
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
     ) -> Result<PaginatedResponse<BookCopyResponse>, AppError> {
-        // Validate pagination params
         params
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
@@ -93,66 +98,88 @@ impl BookCopyService {
         ))
     }
 
-    /// Update student
     pub async fn update(
         &self,
         id: i64,
         request: UpdateBookCopyRequest,
     ) -> Result<BookCopyResponse, AppError> {
-        // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
             .ok_or_else(|| AppError::not_found("BookCopy not found".to_string()))?;
 
-        // Business rule: check duplicate name if changing
-        if let Some(ref name) = request.name {
-            if name != &existing.name {
+        let foundation_id = request.foundation_id.unwrap_or(existing.foundation_id);
+
+        if let Some(ref inv) = request.inventory_number {
+            if inv != &existing.inventory_number {
                 if let Some(_) = self
                     .repository
-                    .find_by_name(name, existing.foundation_id)
+                    .find_by_inventory_number(inv, foundation_id)
                     .await?
                 {
                     return Err(AppError::ConflictError(
-                        "BookCopy with this name already exists".to_string(),
+                        "BookCopy with this inventory number already exists".to_string(),
                     ));
                 }
             }
         }
-        // Build update model
-        let mut active_model = students::ActiveModel {
+
+        let mut active_model = book_copies::ActiveModel {
             id: Set(id),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
         };
 
-        if let Some(name) = request.name {
-            active_model.name = Set(name);
+        if let Some(bid) = request.book_id {
+            active_model.book_id = Set(bid);
+        }
+        if let Some(fid) = request.foundation_id {
+            active_model.foundation_id = Set(fid);
+        }
+        if let Some(inv) = request.inventory_number {
+            active_model.inventory_number = Set(inv);
+        }
+        if request.barcode.is_some() {
+            active_model.barcode = Set(request.barcode);
+        }
+        if request.rack_code.is_some() {
+            active_model.rack_code = Set(request.rack_code);
+        }
+        if request.shelf_number.is_some() {
+            active_model.shelf_number = Set(request.shelf_number);
+        }
+        if let Some(cond) = request.condition {
+            active_model.condition = Set(cond);
+        }
+        if let Some(d) = request.acquisition_date {
+            if let Ok(parsed) = NaiveDate::parse_from_str(&d, "%Y-%m-%d") {
+                active_model.acquisition_date = Set(parsed);
+            }
+        }
+        if request.price.is_some() {
+            active_model.price = Set(request.price);
+        }
+        if let Some(status) = request.status {
+            active_model.status = Set(status);
+        }
+        if request.notes.is_some() {
+            active_model.notes = Set(request.notes);
         }
 
-        // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
-
         Ok(BookCopyResponse::from(updated))
     }
 
-    /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
-        // Check if exists
         self.repository
             .find_by_id(id)
             .await?
             .ok_or_else(|| AppError::not_found("BookCopy not found".to_string()))?;
-
-        // Business rule: Add any deletion constraints here
-        // e.g., cannot delete if has related students
-        // You can add repository method to check relations
 
         self.repository.delete(id).await
     }

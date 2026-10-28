@@ -67,8 +67,8 @@ impl From<entity::guardians::Model> for GuardianResponse {
             foundation_id: model.foundation_id,
             name: model.name,
             address: model.address,
-            cellphone: Some(model.cellphone),
-            salary: model.salary,
+            cellphone: model.cellphone,
+            salary: model.salary.parse::<i64>().ok(),
             created_at: model.created_at.to_rfc3339(), // ✅ format ISO 8601
             updated_at: model.updated_at.to_rfc3339(),
         }

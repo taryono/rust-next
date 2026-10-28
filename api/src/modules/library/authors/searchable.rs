@@ -1,22 +1,16 @@
-// src/modules/author/searchable.rs
 use crate::filters::global_search::{SearchColumn, SearchRelation, Searchable};
-use entity::authors; // ← import entity dari crate entity
+use entity::authors;
 
-impl Searchable for author::Entity {
+impl Searchable for authors::Entity {
     fn searchable_columns() -> Vec<SearchColumn> {
         vec![
-            // ✅ Sesuaikan dengan field yang ada di Model kamu
-            SearchColumn::new("author", "name"),
-            SearchColumn::new("author", "nis"),
-            SearchColumn::new("author", "nib"),
-            SearchColumn::new("author", "author"),
+            SearchColumn::new("authors", "full_name"),
+            SearchColumn::new("authors", "email"),
+            SearchColumn::new("authors", "nationality"),
         ]
     }
 
     fn searchable_relations() -> Vec<SearchRelation> {
-        vec![
-            SearchRelation::new("classes", "author.class_id = classes.id"),
-            SearchRelation::new("foundations", "author.foundation_id = foundations.id"),
-        ]
+        vec![]
     }
 }

@@ -1,4 +1,4 @@
-// api/src/modules/author/dto.rs
+// api/src/modules/library/authors/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -10,16 +10,17 @@ use validator::Validate;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AuthorResponse {
     pub id: i64,
-    pub foundation_id: i64,
-    pub title: String,
-    pub nib: String,
-    pub author: Option<String>,
+    pub full_name: String,
+    pub biography: Option<String>,
+    pub nationality: Option<String>,
+    pub email: Option<String>,
+    pub is_active: bool,
     pub created_at: String,
     pub updated_at: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct BookListResponse {
+pub struct AuthorListResponse {
     pub data: Vec<AuthorResponse>,
     pub total: u64,
     pub page: u64,
@@ -33,46 +34,47 @@ pub struct BookListResponse {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateAuthorRequest {
-    pub user_id: i64,
-    pub foundation_id: i64,
-
-    #[validate(length(min = 3, max = 100))]
-    pub title: String,
-
-    #[validate(length(min = 1, max = 50))]
-    pub nib: String,
-    pub author: Option<String>,
+    #[validate(length(min = 1, max = 255))]
+    pub full_name: String,
+    pub biography: Option<String>,
+    pub nationality: Option<String>,
+    #[validate(email)]
+    pub email: Option<String>,
+    pub is_active: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateAuthorRequest {
-    pub foundation_id: Option<i64>,
-    #[validate(length(min = 1, max = 50))]
-    pub title: Option<String>,
-    pub nib: Option<String>,
-    pub author: Option<String>,
+    #[validate(length(min = 1, max = 255))]
+    pub full_name: Option<String>,
+    pub biography: Option<String>,
+    pub nationality: Option<String>,
+    #[validate(email)]
+    pub email: Option<String>,
+    pub is_active: Option<bool>,
 }
 
 // ============================================================
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::author::Model> for AuthorResponse {
-    fn from(model: entity::author::Model) -> Self {
+impl From<entity::authors::Model> for AuthorResponse {
+    fn from(model: entity::authors::Model) -> Self {
         Self {
             id: model.id,
-            foundation_id: model.foundation_id,
-            title: model.title,
-            nib: model.nib,
-            author: Some(model.author).unwrap_or_default(),
-            created_at: model.created_at.to_rfc3339(), // ✅ format ISO 8601
+            full_name: model.full_name,
+            biography: model.biography,
+            nationality: model.nationality,
+            email: model.email,
+            is_active: model.is_active,
+            created_at: model.created_at.to_rfc3339(),
             updated_at: model.updated_at.to_rfc3339(),
         }
     }
 }
 
 impl AuthorResponse {
-    pub fn from_vec(models: Vec<entity::author::Model>) -> Vec<Self> {
+    pub fn from_vec(models: Vec<entity::authors::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }
 }

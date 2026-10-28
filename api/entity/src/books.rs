@@ -41,7 +41,7 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::foundations::Entity",
-        from = "Column::AuthorId",
+        from = "Column::FoundationId",
         to = "super::foundations::Column::Id"
     )]
     Foundation,

@@ -1,12 +1,12 @@
 // ============================================================================
-// api/src/modules/publisher/service.rs
+// api/src/modules/library/publishers/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
-use super::dto::{PublisherResponse, CreatePublisherRequest, UpdatePublisherRequest};
+use super::dto::{CreatePublisherRequest, PublisherResponse, UpdatePublisherRequest};
 use super::repository::PublisherRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
-use entity::students;
+use entity::publishers;
 use sea_orm::Set;
 use validator::Validate;
 
@@ -20,59 +20,49 @@ impl PublisherService {
         Self { repository }
     }
 
-    /// Create new student with validation
     pub async fn create(&self, request: CreatePublisherRequest) -> Result<PublisherResponse, AppError> {
-        // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        // Check duplicate name
-        if let Some(_) = self
-            .repository
-            .find_by_name(&request.name, request.foundation_id)
-            .await?
-        {
+        if let Some(_) = self.repository.find_by_name(&request.name).await? {
             return Err(AppError::ConflictError(
-                "Book with this name already exists".to_string(),
+                "Publisher with this name already exists".to_string(),
             ));
         }
 
-        // Parse start_date and end_date to NaiveDate
-        // Build entity with parsed dates
-        let active_model = students::ActiveModel {
-            foundation_id: Set(request.foundation_id),
+        let active_model = publishers::ActiveModel {
             name: Set(request.name),
+            address: Set(request.address),
+            city: Set(request.city),
+            postal_code: Set(request.postal_code),
+            phone: Set(request.phone),
+            website: Set(request.website),
+            email: Set(request.email),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
         };
 
-        // Delegate to repository
         let created = self.repository.create(active_model).await?;
-
-        // Convert to response (Date → String otomatis lewat From trait)
         Ok(PublisherResponse::from(created))
     }
 
-    /// Get student by ID
     pub async fn get_by_id(&self, id: i64) -> Result<PublisherResponse, AppError> {
-        let student = self
+        let publ = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Publisher not found".to_string()))?;
 
-        Ok(PublisherResponse::from(student))
+        Ok(PublisherResponse::from(publ))
     }
 
-    /// Get all students with pagination
     pub async fn get_all(
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
     ) -> Result<PaginatedResponse<PublisherResponse>, AppError> {
-        // Validate pagination params
         params
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
@@ -89,40 +79,32 @@ impl PublisherService {
         ))
     }
 
-    /// Update student
     pub async fn update(
         &self,
         id: i64,
         request: UpdatePublisherRequest,
     ) -> Result<PublisherResponse, AppError> {
-        // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Publisher not found".to_string()))?;
 
-        // Business rule: check duplicate name if changing
         if let Some(ref name) = request.name {
             if name != &existing.name {
-                if let Some(_) = self
-                    .repository
-                    .find_by_name(name, existing.foundation_id)
-                    .await?
-                {
+                if let Some(_) = self.repository.find_by_name(name).await? {
                     return Err(AppError::ConflictError(
-                        "Book with this name already exists".to_string(),
+                        "Publisher with this name already exists".to_string(),
                     ));
                 }
             }
         }
-        // Build update model
-        let mut active_model = students::ActiveModel {
+
+        let mut active_model = publishers::ActiveModel {
             id: Set(id),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
@@ -131,24 +113,34 @@ impl PublisherService {
         if let Some(name) = request.name {
             active_model.name = Set(name);
         }
+        if request.address.is_some() {
+            active_model.address = Set(request.address);
+        }
+        if request.city.is_some() {
+            active_model.city = Set(request.city);
+        }
+        if request.postal_code.is_some() {
+            active_model.postal_code = Set(request.postal_code);
+        }
+        if request.phone.is_some() {
+            active_model.phone = Set(request.phone);
+        }
+        if request.website.is_some() {
+            active_model.website = Set(request.website);
+        }
+        if request.email.is_some() {
+            active_model.email = Set(request.email);
+        }
 
-        // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
-
         Ok(PublisherResponse::from(updated))
     }
 
-    /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
-        // Check if exists
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
-
-        // Business rule: Add any deletion constraints here
-        // e.g., cannot delete if has related students
-        // You can add repository method to check relations
+            .ok_or_else(|| AppError::not_found("Publisher not found".to_string()))?;
 
         self.repository.delete(id).await
     }

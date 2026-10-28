@@ -1,4 +1,4 @@
-// api/src/modules/book_copies/dto.rs
+// api/src/modules/library/book_copies/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -10,10 +10,17 @@ use validator::Validate;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct BookCopyResponse {
     pub id: i64,
+    pub book_id: i64,
     pub foundation_id: i64,
-    pub title: String,
-    pub nib: String,
-    pub author: Option<String>,
+    pub inventory_number: String,
+    pub barcode: Option<String>,
+    pub rack_code: Option<String>,
+    pub shelf_number: Option<String>,
+    pub condition: String,
+    pub acquisition_date: String,
+    pub price: Option<i64>,
+    pub status: String,
+    pub notes: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -33,24 +40,38 @@ pub struct BookCopyListResponse {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateBookCopyRequest {
-    pub user_id: i64,
+    pub book_id: i64,
     pub foundation_id: i64,
 
-    #[validate(length(min = 3, max = 100))]
-    pub title: String,
+    #[validate(length(min = 1, max = 100))]
+    pub inventory_number: String,
 
-    #[validate(length(min = 1, max = 50))]
-    pub nib: String,
-    pub author: Option<String>,
+    pub barcode: Option<String>,
+    pub rack_code: Option<String>,
+    pub shelf_number: Option<String>,
+    pub condition: Option<String>,
+    pub acquisition_date: Option<String>,
+    pub price: Option<i64>,
+    pub status: Option<String>,
+    pub notes: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateBookCopyRequest {
+    pub book_id: Option<i64>,
     pub foundation_id: Option<i64>,
-    #[validate(length(min = 1, max = 50))]
-    pub title: Option<String>,
-    pub nib: Option<String>,
-    pub author: Option<String>,
+
+    #[validate(length(min = 1, max = 100))]
+    pub inventory_number: Option<String>,
+
+    pub barcode: Option<String>,
+    pub rack_code: Option<String>,
+    pub shelf_number: Option<String>,
+    pub condition: Option<String>,
+    pub acquisition_date: Option<String>,
+    pub price: Option<i64>,
+    pub status: Option<String>,
+    pub notes: Option<String>,
 }
 
 // ============================================================
@@ -61,11 +82,18 @@ impl From<entity::book_copies::Model> for BookCopyResponse {
     fn from(model: entity::book_copies::Model) -> Self {
         Self {
             id: model.id,
+            book_id: model.book_id,
             foundation_id: model.foundation_id,
-            title: model.title,
-            nib: model.nib,
-            author: Some(model.author).unwrap_or_default(),
-            created_at: model.created_at.to_rfc3339(), // ✅ format ISO 8601
+            inventory_number: model.inventory_number,
+            barcode: model.barcode,
+            rack_code: model.rack_code,
+            shelf_number: model.shelf_number,
+            condition: model.condition,
+            acquisition_date: model.acquisition_date.to_string(),
+            price: model.price,
+            status: model.status,
+            notes: model.notes,
+            created_at: model.created_at.to_rfc3339(),
             updated_at: model.updated_at.to_rfc3339(),
         }
     }

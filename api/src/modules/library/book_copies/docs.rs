@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateBookCopyRequest, BookCopyResponse, UpdateBookCopyRequest};
+use super::dto::{BookCopyResponse, CreateBookCopyRequest, UpdateBookCopyRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -25,11 +25,11 @@ use utoipa::OpenApi;
         )
     ),
     tags(
-        (name = "BookCopy ", description = "BookCopy management endpoints")
+        (name = "Book Copy", description = "Book copy management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct BookCopysApiDoc;
+pub struct BookCopiesApiDoc;
 
 struct SecurityAddon;
 

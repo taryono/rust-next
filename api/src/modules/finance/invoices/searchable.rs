@@ -1,22 +1,17 @@
-// src/modules/invoices/searchable.rs
+// src/modules/finance/invoices/searchable.rs
 use crate::filters::global_search::{SearchColumn, SearchRelation, Searchable};
-use entity::invoices; // ← import entity dari crate entity
+use entity::invoices;
 
 impl Searchable for invoices::Entity {
     fn searchable_columns() -> Vec<SearchColumn> {
         vec![
-            // ✅ Sesuaikan dengan field yang ada di Model kamu
+            SearchColumn::new("invoices", "code"),
             SearchColumn::new("invoices", "name"),
-            SearchColumn::new("invoices", "student_number"),
-            SearchColumn::new("invoices", "parent_name"),
-            SearchColumn::new("invoices", "parent_phone"),
+            SearchColumn::new("invoices", "description"),
         ]
     }
 
     fn searchable_relations() -> Vec<SearchRelation> {
-        vec![
-            SearchRelation::new("classes", "invoices.class_id = classes.id"),
-            SearchRelation::new("foundations", "invoices.foundation_id = foundations.id"),
-        ]
+        vec![]
     }
 }

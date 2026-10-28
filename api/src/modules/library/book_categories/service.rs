@@ -1,81 +1,75 @@
 // ============================================================================
-// api/src/modules/categories/service.rs
+// api/src/modules/library/book_categories/service.rs
 // service.rs - Business Logic Only
 // ============================================================================
 use super::dto::{BookCategoryResponse, CreateBookCategoryRequest, UpdateBookCategoryRequest};
-use super::repository::BookRepository;
+use super::repository::BookCategoryRepository;
 use crate::errors::AppError;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
-use entity::students;
+use entity::book_categories;
 use sea_orm::Set;
 use validator::Validate;
 
 #[derive(Clone)]
 pub struct BookCategoryService {
-    repository: BookRepository,
+    repository: BookCategoryRepository,
 }
 
 impl BookCategoryService {
-    pub fn new(repository: BookRepository) -> Self {
+    pub fn new(repository: BookCategoryRepository) -> Self {
         Self { repository }
     }
 
-    /// Create new student with validation
     pub async fn create(
         &self,
         request: CreateBookCategoryRequest,
     ) -> Result<BookCategoryResponse, AppError> {
-        // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        // Check duplicate name
         if let Some(_) = self
             .repository
             .find_by_name(&request.name, request.foundation_id)
             .await?
         {
             return Err(AppError::ConflictError(
-                "Book with this name already exists".to_string(),
+                "Book category with this name already exists".to_string(),
             ));
         }
 
-        // Parse start_date and end_date to NaiveDate
-        // Build entity with parsed dates
-        let active_model = students::ActiveModel {
+        let active_model = book_categories::ActiveModel {
             foundation_id: Set(request.foundation_id),
+            school_id: Set(request.school_id),
             name: Set(request.name),
+            code: Set(request.code),
+            description: Set(request.description),
+            parent_id: Set(request.parent_id),
+            is_active: Set(request.is_active.unwrap_or(true)),
             created_at: Set(chrono::Utc::now()),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
         };
 
-        // Delegate to repository
         let created = self.repository.create(active_model).await?;
-
-        // Convert to response (Date → String otomatis lewat From trait)
         Ok(BookCategoryResponse::from(created))
     }
 
-    /// Get student by ID
     pub async fn get_by_id(&self, id: i64) -> Result<BookCategoryResponse, AppError> {
-        let student = self
+        let cat = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Book category not found".to_string()))?;
 
-        Ok(BookCategoryResponse::from(student))
+        Ok(BookCategoryResponse::from(cat))
     }
 
-    /// Get all students with pagination
     pub async fn get_all(
         &self,
         params: PaginationParams,
         foundation_id: Option<i64>,
     ) -> Result<PaginatedResponse<BookCategoryResponse>, AppError> {
-        // Validate pagination params
         params
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
@@ -93,66 +87,74 @@ impl BookCategoryService {
         ))
     }
 
-    /// Update student
     pub async fn update(
         &self,
         id: i64,
         request: UpdateBookCategoryRequest,
     ) -> Result<BookCategoryResponse, AppError> {
-        // Validate request
         request
             .validate()
             .map_err(|e| AppError::validation(e.to_string()))?;
 
-        // Check if exists
         let existing = self
             .repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
+            .ok_or_else(|| AppError::not_found("Book category not found".to_string()))?;
 
-        // Business rule: check duplicate name if changing
+        let foundation_id = request.foundation_id.unwrap_or(existing.foundation_id);
+
         if let Some(ref name) = request.name {
             if name != &existing.name {
                 if let Some(_) = self
                     .repository
-                    .find_by_name(name, existing.foundation_id)
+                    .find_by_name(name, foundation_id)
                     .await?
                 {
                     return Err(AppError::ConflictError(
-                        "Book with this name already exists".to_string(),
+                        "Book category with this name already exists".to_string(),
                     ));
                 }
             }
         }
-        // Build update model
-        let mut active_model = students::ActiveModel {
+
+        let mut active_model = book_categories::ActiveModel {
             id: Set(id),
             updated_at: Set(chrono::Utc::now()),
             ..Default::default()
         };
 
+        if let Some(fid) = request.foundation_id {
+            active_model.foundation_id = Set(fid);
+        }
+        if let Some(sid) = request.school_id {
+            active_model.school_id = Set(sid);
+        }
         if let Some(name) = request.name {
             active_model.name = Set(name);
         }
+        if request.code.is_some() {
+            active_model.code = Set(request.code);
+        }
+        if request.description.is_some() {
+            active_model.description = Set(request.description);
+        }
+        if request.parent_id.is_some() {
+            active_model.parent_id = Set(request.parent_id);
+        }
+        if let Some(is_active) = request.is_active {
+            active_model.is_active = Set(is_active);
+        }
 
-        // Delegate to repository
         let updated = self.repository.update(id, active_model).await?;
-
         Ok(BookCategoryResponse::from(updated))
     }
 
-    /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
-        // Check if exists
         self.repository
             .find_by_id(id)
             .await?
-            .ok_or_else(|| AppError::not_found("Book not found".to_string()))?;
-
-        // Business rule: Add any deletion constraints here
-        // e.g., cannot delete if has related students
-        // You can add repository method to check relations
+            .ok_or_else(|| AppError::not_found("Book category not found".to_string()))?;
 
         self.repository.delete(id).await
     }

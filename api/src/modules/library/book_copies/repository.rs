@@ -3,13 +3,14 @@
 // ============================================================================
 use crate::config::database::Database;
 use crate::errors::AppError;
-use crate::filters::global_search::{GlobalSearch, SearchColumn, SearchRelation};
+use crate::filters::global_search::GlobalSearch;
 use crate::utils::pagination::PaginationParams;
 use entity::book_copies::{self, Entity as BookCopy};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QueryTrait, Set,
 };
+
 #[derive(Clone)]
 pub struct BookCopyRepository {
     db: Database,
@@ -20,74 +21,70 @@ impl BookCopyRepository {
         Self { db }
     }
 
-    // Helper method untuk akses connection
     pub fn conn(&self) -> &sea_orm::DatabaseConnection {
         self.db.get_connection()
     }
 
-    /// Create new student
     pub async fn create(
         &self,
-        active_model: students::ActiveModel,
-    ) -> Result<students::Model, AppError> {
+        active_model: book_copies::ActiveModel,
+    ) -> Result<book_copies::Model, AppError> {
         active_model
             .insert(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    /// Find by ID
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<students::Model>, AppError> {
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<book_copies::Model>, AppError> {
         BookCopy::find_by_id(id)
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    // Find all with pagination and filters tanpa global_search
     pub async fn find_all_old(
         &self,
         params: &PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<(Vec<students::Model>, u64), AppError> {
+    ) -> Result<(Vec<book_copies::Model>, u64), AppError> {
         let mut query = BookCopy::find();
 
-        // Filter by foundation_id if provided
         if let Some(fid) = foundation_id {
-            query = query.filter(students::Column::FoundationId.eq(fid));
+            query = query.filter(book_copies::Column::FoundationId.eq(fid));
         }
 
-        // Apply search filter if provided
         if let Some(ref search) = params.search {
-            query = query.filter(Condition::any().add(students::Column::Name.contains(search)));
+            query = query.filter(
+                Condition::any()
+                    .add(book_copies::Column::InventoryNumber.contains(search))
+                    .add(book_copies::Column::Barcode.contains(search)),
+            );
         }
 
-        // Apply sorting
         if let Some(ref sort_by) = params.sort_by {
             let is_desc = params.sort_order.as_deref() == Some("desc");
 
             query = match sort_by.as_str() {
-                "name" => {
+                "inventory_number" | "name" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::Name)
+                        query.order_by_desc(book_copies::Column::InventoryNumber)
                     } else {
-                        query.order_by_asc(students::Column::Name)
+                        query.order_by_asc(book_copies::Column::InventoryNumber)
                     }
                 }
                 "created_at" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::CreatedAt)
+                        query.order_by_desc(book_copies::Column::CreatedAt)
                     } else {
-                        query.order_by_asc(students::Column::CreatedAt)
+                        query.order_by_asc(book_copies::Column::CreatedAt)
                     }
                 }
-                _ => query.order_by_desc(students::Column::CreatedAt),
+                _ => query.order_by_desc(book_copies::Column::CreatedAt),
             };
         } else {
-            query = query.order_by_desc(students::Column::CreatedAt);
+            query = query.order_by_desc(book_copies::Column::CreatedAt);
         }
 
-        // Paginate dengan validasi
         let per_page = params.per_page();
         let paginator = query.paginate(self.conn(), per_page as u64);
 
@@ -104,17 +101,15 @@ impl BookCopyRepository {
         Ok((items, total.try_into().unwrap_or(0)))
     }
 
-    // Find all with pagination and filters with global_search
     pub async fn find_all(
         &self,
         params: &PaginationParams,
         foundation_id: Option<i64>,
-    ) -> Result<(Vec<students::Model>, u64), AppError> {
+    ) -> Result<(Vec<book_copies::Model>, u64), AppError> {
         let mut query = BookCopy::find();
 
-        // Filter by foundation_id if provided
         if let Some(fid) = foundation_id {
-            query = query.filter(students::Column::FoundationId.eq(fid));
+            query = query.filter(book_copies::Column::FoundationId.eq(fid));
         }
 
         let db_name = self.db.get_db_name()?;
@@ -128,32 +123,30 @@ impl BookCopyRepository {
         .await
         .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
-        // Apply sorting
         if let Some(ref sort_by) = params.sort_by {
             let is_desc = params.sort_order.as_deref() == Some("desc");
 
             query = match sort_by.as_str() {
-                "name" => {
+                "inventory_number" | "name" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::Name)
+                        query.order_by_desc(book_copies::Column::InventoryNumber)
                     } else {
-                        query.order_by_asc(students::Column::Name)
+                        query.order_by_asc(book_copies::Column::InventoryNumber)
                     }
                 }
                 "created_at" => {
                     if is_desc {
-                        query.order_by_desc(students::Column::CreatedAt)
+                        query.order_by_desc(book_copies::Column::CreatedAt)
                     } else {
-                        query.order_by_asc(students::Column::CreatedAt)
+                        query.order_by_asc(book_copies::Column::CreatedAt)
                     }
                 }
-                _ => query.order_by_desc(students::Column::CreatedAt),
+                _ => query.order_by_desc(book_copies::Column::CreatedAt),
             };
         } else {
-            query = query.order_by_desc(students::Column::CreatedAt);
+            query = query.order_by_desc(book_copies::Column::CreatedAt);
         }
 
-        // Paginate dengan validasi
         let per_page = params.per_page();
         let paginator = query.paginate(self.conn(), per_page as u64);
 
@@ -170,25 +163,24 @@ impl BookCopyRepository {
         Ok((items, total.try_into().unwrap_or(0)))
     }
 
-    /// Find by name within a foundation
-    pub async fn find_by_name(
+    pub async fn find_by_inventory_number(
         &self,
-        name: &str,
+        inventory_number: &str,
         foundation_id: i64,
-    ) -> Result<Option<students::Model>, AppError> {
+    ) -> Result<Option<book_copies::Model>, AppError> {
         BookCopy::find()
-            .filter(students::Column::FoundationId.eq(foundation_id))
-            .filter(students::Column::Name.eq(name))
+            .filter(book_copies::Column::FoundationId.eq(foundation_id))
+            .filter(book_copies::Column::InventoryNumber.eq(inventory_number))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
-    /// Update student
+
     pub async fn update(
         &self,
         id: i64,
-        active_model: students::ActiveModel,
-    ) -> Result<students::Model, AppError> {
+        active_model: book_copies::ActiveModel,
+    ) -> Result<book_copies::Model, AppError> {
         let mut model = active_model;
         model.id = Set(id);
         model
@@ -197,7 +189,6 @@ impl BookCopyRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
         BookCopy::delete_by_id(id)
             .exec(self.conn())

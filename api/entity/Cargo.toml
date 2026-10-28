@@ -11,3 +11,7 @@ sea-orm = {workspace = true}
 serde = {workspace = true}
 utoipa = {version = "5.3", features = ["chrono"]}
 uuid = {version = "1.0", features = ["serde", "v4"]}
+
+[[bin]]
+name = "generate_schema"
+path = "src/bin/generate_schema.rs"

@@ -222,7 +222,7 @@ impl PermissionService {
                 Expr::col((permissions::Entity, permissions::Column::FoundationId))
                     .eq(foundation_id),
             );
-        let builder = db.get_database_api();
+        let builder = db.get_database_backend();
         let statement = builder.build(&query);
 
         println!("DEBUG SQL: {}", statement.to_string());

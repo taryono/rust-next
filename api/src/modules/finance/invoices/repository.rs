@@ -3,13 +3,14 @@
 // ============================================================================
 use crate::config::database::Database;
 use crate::errors::AppError;
-use crate::filters::global_search::{GlobalSearch, SearchColumn, SearchRelation};
+use crate::filters::global_search::GlobalSearch;
 use crate::utils::pagination::PaginationParams;
 use entity::invoices::{self, Entity as Invoice};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QueryTrait, Set,
 };
+
 #[derive(Clone)]
 pub struct InvoiceRepository {
     db: Database,
@@ -20,12 +21,10 @@ impl InvoiceRepository {
         Self { db }
     }
 
-    // Helper method untuk akses connection
     pub fn conn(&self) -> &sea_orm::DatabaseConnection {
         self.db.get_connection()
     }
 
-    /// Create new student
     pub async fn create(
         &self,
         active_model: invoices::ActiveModel,
@@ -36,7 +35,6 @@ impl InvoiceRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    /// Find by ID
     pub async fn find_by_id(&self, id: i64) -> Result<Option<invoices::Model>, AppError> {
         Invoice::find_by_id(id)
             .one(self.conn())
@@ -44,25 +42,21 @@ impl InvoiceRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    // Find all with pagination and filters tanpa global_search
     pub async fn find_all_old(
         &self,
         params: &PaginationParams,
-        foundation_id: Option<i64>,
+        _foundation_id: Option<i64>,
     ) -> Result<(Vec<invoices::Model>, u64), AppError> {
         let mut query = Invoice::find();
 
-        // Filter by foundation_id if provided
-        if let Some(fid) = foundation_id {
-            query = query.filter(invoices::Column::FoundationId.eq(fid));
-        }
-
-        // Apply search filter if provided
         if let Some(ref search) = params.search {
-            query = query.filter(Condition::any().add(invoices::Column::Name.contains(search)));
+            query = query.filter(
+                Condition::any()
+                    .add(invoices::Column::Name.contains(search))
+                    .add(invoices::Column::Code.contains(search)),
+            );
         }
 
-        // Apply sorting
         if let Some(ref sort_by) = params.sort_by {
             let is_desc = params.sort_order.as_deref() == Some("desc");
 
@@ -72,6 +66,13 @@ impl InvoiceRepository {
                         query.order_by_desc(invoices::Column::Name)
                     } else {
                         query.order_by_asc(invoices::Column::Name)
+                    }
+                }
+                "code" => {
+                    if is_desc {
+                        query.order_by_desc(invoices::Column::Code)
+                    } else {
+                        query.order_by_asc(invoices::Column::Code)
                     }
                 }
                 "created_at" => {
@@ -87,7 +88,6 @@ impl InvoiceRepository {
             query = query.order_by_desc(invoices::Column::CreatedAt);
         }
 
-        // Paginate dengan validasi
         let per_page = params.per_page();
         let paginator = query.paginate(self.conn(), per_page as u64);
 
@@ -104,18 +104,12 @@ impl InvoiceRepository {
         Ok((items, total.try_into().unwrap_or(0)))
     }
 
-    // Find all with pagination and filters with global_search
     pub async fn find_all(
         &self,
         params: &PaginationParams,
-        foundation_id: Option<i64>,
+        _foundation_id: Option<i64>,
     ) -> Result<(Vec<invoices::Model>, u64), AppError> {
         let mut query = Invoice::find();
-
-        // Filter by foundation_id if provided
-        if let Some(fid) = foundation_id {
-            query = query.filter(invoices::Column::FoundationId.eq(fid));
-        }
 
         let db_name = self.db.get_db_name()?;
 
@@ -128,7 +122,6 @@ impl InvoiceRepository {
         .await
         .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
-        // Apply sorting
         if let Some(ref sort_by) = params.sort_by {
             let is_desc = params.sort_order.as_deref() == Some("desc");
 
@@ -138,6 +131,13 @@ impl InvoiceRepository {
                         query.order_by_desc(invoices::Column::Name)
                     } else {
                         query.order_by_asc(invoices::Column::Name)
+                    }
+                }
+                "code" => {
+                    if is_desc {
+                        query.order_by_desc(invoices::Column::Code)
+                    } else {
+                        query.order_by_asc(invoices::Column::Code)
                     }
                 }
                 "created_at" => {
@@ -153,7 +153,6 @@ impl InvoiceRepository {
             query = query.order_by_desc(invoices::Column::CreatedAt);
         }
 
-        // Paginate dengan validasi
         let per_page = params.per_page();
         let paginator = query.paginate(self.conn(), per_page as u64);
 
@@ -170,20 +169,28 @@ impl InvoiceRepository {
         Ok((items, total.try_into().unwrap_or(0)))
     }
 
-    /// Find by name within a foundation
+    pub async fn find_by_code(
+        &self,
+        code: &str,
+    ) -> Result<Option<invoices::Model>, AppError> {
+        Invoice::find()
+            .filter(invoices::Column::Code.eq(code))
+            .one(self.conn())
+            .await
+            .map_err(|e| AppError::DatabaseError(e.to_string()))
+    }
+
     pub async fn find_by_name(
         &self,
         name: &str,
-        foundation_id: i64,
     ) -> Result<Option<invoices::Model>, AppError> {
         Invoice::find()
-            .filter(invoices::Column::FoundationId.eq(foundation_id))
             .filter(invoices::Column::Name.eq(name))
             .one(self.conn())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
-    /// Update student
+
     pub async fn update(
         &self,
         id: i64,
@@ -197,7 +204,6 @@ impl InvoiceRepository {
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
 
-    /// Delete student
     pub async fn delete(&self, id: i64) -> Result<(), AppError> {
         Invoice::delete_by_id(id)
             .exec(self.conn())

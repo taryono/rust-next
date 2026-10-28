@@ -107,8 +107,8 @@ pub fn init_app(db: Database) -> Result<web::Data<AppState>, Box<dyn std::error:
         university_service,
         // Library
         author_service,
-        book_category_service,
         book_copy_service,
+        book_category_service,
         book_service,
         borrowing_service,
         publisher_service,

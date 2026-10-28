@@ -1,19 +1,16 @@
-// api/src/modules/registrations/dto.rs
-use chrono::NaiveDate;
+// api/src/modules/admission/registrations/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
+
 #[derive(Debug, Serialize, ToSchema)]
 pub struct RegistrationResponse {
     pub id: i64,
+    pub code: String,
     pub foundation_id: i64,
     pub name: String,
-    pub birth_place: String,
-    pub birth_date: NaiveDate,
-    pub gender: String,
-    pub email: Option<String>,
-    pub phone: Option<String>,
     pub address: Option<String>,
+    pub config_schema: Option<serde_json::Value>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -21,30 +18,20 @@ pub struct RegistrationResponse {
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateRegistrationRequest {
     pub foundation_id: i64,
+    pub code: String,
     #[validate(length(min = 3, max = 100))]
     pub name: String,
-    pub birth_place: String,
-    pub birth_date: NaiveDate,
-    pub gender: String,
-    pub email: Option<String>,
-    pub phone: Option<String>,
     pub address: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
+    pub config_schema: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateRegistrationRequest {
+    pub code: Option<String>,
     #[validate(length(min = 3, max = 100))]
-    pub name: String,
-    pub birth_place: String,
-    pub birth_date: NaiveDate,
-    pub gender: String,
-    pub email: Option<String>,
-    pub phone: Option<String>,
+    pub name: Option<String>,
     pub address: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
+    pub config_schema: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -55,30 +42,26 @@ pub struct RegistrationListResponse {
     pub per_page: i64,
     pub total_pages: i64,
 }
-// Implement From trait untuk convert entity ke response
+
 impl From<entity::registrations::Model> for RegistrationResponse {
     fn from(model: entity::registrations::Model) -> Self {
         Self {
             id: model.id,
+            code: model.code,
             foundation_id: model.foundation_id,
             name: model.name,
-            birth_place: model.birth_place,
-            birth_date: model.birth_date,
-            gender: model.gender,
-            email: model.email,
-            phone: model.phone,
             address: model.address,
+            config_schema: model.config_schema,
             created_at: model.created_at.to_string(),
             updated_at: model.updated_at.to_string(),
         }
     }
 }
+
 impl RegistrationResponse {
-    #[warn(unused_imports)]
     pub fn from_entity(model: entity::registrations::Model) -> Self {
         Self::from(model)
     }
-    #[warn(unused_imports)]
     pub fn from_vec(dto: Vec<entity::registrations::Model>) -> Vec<Self> {
         dto.into_iter().map(Self::from).collect()
     }

@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateAuthorRequest, AuthorResponse, UpdateAuthorRequest};
+use super::dto::{AuthorResponse, CreateAuthorRequest, UpdateAuthorRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -25,7 +25,7 @@ use utoipa::OpenApi;
         )
     ),
     tags(
-        (name = "Book ", description = "Book management endpoints")
+        (name = "Author", description = "Author management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]

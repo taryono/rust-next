@@ -113,7 +113,7 @@ impl GlobalSearch {
         );
 
         let rows = ColumnSchemaRow::find_by_statement(Statement::from_string(
-            sea_orm::Databaseapi::MySql,
+            sea_orm::DatabaseBackend::MySql,
             sql,
         ))
         .all(db)

@@ -54,6 +54,7 @@ version = "0.1.0"
 # entity → crate lokal (model DB)
 
 [dependencies]
+clap = { version = "4", features = ["derive"] }
 async-trait = "0.1"
 entity = {path = "entity"}
 

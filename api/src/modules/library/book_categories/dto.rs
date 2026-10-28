@@ -1,4 +1,4 @@
-// api/src/modules/categories/dto.rs
+// api/src/modules/library/book_categories/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -11,13 +11,18 @@ use validator::Validate;
 pub struct BookCategoryResponse {
     pub id: i64,
     pub foundation_id: i64,
+    pub school_id: i64,
     pub name: String,
+    pub code: Option<String>,
+    pub description: Option<String>,
+    pub parent_id: Option<i64>,
+    pub is_active: bool,
     pub created_at: String,
     pub updated_at: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct BookListResponse {
+pub struct BookCategoryListResponse {
     pub data: Vec<BookCategoryResponse>,
     pub total: u64,
     pub page: u64,
@@ -31,46 +36,55 @@ pub struct BookListResponse {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateBookCategoryRequest {
-    pub user_id: i64,
     pub foundation_id: i64,
+    pub school_id: i64,
 
-    #[validate(length(min = 3, max = 100))]
-    pub title: String,
+    #[validate(length(min = 1, max = 100))]
+    pub name: String,
 
-    #[validate(length(min = 1, max = 50))]
-    pub nib: String,
-    pub author: Option<String>,
+    pub code: Option<String>,
+    pub description: Option<String>,
+    pub parent_id: Option<i64>,
+    pub is_active: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateBookCategoryRequest {
     pub foundation_id: Option<i64>,
-    #[validate(length(min = 1, max = 50))]
-    pub title: Option<String>,
-    pub nib: Option<String>,
-    pub author: Option<String>,
+    pub school_id: Option<i64>,
+
+    #[validate(length(min = 1, max = 100))]
+    pub name: Option<String>,
+
+    pub code: Option<String>,
+    pub description: Option<String>,
+    pub parent_id: Option<i64>,
+    pub is_active: Option<bool>,
 }
 
 // ============================================================
 // CONVERSIONS
 // ============================================================
 
-impl From<entity::categories::Model> for BookCategoryResponse {
-    fn from(model: entity::categories::Model) -> Self {
+impl From<entity::book_categories::Model> for BookCategoryResponse {
+    fn from(model: entity::book_categories::Model) -> Self {
         Self {
             id: model.id,
             foundation_id: model.foundation_id,
-            title: model.title,
-            nib: model.nib,
-            author: Some(model.author).unwrap_or_default(),
-            created_at: model.created_at.to_rfc3339(), // ✅ format ISO 8601
+            school_id: model.school_id,
+            name: model.name,
+            code: model.code,
+            description: model.description,
+            parent_id: model.parent_id,
+            is_active: model.is_active,
+            created_at: model.created_at.to_rfc3339(),
             updated_at: model.updated_at.to_rfc3339(),
         }
     }
 }
 
 impl BookCategoryResponse {
-    pub fn from_vec(models: Vec<entity::categories::Model>) -> Vec<Self> {
+    pub fn from_vec(models: Vec<entity::book_categories::Model>) -> Vec<Self> {
         models.into_iter().map(Self::from).collect()
     }
 }

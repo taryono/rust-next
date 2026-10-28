@@ -1,4 +1,4 @@
-// api/src/modules/invoices/dto.rs
+// api/src/modules/finance/invoices/dto.rs
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -10,16 +10,10 @@ use validator::Validate;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct InvoiceResponse {
     pub id: i64,
-    pub user_id: i64,
-    pub foundation_id: i64,
-    pub unit_id: Option<i64>,
-    pub class_id: Option<i64>,
+    pub code: String,
     pub name: String,
-    pub student_number: String,
-    pub parent_name: Option<String>,
-    pub parent_phone: Option<String>,
-    pub enrollment_date: Option<String>,
-    pub graduation_date: Option<String>,
+    pub description: Option<String>,
+    pub config_schema: Option<serde_json::Value>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -39,38 +33,26 @@ pub struct InvoiceListResponse {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateInvoiceRequest {
-    pub user_id: i64,
-    pub foundation_id: i64,
-    pub unit_id: Option<i64>,
-    pub class_id: Option<i64>,
+    #[validate(length(min = 1, max = 50))]
+    pub code: String,
 
-    #[validate(length(min = 3, max = 100))]
+    #[validate(length(min = 1, max = 100))]
     pub name: String,
 
-    #[validate(length(min = 1, max = 50))]
-    pub student_number: String, // ✅ wajib ada
-
-    pub parent_name: Option<String>,
-    pub parent_phone: Option<String>,
-    pub enrollment_date: Option<String>,
-    pub graduation_date: Option<String>,
+    pub description: Option<String>,
+    pub config_schema: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct UpdateInvoiceRequest {
-    pub unit_id: Option<i64>,
-    pub class_id: Option<i64>,
+    #[validate(length(min = 1, max = 50))]
+    pub code: Option<String>,
 
-    #[validate(length(min = 3, max = 100))]
+    #[validate(length(min = 1, max = 100))]
     pub name: Option<String>,
 
-    #[validate(length(min = 1, max = 50))]
-    pub student_number: Option<String>,
-
-    pub parent_name: Option<String>,
-    pub parent_phone: Option<String>,
-    pub enrollment_date: Option<String>,
-    pub graduation_date: Option<String>,
+    pub description: Option<String>,
+    pub config_schema: Option<serde_json::Value>,
 }
 
 // ============================================================
@@ -81,17 +63,11 @@ impl From<entity::invoices::Model> for InvoiceResponse {
     fn from(model: entity::invoices::Model) -> Self {
         Self {
             id: model.id,
-            user_id: model.user_id,
-            foundation_id: model.foundation_id,
-            unit_id: model.unit_id,
-            class_id: model.class_id,
+            code: model.code,
             name: model.name,
-            student_number: model.student_number,
-            parent_name: model.parent_name,
-            parent_phone: model.parent_phone,
-            enrollment_date: model.enrollment_date.map(|d| d.to_rfc3339()),
-            graduation_date: model.graduation_date.map(|d| d.to_rfc3339()),
-            created_at: model.created_at.to_rfc3339(), // ✅ format ISO 8601
+            description: model.description,
+            config_schema: model.config_schema,
+            created_at: model.created_at.to_rfc3339(),
             updated_at: model.updated_at.to_rfc3339(),
         }
     }

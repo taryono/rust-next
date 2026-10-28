@@ -1,7 +1,7 @@
 // ============================================================================
 // docs.rs - OpenAPI Documentation
 // ============================================================================
-use super::dto::{CreateBookCategoryRequest, BookCategoryResponse, UpdateBookCategoryRequest};
+use super::dto::{BookCategoryResponse, CreateBookCategoryRequest, UpdateBookCategoryRequest};
 use super::handler;
 use crate::utils::pagination::{PaginatedResponse, PaginationParams};
 use utoipa::OpenApi;
@@ -25,11 +25,11 @@ use utoipa::OpenApi;
         )
     ),
     tags(
-        (name = "Book ", description = "Book management endpoints")
+        (name = "Book Category", description = "Book category management endpoints")
     ),
     modifiers(&SecurityAddon)
 )]
-pub struct CategoriesApiDoc;
+pub struct BookCategoryApiDoc;
 
 struct SecurityAddon;
 

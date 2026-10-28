@@ -170,7 +170,7 @@ impl RegulationRepository {
         foundation_id: i64,
     ) -> Result<Vec<FoundationRegulationResponse>, AppError> {
         let rows = sea_orm::Statement::from_sql_and_values(
-            sea_orm::Databaseapi::MySql,
+            sea_orm::DatabaseBackend::MySql,
             r#"
                 SELECT
                     COALESCE(fr.id, 0)                    AS id,
