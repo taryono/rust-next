@@ -3,12 +3,11 @@
 // ============================================================================
 use crate::config::database::Database;
 use crate::errors::AppError;
-use crate::filters::global_search::{GlobalSearch, SearchColumn, SearchRelation};
+use crate::filters::global_search::GlobalSearch;
 use crate::utils::pagination::PaginationParams;
 use entity::guardians::{self, Entity as Guardian};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    QueryTrait, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, Set,
 };
 #[derive(Clone)]
 pub struct GuardianRepository {

@@ -7,8 +7,7 @@ use crate::filters::global_search::GlobalSearch;
 use crate::utils::pagination::PaginationParams;
 use entity::books::{self, Entity as Book};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    QueryTrait, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, Set,
 };
 
 #[derive(Clone)]

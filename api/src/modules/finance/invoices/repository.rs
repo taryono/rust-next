@@ -7,8 +7,7 @@ use crate::filters::global_search::GlobalSearch;
 use crate::utils::pagination::PaginationParams;
 use entity::invoices::{self, Entity as Invoice};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    QueryTrait, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, Set,
 };
 
 #[derive(Clone)]

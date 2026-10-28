@@ -6,9 +6,9 @@
 // sea-orm = { version = "1", features = ["runtime-tokio-rustls", "sqlx-mysql", "macros"] }
 // tokio = { version = "1", features = ["full"] }
 
-use sea_orm::sea_query::{Alias, Condition, Expr, IntoCondition, SimpleExpr};
+use sea_orm::sea_query::{Alias, Condition, Expr, SimpleExpr};
 use sea_orm::{
-    ConnectionTrait, DatabaseConnection, DbErr, EntityTrait, ExprTrait, FromQueryResult, JoinType,
+    DatabaseConnection, DbErr, EntityTrait, ExprTrait, FromQueryResult, JoinType,
     QueryFilter, QuerySelect, QueryTrait, Select, Statement,
 };
 use std::collections::HashMap;

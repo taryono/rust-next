@@ -397,7 +397,7 @@ pub async fn sync_roles(
 
 pub async fn create_multipart(
     app_state: web::Data<AppState>,
-    ctx: ServiceContext,
+    _ctx: ServiceContext,
     mut payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
     let mut user_data = CreateUserMultipart::default();
@@ -481,7 +481,7 @@ pub async fn create_multipart(
 
 async fn process_image_field(
     field: &mut Field,
-    upload_dir: &str,
+    _upload_dir: &str,
     app_state: &AppState,
 ) -> Result<Option<String>, AppError> {
     let max_size = app_state.config.max_upload_size;
