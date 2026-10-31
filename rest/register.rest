@@ -1,20 +1,21 @@
-# Register
-curl -X POST http://127.0.0.1:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "eliyani@example.com",
-    "password": "password123"
-  }'
+### Register
+POST http://127.0.0.1:8080/api/auth/register
+Content-Type: application/json
 
+{
+  "name": "John Doe",
+  "email": "eliyani@example.com",
+  "password": "password123"
+}
 
+### Response Reference
 # HTTP/1.1 201 Created
 # content-length: 507
 # connection: close
 # vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers
 # content-type: application/json
 # date: Mon, 12 Jan 2026 07:40:15 GMT
-
+# 
 # {
 #   "success": true,
 #   "data": {

@@ -26,28 +26,28 @@ resolver = "2"
 # Versi selalu konsisten
 
 [workspace.dependencies]
-chrono = {version = "0.4", features = ["serde"]}
-sea-orm = {version = "2.0.0-rc.30"}# ✅ Sudah benar
-sea-orm-codegen = {version = "2.0.0-rc.30"}# ✅ Sudah benar
-serde = {version = "1.0", features = ["derive"]}
+chrono = { version = "0.4", features = ["serde"] }
+sea-orm = { version = "2.0.0-rc.30" }              # ✅ Sudah benar
+sea-orm-codegen = { version = "2.0.0-rc.30" }      # ✅ Sudah benar
+serde = { version = "1.0", features = ["derive"] }
 
 # Penjelasan:
 # build = "build.rs"
 # Script build custom (biasanya untuk generate code)
-# default-run = "silsilah"
+# default-run = "eduPulse"
 # Binary default saat cargo run
 # edition = "2021"
 # Versi fitur Rust
-# name = "silsilah"
+# name = "eduPulse"
 # Nama project
 # version = "0.1.0"
 # Versi aplikasi
 
 [package]
 build = "build.rs"
-default-run = "silsilah"
+default-run = "eduPulse"
 edition = "2021"
-name = "silsilah"
+name = "eduPulse"
 version = "0.1.0"
 
 # async-trait → biar trait bisa pakai async
@@ -56,7 +56,7 @@ version = "0.1.0"
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 async-trait = "0.1"
-entity = {path = "entity"}
+entity = { path = "entity" }
 
 # actix-web → framework HTTP server
 # actix-rt → runtime async (berbasis tokio)
@@ -71,7 +71,7 @@ actix-web = "4"
 # serde_json → khusus JSON
 
 # Serialization
-serde = {workspace = true}
+serde = { workspace = true }
 serde_json = "1.0"
 
 # Digunakan untuk async programming (stream, future)
@@ -88,25 +88,25 @@ futures = "0.3"
 # ➡️ ini best practice modern (lebih ringan & aman)
 
 # Database - SeaORM
-sea-orm = {workspace = true, features = [
+sea-orm = { workspace = true, features = [
   "sqlx-mysql",
   "runtime-tokio-rustls", # ← Ubah dari native-tls ke rustls
   "macros",
-  "with-chrono", # ← Tambahkan
-  "with-uuid", # ← Tambahkan
-]}
+  "with-chrono",          # ← Tambahkan
+  "with-uuid",            # ← Tambahkan
+] }
 
 # Runtime async utama di Rust
 # full → semua fitur aktif (thread, fs, net, dll)
 
 # Async runtime
-tokio = {version = "1", features = ["full"]}
+tokio = { version = "1", features = ["full"] }
 
 # Validasi request (email, length, dll)
 # derive → bisa pakai #[derive(Validate)]
 
 # Validation
-validator = {version = "0.18", features = ["derive"]}
+validator = { version = "0.18", features = ["derive"] }
 
 # jsonwebtoken → JWT auth
 # bcrypt → hash password
@@ -141,18 +141,18 @@ thiserror = "1.0"
 #   - serde → bisa ke JSON
 
 # Date and time
-chrono = {workspace = true}
+chrono = { workspace = true }
 
 # UUID
-uuid = {version = "1.0", features = ["serde", "v4"]}
+uuid = { version = "1.0", features = ["serde", "v4"] }
 
 # utoipa → generate dokumentasi API
 # utoipa-swagger-ui → UI Swagger di browser
 
 # API Documentation - Swagger/OpenAPI
 futures-util = "0.3.31"
-utoipa = {version = "5", features = ["actix_extras", "chrono", "uuid"]}
-utoipa-swagger-ui = {version = "8", features = ["actix-web"]}
+utoipa = { version = "5", features = ["actix_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "8", features = ["actix-web"] }
 
 # actix-governor → rate limiting
 # actix-web-httpauth → middleware auth
@@ -175,13 +175,13 @@ tracing-subscriber = "0.3"
 # mock → simulate database
 
 [dev-dependencies]
-sea-orm = {workspace = true, features = ["mock"]}
+sea-orm = { workspace = true, features = ["mock"] }
 
 # Dipakai di build.rs
 # Biasanya generate entity otomatis dari DB
 
 [build-dependencies]
-sea-orm-codegen = {workspace = true}
+sea-orm-codegen = { workspace = true }
 
 # Menambahkan executable tambahan
 # Bisa dijalankan:

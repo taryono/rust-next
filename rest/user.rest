@@ -1,15 +1,15 @@
-# Get users (dengan token)
-curl -X GET http://127.0.0.1:8080/api/users \
-  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzY4MjkwMDc5LCJpYXQiOjE3NjgyMDM2NzksInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.4zZyoLu7qCjKHxrhezXq1t7El4YalRh99wtDAeUjyuA"
+### Get users (dengan token)
+GET http://127.0.0.1:8080/api/users
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcl9pZCI6MSwiZm91bmRhdGlvbl9pZCI6MSwiZXhwIjoxNzkzNDExNDk1LCJpYXQiOjE3OTM0MTA1OTUsInRva2VuX3R5cGUiOiJhY2Nlc3MiLCJyb2xlcyI6W10sInBlcm1pc3Npb25zIjpbXX0.GYSrxU6QceWpARpCBHo7Uh_q13IgUfZeCIL1Rtoc_zM
 
-
+### Response Reference
 # HTTP/1.1 200 OK
 # content-length: 313
 # connection: close
 # content-type: application/json
 # vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers
 # date: Mon, 12 Jan 2026 07:41:57 GMT
-
+# 
 # {
 #   "success": true,
 #   "data": {

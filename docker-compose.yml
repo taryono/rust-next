@@ -1,0 +1,42 @@
+services:
+  api:
+    build: ./api
+    env_file:
+      - ./api/.env
+    ports:
+      - "8000:8000"
+  bo:
+    build:
+      context: ./bo
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3001:3000"
+    environment:
+      API_URL_INTERNAL: http://api:8000
+    depends_on:
+      - api
+
+  onboarding:
+    build:
+      context: ./onboarding
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3002:3000"
+    environment:
+      API_URL_INTERNAL: http://api:8000
+    depends_on:
+      - api
+
+  portal:
+    build:
+      context: ./portal
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3003:3000"
+    environment:
+      API_URL_INTERNAL: http://api:8000
+    depends_on:
+      - api

@@ -1,1 +1,2 @@
-http://127.0.0.1:8080/swagger-ui/
+### Swagger UI
+GET http://127.0.0.1:8080/swagger-ui/

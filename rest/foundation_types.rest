@@ -1,0 +1,13 @@
+@baseUrl = http://127.0.0.1:8080
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcl9pZCI6MSwiZm91bmRhdGlvbl9pZCI6MSwiZXhwIjoxNzkzNDMyOTg3LCJpYXQiOjE3OTM0MzIwODcsInRva2VuX3R5cGUiOiJhY2Nlc3MiLCJyb2xlcyI6W10sInBlcm1pc3Npb25zIjpbXX0.Pzt0OXDQ3JoolDI0kXSo043I7K-Hy655hp-M8A8qLIU
+
+### Get Foundation Types
+GET {{baseUrl}}/api/foundation_types
+Authorization: Bearer {{token}}
+
+### Response Reference
+# HTTP/1.1 200 OK
+# content-length: 530
+# content-type: application/json
+# 
+# {"success":true,"message":"success","data":{"rows":[{"id":1,"code":"001","name":"Masjid","description":"Masjid","created_at":"2026-04-29T00:00:00Z","updated_at":"2026-10-30T00:00:00Z","deleted_at":null},{"id":2,"code":"002","name":"Musholla","description":null,"created_at":"2026-04-29T00:00:00Z","updated_at":"2026-10-30T00:00:00Z","deleted_at":null}],"total":2,"page":1,"size":10}}
